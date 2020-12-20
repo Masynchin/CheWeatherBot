@@ -37,7 +37,7 @@ def _get_next_fifteen_minutes():
 
 
 def get_user_mailing_info(user_id):
-    """Есть ли пользователь в подписке"""
+    """Получаем информацию о времени подписки пользователя"""
     if db.is_user_in_db(user_id):
         time = db.get_subscriber_time(user_id)
         text = (
