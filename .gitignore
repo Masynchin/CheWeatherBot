@@ -11,3 +11,5 @@ logs/*.log
 logs/*.log.zip
 
 db/subscribers.db
+
+undefined_weather_types.txt
