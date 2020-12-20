@@ -23,6 +23,7 @@ dp = Dispatcher(bot, storage=storage)
 
 # START И ПОМОЩЬ
 
+
 @dp.message_handler(commands=["start"])
 async def send_welcome(message):
     text = (
@@ -65,6 +66,7 @@ async def send_weather(message):
 
 
 # О РАССЫЛКЕ
+
 
 @dp.message_handler(TextFilter(equals=config.MAILING))
 async def send_mailing_info(message):
@@ -117,7 +119,9 @@ class ChangeTime(StatesGroup):
 @dp.message_handler(commands=["change_time_mailing"])
 async def change_time_mailing(message):
     await ChangeTime.hour.set()
-    await message.answer("Выберите час:", reply_markup=keyboards.hour_choice)
+    await message.answer(
+        "Выберите час:", reply_markup=keyboards.hour_choice
+    )
 
 
 @dp.callback_query_handler(state=ChangeTime.hour)
@@ -154,6 +158,7 @@ async def cancel_mailing(message):
 
 
 # MAIN
+
 
 @logger.catch(level="CRITICAL")
 def main():
