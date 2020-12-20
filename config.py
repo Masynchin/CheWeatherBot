@@ -37,8 +37,8 @@ STICKERS = {
     ),
 }
 
-# NOFF is "not official", isn't made by Telegram artists
-# NAM  is "not animated"
+# NOFF значит "not official", сделан не командой художников Telegram
+# NAM  значит "not animated"
 
 UNDEFINED_STICKER = (
     "CAACAgIAAxkBAAOvX6qShv5X4ZSPVo01Si0F4EEDNQYAAiN3AAKezgsAAXvV5IAzLNuCHgQ"  # NOFF
@@ -50,8 +50,8 @@ MAINTAINCE_STICKER = (
 
 class MissingSaveDict(dict):
     """
-    Если попался тип погоды, для которого есть стикеры - отправляем дефолтный
-    и записываем данный тип погоды в файлик
+    Если попался тип погоды, для которого нет стикера - отправляем дефолтны и
+    записываем данный тип погоды в файлик
     """
 
     def __missing__(self, key):
