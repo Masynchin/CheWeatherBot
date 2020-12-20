@@ -16,13 +16,13 @@ def open_db():
 
 
 def new_subscriber(id, time):
-    minutes = time[0] * 60 + time[1]
+    minutes = _to_minutes(time)
     with open_db() as cursor:
         cursor.execute("INSERT INTO subscribers VALUES (?,?)", (id, minutes))
 
 
 def change_subscriber(id, new_time):
-    minutes = new_time[0] * 60 + new_time[1]
+    minutes = _to_minutes(new_time)
     with open_db() as cursor:
         cursor.execute("UPDATE subscribers SET minutes = ? WHERE id = ?", (minutes, id))
 
@@ -33,7 +33,7 @@ def delete_subscriber(id):
 
 
 def get_by_time(time):
-    minutes = time[0] * 60 + time[1]
+    minutes = _to_minutes(time)
     with open_db() as cursor:
         res = cursor.execute(
             "SELECT id FROM subscribers WHERE minutes = ?", (minutes,)
@@ -54,8 +54,18 @@ def get_subscriber_time(id):
         minutes = cursor.execute(
             "SELECT minutes FROM subscribers WHERE id = ?", (id,)
         ).fetchone()[0]
-    time = ((hours := minutes // 60), minutes - hours * 60)
+    time = _from_minutes(minutes)
     return time
+
+
+def _to_minutes(time):
+    return time[0] * 60 + time[1]
+
+
+def _from_minutes(minutes):
+    hours = minutes // 60
+    minutes -= hours * 60
+    return (hours, minutes)
 
 
 def _init_db():
