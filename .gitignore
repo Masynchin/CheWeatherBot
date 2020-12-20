@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+
+env/
+*.sh
+*.env
+*.envrc
+
+logs/
+logs/*.log
+logs/*.log.zip
+
+db/subscribers.db
