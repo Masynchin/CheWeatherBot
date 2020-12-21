@@ -1,12 +1,11 @@
-from aiogram import Bot, Dispatcher, executor
-from aiogram.types.message import ContentType, ParseMode
-from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.dispatcher.filters import Text as TextFilter
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
-
 import asyncio
 from random import choice
-from re import fullmatch
+
+from aiogram import Bot, Dispatcher, executor
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.dispatcher.filters import Text as TextFilter
+from aiogram.types.message import ParseMode
 
 import config
 import db
