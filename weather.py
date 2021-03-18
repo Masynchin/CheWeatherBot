@@ -1,5 +1,4 @@
 import datetime as dt
-import re
 
 import aiohttp
 
@@ -7,17 +6,13 @@ import const
 
 
 async def get_weather():
-    """Снаружи вызваем без аргументов, а тут используем кеширование"""
+    """Кеширование результатов погоды раз в 5 минут"""
     now = dt.datetime.now()
-    hours, minutes = now.hour, now.minute
-    minutes = minutes // 5 * 5
-    time = (hours, minutes)
-
+    time = (now.hour, now.minute // 5 * 5)
     return await _get_weather(time)
 
 
 def cached(old_weather):
-    """Кешируем результаты раз в 5 минут"""
     cached_dict = {}
 
     async def cached_weather(time):
@@ -48,14 +43,13 @@ def _parse_data(data: dict):
     temp       = _to_temp(current["temp"])
     temp_like  = _to_temp(current["feels_like"])
     wind_speed = current["wind_speed"]
-    wind_gust  = current.get("wind_gust", wind_speed)
     clouds     = current["clouds"]
 
     description = current["weather"][0]
     weather_description = description["description"].capitalize()
     weather_type = description["main"]
 
-    pattern = (
+    message = (
         f"{weather_description}\n\n"
         f"Температура: {temp}\n"
         f"Ощущается как: {temp_like}\n\n"
@@ -63,11 +57,12 @@ def _parse_data(data: dict):
         f"Облачность: {clouds}%"
     )
 
-    if (wind_gust := current.get("wind_gust")) :
-        pattern = re.sub(
-            r"(Ветер:.+?м/с)", r"\1" + f" (порывы до {wind_gust} м/с)", pattern
-        )
-    return pattern, weather_type
+    if wind_gust := current.get("wind_gust"):
+        substr = f"Ветер: {wind_speed} м/с\n"
+        new_substr = f"Ветер: {wind_speed} м/с (порывы до {wind_gust} м/с)\n"
+        message = message.replace(substr, new_substr)
+
+    return message, weather_type
 
 
 def _to_temp(temp):

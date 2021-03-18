@@ -28,7 +28,7 @@ dp = Dispatcher(bot, storage=storage)
 async def send_welcome(message):
     await message.answer(const.WELCOME_TEXT,
         parse_mode=ParseMode.MARKDOWN, reply_markup=keyboards.main)
-    logger.info(f'Пользователь {message.from_user["id"]} выполнил /start')
+    logger.info(f"Пользователь {message.from_user['id']} выполнил /start")
 
 
 @dp.message_handler(TextFilter(equals=const.HELP))
@@ -44,7 +44,8 @@ async def send_weather(message):
     text, wtype = await weather.get_weather()
     await message.answer_sticker(choice(const.STICKERS[wtype]))
     await message.answer(text)
-    logger.info(f'Пользователь {message.from_user["id"]} получил прогноз погоды')
+    logger.info(
+        f"Пользователь {message.from_user['id']} получил прогноз погоды")
 
 
 # О РАССЫЛКЕ
@@ -65,7 +66,8 @@ class NewSub(StatesGroup):
 @dp.message_handler(commands=["subscribe_to_mailing"])
 async def subscribe_to_mailing(message):
     await NewSub.hour.set()
-    await message.answer("Выберите час:", reply_markup=keyboards.hour_choice)
+    await message.answer(
+        "Выберите час:", reply_markup=keyboards.hour_choice)
 
 
 @dp.callback_query_handler(state=NewSub.hour)
@@ -73,8 +75,7 @@ async def set_hour_callback(call, state):
     await state.update_data(hour=int(call.data))
     await NewSub.next()
     await call.message.edit_text(
-        "Выберите минуты:", reply_markup=keyboards.minute_choice
-    )
+        "Выберите минуты:", reply_markup=keyboards.minute_choice)
 
 
 @dp.callback_query_handler(state=NewSub.minute)
@@ -102,8 +103,7 @@ class ChangeTime(StatesGroup):
 async def change_time_mailing(message):
     await ChangeTime.hour.set()
     await message.answer(
-        "Выберите час:", reply_markup=keyboards.hour_choice
-    )
+        "Выберите час:", reply_markup=keyboards.hour_choice)
 
 
 @dp.callback_query_handler(state=ChangeTime.hour)
@@ -111,16 +111,15 @@ async def change_hour_callback(call, state):
     await state.update_data(hour=int(call.data))
     await ChangeTime.next()
     await call.message.edit_text(
-        "Выберите минуты:", reply_markup=keyboards.minute_choice
-    )
+        "Выберите минуты:", reply_markup=keyboards.minute_choice)
 
 
 @dp.callback_query_handler(state=ChangeTime.minute)
 async def change_minute_callback(call, state):
     async with state.proxy() as data:
         time = (data["hour"], int(call.data))
-    user_id = call["from"]["id"]
-    db.change_subscriber(user_id, time)
+        user_id = call["from"]["id"]
+        db.change_subscriber(user_id, time)
 
     await call.message.delete()
     await bot.send_message(

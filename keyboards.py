@@ -24,7 +24,7 @@ def _create_hour_choice_keyboard():
     for i in range(0, 24, 6):
         buttons = [
             InlineKeyboardButton(hour, callback_data=hour)
-            for hour in hours[i : i + 6]
+            for hour in hours[i:i+6]
         ]
         inline_keyboard.row(*buttons)
     return inline_keyboard
@@ -33,9 +33,9 @@ def _create_hour_choice_keyboard():
 def _create_minute_choice_keyboard():
     inline_keyboard = InlineKeyboardMarkup()
     minutes = [f"{minute:02}" for minute in range(0, 60, 15)]
-    inline_keyboard.row(
-        *[InlineKeyboardButton(minute, callback_data=minute) for minute in minutes]
-    )
+    inline_keyboard.row(*[
+        InlineKeyboardButton(minute, callback_data=minute) for minute in minutes
+    ])
     return inline_keyboard
 
 
