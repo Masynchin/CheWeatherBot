@@ -2,7 +2,7 @@ import asyncio
 import datetime as dt
 from random import choice
 
-import config
+import const
 import db
 import weather
 
@@ -16,7 +16,7 @@ async def mailing(bot, logger):
         ids = db.get_by_time(next_fifteen)
         forecast, wtype = await weather.get_weather()
         for id in ids:
-            await bot.send_sticker(id, choice(config.STICKERS[wtype]))
+            await bot.send_sticker(id, choice(const.STICKERS[wtype]))
             msg = await bot.send_message(id, f"Ваш ежедневный прогноз 🤗\n\n{forecast}")
             await bot.pin_chat_message(
                 chat_id=msg.chat.id,

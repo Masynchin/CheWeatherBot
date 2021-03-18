@@ -3,7 +3,7 @@ import re
 
 import aiohttp
 
-import config
+import const
 
 
 async def get_weather():
@@ -37,7 +37,7 @@ def cached(old_weather):
 @cached
 async def _get_weather():
     async with aiohttp.ClientSession() as session:
-        async with session.get(config.URL) as response:
+        async with session.get(const.URL) as response:
             data = await response.json()
             return _parse_data(data)
 

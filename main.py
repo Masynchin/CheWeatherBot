@@ -1,4 +1,5 @@
 import asyncio
+import os
 from random import choice
 
 from aiogram import Bot, Dispatcher, executor
@@ -7,7 +8,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.filters import Text as TextFilter
 from aiogram.types.message import ParseMode
 
-import config
+import const
 import db
 import keyboards
 from logger import logger
@@ -15,7 +16,7 @@ import mailing
 import weather
 
 
-bot = Bot(token=config.BOT_TOKEN)
+bot = Bot(token=os.getenv("BOT_TOKEN"))
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
@@ -25,41 +26,23 @@ dp = Dispatcher(bot, storage=storage)
 
 @dp.message_handler(commands=["start"])
 async def send_welcome(message):
-    text = (
-        "Это бот, позволяющий получить информацию о погоде в Череповце\n\n"
-        "Этой командой (/start) вам выдаётся клавиатура, "
-        "на которой расположены основные команды:\n\n"
-        f"*{config.WEATHER}* - позволяет получить прогноз погоды\n"
-        f"*{config.MAILING}* - позволяет узнать о подписке на ежедневный прогноз погоды\n"
-        f"*{config.HELP}* - поможет разобраться с управлением"
-    )
-    await message.answer(
-        text, parse_mode=ParseMode.MARKDOWN, reply_markup=keyboards.main
-    )
+    await message.answer(const.WELCOME_TEXT,
+        parse_mode=ParseMode.MARKDOWN, reply_markup=keyboards.main)
     logger.info(f'Пользователь {message.from_user["id"]} выполнил /start')
 
 
-@dp.message_handler(TextFilter(equals=config.HELP))
+@dp.message_handler(TextFilter(equals=const.HELP))
 async def send_info(message):
-    info = (
-        "Бот, позволяющий получить погоду Череповца\n\n"
-        "Основные функции бота:\n"
-        f"*{config.WEATHER}* - получить текущую погоду и прогноз\n"
-        f"*{config.MAILING}* - получить информацию о рассылке\n\n"
-        "Эти команды расположены на клавиатуре, "
-        "которую бот выдаёт при вводе команды /start. "
-        "Если у вас её нет, то нажмите на эту команду"
-    )
-    await message.answer(info, parse_mode=ParseMode.MARKDOWN)
+    await message.answer(const.INFO_TEXT, parse_mode=ParseMode.MARKDOWN)
 
 
 # ПРОГНОЗ
 
 
-@dp.message_handler(TextFilter(equals=config.WEATHER))
+@dp.message_handler(TextFilter(equals=const.WEATHER))
 async def send_weather(message):
     text, wtype = await weather.get_weather()
-    await message.answer_sticker(choice(config.STICKERS[wtype]))
+    await message.answer_sticker(choice(const.STICKERS[wtype]))
     await message.answer(text)
     logger.info(f'Пользователь {message.from_user["id"]} получил прогноз погоды')
 
@@ -67,7 +50,7 @@ async def send_weather(message):
 # О РАССЫЛКЕ
 
 
-@dp.message_handler(TextFilter(equals=config.MAILING))
+@dp.message_handler(TextFilter(equals=const.MAILING))
 async def send_mailing_info(message):
     user_id = message.from_user["id"]
     text = mailing.get_user_mailing_info(user_id)

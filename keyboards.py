@@ -5,15 +5,15 @@ from aiogram.types import (
     InlineKeyboardButton,
 )
 
-import config
+import const
 
 
 def _create_main_keyboard():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row(
-        KeyboardButton(config.WEATHER),
-        KeyboardButton(config.MAILING),
-        KeyboardButton(config.HELP),
+        KeyboardButton(const.WEATHER),
+        KeyboardButton(const.MAILING),
+        KeyboardButton(const.HELP),
     )
     return keyboard
 
