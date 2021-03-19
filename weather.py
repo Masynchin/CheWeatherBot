@@ -1,8 +1,60 @@
 import datetime as dt
+from typing import List, Optional
 
 import aiohttp
+from pydantic import BaseModel, Field, validator
 
 import const
+
+
+class WeatherDescription(BaseModel):
+    main: str
+    description: str
+
+    @validator("description")
+    def capitalize_description(cls, description):
+        return description.capitalize()
+
+
+class BaseWeather(BaseModel):
+    temp: float
+    feels_like: float
+    humidity: int
+    cloudiness: int = Field(alias="clouds")
+    wind_speed: float
+    wind_gust: Optional[float] = None
+    weather_type: List[WeatherDescription] = Field(alias="weather")
+
+    @validator("temp", "feels_like")
+    def decorate_temperature(cls, temp):
+        return f"+{temp}°" if temp > 0 else f"{temp}°"
+
+    @validator("wind_speed", "wind_gust")
+    def decorate_temperate(cls, wind):
+        return f"{wind} м/с"
+
+    @validator("cloudiness", "humidity")
+    def decorate_percentage(cls, percentage):
+        return f"{percentage}%"
+
+    @validator("weather_type")
+    def first_element_from_list(cls, weather_type):
+        return weather_type[0]
+
+    def as_text(self):
+        return (
+            f"{self.weather_type.description}\n\n"
+            f"Температура: {self.temp}\n"
+            f"Ощущается как: {self.feels_like}\n\n"
+            f"Ветер: {self.wind_speed}\n" if self.wind_gust is None
+                else f"Ветер: {self.wind_speed} (порывы до {self.wind_gust})\n"
+            f"Влажность: {self.humidity}\n"
+            f"Облачность: {self.cloudiness}"
+        )
+
+
+class CurrentWeather(BaseWeather):
+    ...
 
 
 async def get_weather():
@@ -38,33 +90,5 @@ async def _get_weather():
 
 
 def _parse_data(data: dict):
-    current = data["current"]
-
-    temp       = _to_temp(current["temp"])
-    temp_like  = _to_temp(current["feels_like"])
-    wind_speed = current["wind_speed"]
-    clouds     = current["clouds"]
-
-    description = current["weather"][0]
-    weather_description = description["description"].capitalize()
-    weather_type = description["main"]
-
-    message = (
-        f"{weather_description}\n\n"
-        f"Температура: {temp}\n"
-        f"Ощущается как: {temp_like}\n\n"
-        f"Ветер: {wind_speed} м/с\n"
-        f"Облачность: {clouds}%"
-    )
-
-    if wind_gust := current.get("wind_gust"):
-        substr = f"Ветер: {wind_speed} м/с\n"
-        new_substr = f"Ветер: {wind_speed} м/с (порывы до {wind_gust} м/с)\n"
-        message = message.replace(substr, new_substr)
-
-    return message, weather_type
-
-
-def _to_temp(temp):
-    temp = round(temp)
-    return f"+{temp}°" if temp > 0 else f"{temp}°"
+    weather = CurrentWeather(**data["current"])
+    return (weather.as_text(), weather.weather_type.main)
