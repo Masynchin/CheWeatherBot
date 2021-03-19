@@ -10,8 +10,12 @@ import const
 
 def _create_main_keyboard():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.row(KeyboardButton(const.WEATHER))
     keyboard.row(
-        KeyboardButton(const.WEATHER),
+        KeyboardButton(const.HOUR_FORECAST),
+        KeyboardButton(const.TOMORROW_FORECAST)
+    )
+    keyboard.row(
         KeyboardButton(const.MAILING),
         KeyboardButton(const.HELP),
     )

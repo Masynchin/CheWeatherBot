@@ -41,11 +41,29 @@ async def send_info(message):
 
 @dp.message_handler(TextFilter(equals=const.WEATHER))
 async def send_weather(message):
-    text, wtype = await weather.get_weather()
+    text, wtype = await weather.current_weather()
     await message.answer_sticker(choice(const.STICKERS[wtype]))
     await message.answer(text)
     logger.info(
-        f"Пользователь {message.from_user['id']} получил прогноз погоды")
+        f"Пользователь {message.from_user['id']} получил текущую погоду")
+
+
+@dp.message_handler(TextFilter(equals=const.HOUR_FORECAST))
+async def send_hour_forecast(message):
+    text, wtype = await weather.hourly_forecast()
+    await message.answer_sticker(choice(const.STICKERS[wtype]))
+    await message.answer(text)
+    logger.info(
+        f"Пользователь {message.from_user['id']} получил прогноз погоды на час")
+
+
+@dp.message_handler(TextFilter(equals=const.TOMORROW_FORECAST))
+async def send_weather(message):
+    text, wtype = await weather.daily_forecast()
+    await message.answer_sticker(choice(const.STICKERS[wtype]))
+    await message.answer(text)
+    logger.info(
+        f"Пользователь {message.from_user['id']} получил прогноз погоды на день")
 
 
 # О РАССЫЛКЕ
