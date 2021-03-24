@@ -129,3 +129,5 @@ DAILY_FORECAST_TEXT = (
 
 DAILY_FORECAST_TEXT_WITH_WIND_GUST = DAILY_FORECAST_TEXT.replace(
     "Ветер: {wind_speed}", "Ветер: {wind_speed} (порывы до {wind_gust})")
+
+ALERT_TEXT = "⚠ {event} ({description})"

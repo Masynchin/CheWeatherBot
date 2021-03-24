@@ -1,4 +1,5 @@
 import datetime as dt
+from string import ascii_letters
 from typing import List, Optional
 
 from pydantic import BaseModel, Field, validator
@@ -75,10 +76,24 @@ class DailyWeather(BaseWeather):
     feels_like: DailyFeelsLike
 
 
+class Alert(BaseModel):
+    event: str
+    description: str
+
+
+def _is_english_alert(alert):
+    return bool(set(alert.event) & set(ascii_letters))
+
+
 class WeatherResponse(BaseModel):
     current: Weather
     hourly: List[Weather]
     daily: List[DailyWeather]
+    alerts: List[Alert]
+
+    @validator("alerts")
+    def filter_alerts(cls, alerts):
+        return [alert for alert in alerts if not _is_english_alert(alert)]
 
     def current_weather(self):
         text = (const.WEATHER_TEXT_WITH_WIND_GUST
@@ -91,7 +106,7 @@ class WeatherResponse(BaseModel):
             wind_gust=self.current.wind_gust,
             humidity=self.current.humidity,
             cloudiness=self.current.cloudiness,
-        )
+        ) + self._generate_alert_text()
 
     def current_weather_type(self):
         return self.current.weather_type.main
@@ -108,7 +123,7 @@ class WeatherResponse(BaseModel):
             wind_gust=forecast.wind_gust,
             humidity=forecast.humidity,
             cloudiness=forecast.cloudiness,
-        )
+        ) + self._generate_alert_text()
 
     def houry_forecast_type(self):
         forecast = self._get_nearest_hour_forecast()
@@ -139,7 +154,7 @@ class WeatherResponse(BaseModel):
             wind_gust=forecast.wind_gust,
             humidity=forecast.humidity,
             cloudiness=forecast.cloudiness,
-        )
+        ) + self._generate_alert_text()
 
     def daily_forecast_type(self):
         forecast = self._get_nearest_daily_forecast()
@@ -150,3 +165,14 @@ class WeatherResponse(BaseModel):
         future_forecasts = filter(lambda f: f.timestamp > now, self.daily)
         nearest_forecast = min(future_forecasts, key=lambda f: f.timestamp)
         return nearest_forecast
+
+    def _generate_alert_text(self):
+        if not self.alerts:
+            return ""
+        return "\n\n" + "\n".join(
+            const.ALERT_TEXT.format(
+                event=alert.event,
+                description=alert.description,
+            )
+            for alert in self.alerts
+        )
