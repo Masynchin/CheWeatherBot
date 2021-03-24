@@ -50,25 +50,25 @@ class Weather(BaseWeather):
 
 
 class DailyTemperature(BaseModel):
-    morn: float
-    day: float
-    eve: float
-    night: float
+    morn_temp: float = Field(alias="morn")
+    day_temp: float = Field(alias="day")
+    eve_temp: float = Field(alias="eve")
+    night_temp: float = Field(alias="night")
     min_temp: float = Field(alias="min")
     max_temp: float = Field(alias="max")
 
-    _decorate_temp = validator("morn", "day", "eve", "night",
-        "min_temp", "max_temp", allow_reuse=True)(_decorate_temp)
+    _decorate_temp = validator("morn_temp", "day_temp", "eve_temp",
+        "night_temp", "min_temp", "max_temp", allow_reuse=True)(_decorate_temp)
 
 
 class DailyFeelsLike(BaseModel):
-    morn: float
-    day: float
-    eve: float
-    night: float
+    morn_feels_like: float = Field(alias="morn")
+    day_feels_like: float = Field(alias="day")
+    eve_feels_like: float = Field(alias="eve")
+    night_feels_like: float = Field(alias="night")
 
-    _decorate_temp = validator(
-        "morn", "day", "eve", "night", allow_reuse=True)(_decorate_temp)
+    _decorate_temp = validator("morn_feels_like", "day_feels_like",
+        "eve_feels_like", "night_feels_like", allow_reuse=True)(_decorate_temp)
 
 
 class DailyWeather(BaseWeather):
@@ -98,14 +98,10 @@ class WeatherResponse(BaseModel):
     def current_weather(self):
         text = (const.WEATHER_TEXT_WITH_WIND_GUST
             if self.current.wind_gust is not None else const.WEATHER_TEXT)
+
         return text.format(
-            weather_description=self.current.weather_type.description,
-            temp=self.current.temp,
-            feels_like=self.current.feels_like,
-            wind_speed=self.current.wind_speed,
-            wind_gust=self.current.wind_gust,
-            humidity=self.current.humidity,
-            cloudiness=self.current.cloudiness,
+            **self.current.weather_type.dict(),
+            **self.current.dict()
         ) + self._generate_alert_text()
 
     def current_weather_type(self):
@@ -115,14 +111,10 @@ class WeatherResponse(BaseModel):
         forecast = self._get_nearest_hour_forecast()
         text = (const.WEATHER_TEXT_WITH_WIND_GUST
             if forecast.wind_gust is not None else const.WEATHER_TEXT)
+
         return text.format(
-            weather_description=forecast.weather_type.description,
-            temp=forecast.temp,
-            feels_like=forecast.feels_like,
-            wind_speed=forecast.wind_speed,
-            wind_gust=forecast.wind_gust,
-            humidity=forecast.humidity,
-            cloudiness=forecast.cloudiness,
+            **forecast.weather_type.dict(),
+            **forecast.dict()
         ) + self._generate_alert_text()
 
     def houry_forecast_type(self):
@@ -139,21 +131,11 @@ class WeatherResponse(BaseModel):
         forecast = self._get_nearest_daily_forecast()
         text = (const.DAILY_FORECAST_TEXT_WITH_WIND_GUST
             if forecast.wind_gust is not None else const.DAILY_FORECAST_TEXT)
+
         return text.format(
-            morn_temp=forecast.temp.morn,
-            morn_feels_like=forecast.feels_like.morn,
-            day_temp=forecast.temp.day,
-            day_feels_like=forecast.feels_like.day,
-            eve_temp=forecast.temp.eve,
-            eve_feels_like=forecast.feels_like.eve,
-            night_temp=forecast.temp.night,
-            night_feels_like=forecast.feels_like.night,
-            min_temp=forecast.temp.min_temp,
-            max_temp=forecast.temp.max_temp,
-            wind_speed=forecast.wind_speed,
-            wind_gust=forecast.wind_gust,
-            humidity=forecast.humidity,
-            cloudiness=forecast.cloudiness,
+            **forecast.dict(),
+            **forecast.feels_like.dict(),
+            **forecast.temp.dict(),
         ) + self._generate_alert_text()
 
     def daily_forecast_type(self):
@@ -170,9 +152,6 @@ class WeatherResponse(BaseModel):
         if not self.alerts:
             return ""
         return "\n\n" + "\n".join(
-            const.ALERT_TEXT.format(
-                event=alert.event,
-                description=alert.description,
-            )
+            const.ALERT_TEXT.format(**alert.dict())
             for alert in self.alerts
         )

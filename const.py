@@ -105,7 +105,7 @@ USER_NOT_IN_SUBSCRIBE = (
 )
 
 WEATHER_TEXT = (
-    "{weather_description}\n\n"
+    "{description}\n\n"
     "Температура: {temp}\n"
     "Ощущается как: {feels_like}\n\n"
     "Ветер: {wind_speed}\n"
