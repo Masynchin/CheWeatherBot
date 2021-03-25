@@ -137,7 +137,7 @@ async def change_minute_callback(call, state):
     async with state.proxy() as data:
         time = (data["hour"], int(call.data))
         user_id = call["from"]["id"]
-        db.change_subscriber(user_id, time)
+        db.change_subscriber_time(user_id, time)
 
     await call.message.delete()
     await bot.send_message(

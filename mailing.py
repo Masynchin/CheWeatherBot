@@ -13,9 +13,10 @@ async def mailing(bot, logger):
         seconds_delta, next_fifteen = _get_next_fifteen_minutes()
         await asyncio.sleep(seconds_delta)
 
-        users_id = db.get_by_time(next_fifteen)
+        subscribers = db.get_subscribers_by_time(next_fifteen)
         forecast, wtype = await weather.current_weather()
-        for user_id in users_id:
+        for subscriber in subscribers:
+            user_id = subscriber.id
             await bot.send_sticker(user_id, choice(const.STICKERS[wtype]))
             msg = await bot.send_message(
                 user_id, f"Ваш ежедневный прогноз 🤗\n\n{forecast}")
@@ -40,7 +41,7 @@ def _get_next_fifteen_minutes():
 
 def get_user_mailing_info(user_id):
     """Получаем информацию о подписке пользователя"""
-    if db.is_user_in_db(user_id):
+    if db.is_user_in_subscription(user_id):
         time = db.get_subscriber_time(user_id)
         text = const.USER_IN_SUBSCRIBE.format(*time)
     else:
