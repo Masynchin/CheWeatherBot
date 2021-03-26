@@ -1,11 +1,16 @@
+import asyncio
 import os
 
-from sqlalchemy import create_engine, Column, Integer
+from sqlalchemy import Column, Integer
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.sql import exists
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.future import select
 
 
-engine = create_engine(os.getenv("DATABASE_URL", "sqlite:///db/subscribers.db"))
+database_url = os.getenv(
+    "DATABASE_URL", "sqlite+aiosqlite:///db/subscribers.db")
+engine = create_async_engine(database_url)
 Base = declarative_base()
 
 
@@ -16,51 +21,50 @@ class Subscriber(Base):
     minutes = Column(Integer, nullable=False)
 
 
-Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
+async_session = sessionmaker(
+    bind=engine, expire_on_commit=False, class_=AsyncSession)
 
 
-def new_subscriber(subscriber_id, time):
+async def new_subscriber(subscriber_id, time):
     minutes = _to_minutes(time)
-    with Session() as session:
+    async with async_session() as session:
         subscriber = Subscriber(id=subscriber_id, minutes=minutes)
         session.add(subscriber)
-        session.commit()
+        await session.commit()
 
 
-def change_subscriber_time(subscriber_id, new_time):
+async def change_subscriber_time(subscriber_id, new_time):
     minutes = _to_minutes(new_time)
-    with Session() as session:
-        subscriber = session.query(Subscriber).get(subscriber_id)
+    async with async_session() as session:
+        subscriber = await session.get(Subscriber, subscriber_id)
         subscriber.minutes = minutes
-        session.commit()
+        await session.commit()
 
 
-def delete_subscriber(subscriber_id):
-    with Session() as session:
-        subscriber = session.query(Subscriber).get(subscriber_id)
-        session.delete(subscriber)
-        session.commit()
+async def delete_subscriber(subscriber_id):
+    async with async_session() as session:
+        subscriber = await session.get(Subscriber, subscriber_id)
+        await session.delete(subscriber)
+        await session.commit()
 
 
-def get_subscribers_by_time(time):
+async def get_subscribers_by_time(time):
     minutes = _to_minutes(time)
-    with Session() as session:
-        subscribers = session.query(Subscriber)\
-            .filter(Subscriber.minutes == minutes).all()
-        return subscribers
+    async with async_session() as session:
+        statement = select(Subscriber).where(Subscriber.minutes == minutes)
+        subscribers = await session.execute(statement)
+        return subscribers.scalars().all()
 
 
-def is_user_in_subscription(user_id):
-    with Session() as session:
-        is_exists = session.query(
-            exists().where(Subscriber.id == user_id)).scalar()
-        return is_exists
+async def is_user_in_subscription(user_id):
+    async with async_session() as session:
+        subscriber = await session.get(Subscriber, user_id)
+        return subscriber is not None
 
 
-def get_subscriber_time(subscriber_id):
-    with Session() as session:
-        subscriber = session.query(Subscriber).get(subscriber_id)
+async def get_subscriber_time(subscriber_id):
+    async with async_session() as session:
+        subscriber = await session.get(Subscriber, subscriber_id)
         minutes = subscriber.minutes
         return _from_minutes(minutes)
 
@@ -72,3 +76,12 @@ def _to_minutes(time):
 
 def _from_minutes(minutes):
     return divmod(minutes, 60)
+
+
+async def create_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(create_db())

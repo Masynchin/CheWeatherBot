@@ -72,7 +72,7 @@ async def send_weather(message):
 @dp.message_handler(TextFilter(equals=const.MAILING))
 async def send_mailing_info(message):
     user_id = message.from_user["id"]
-    text = mailing.get_user_mailing_info(user_id)
+    text = await mailing.get_user_mailing_info(user_id)
     await message.answer(text)
 
 
@@ -101,7 +101,7 @@ async def set_minute_callback(call, state):
     async with state.proxy() as data:
         time = (data["hour"], int(call.data))
     user_id = call["from"]["id"]
-    db.new_subscriber(user_id, time)
+    await db.new_subscriber(user_id, time)
 
     await call.message.delete()
     await bot.send_message(
@@ -137,7 +137,7 @@ async def change_minute_callback(call, state):
     async with state.proxy() as data:
         time = (data["hour"], int(call.data))
         user_id = call["from"]["id"]
-        db.change_subscriber_time(user_id, time)
+        await db.change_subscriber_time(user_id, time)
 
     await call.message.delete()
     await bot.send_message(
@@ -151,7 +151,7 @@ async def change_minute_callback(call, state):
 @dp.message_handler(commands=["cancel_mailing"])
 async def cancel_mailing(message):
     user_id = message.from_user["id"]
-    db.delete_subscriber(user_id)
+    await db.delete_subscriber(user_id)
     await message.answer("Успешно удалено из подписки")
     logger.info(f"Пользователь {user_id} удалён из подписки")
 
