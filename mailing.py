@@ -2,6 +2,8 @@ import asyncio
 import datetime as dt
 from random import choice
 
+import pytz
+
 import const
 import db
 import weather
@@ -31,12 +33,16 @@ async def mailing(bot, logger):
 
 def _get_next_fifteen_minutes():
     """Получаем количество секунд до слеющуюшего времени, кратного 15 минутам"""
-    now = dt.datetime.now()
+    now = _get_now()
     next_fifteen = now.replace(
         minute=now.minute // 15 * 15, second=0, microsecond=0
     ) + dt.timedelta(minutes=15)
-    seconds_delta = (next_fifteen - dt.datetime.now()).total_seconds()
+    seconds_delta = (next_fifteen - _get_now()).total_seconds()
     return seconds_delta, (next_fifteen.hour, next_fifteen.minute)
+
+
+def _get_now():
+    return dt.datetime.now(pytz.timezone("Europe/Moscow"))
 
 
 async def get_user_mailing_info(user_id):

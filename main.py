@@ -7,7 +7,9 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.filters import Text as TextFilter
 from aiogram.types.message import ParseMode
+from aiogram.utils.executor import start_webhook
 
+import config
 import const
 import db
 import keyboards
@@ -16,7 +18,7 @@ import mailing
 import weather
 
 
-bot = Bot(token=os.getenv("BOT_TOKEN"))
+bot = Bot(token=config.BOT_TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
@@ -159,6 +161,13 @@ async def cancel_mailing(message):
 # MAIN
 
 
+async def on_startup(dp):
+    await bot.set_webhook(
+        config.WEBHOOK_URL,
+        drop_pending_updates=True,
+    )
+
+
 @logger.catch(level="CRITICAL")
 def main():
     # добавляем рассылку в loop
@@ -166,7 +175,15 @@ def main():
     loop.create_task(mailing.mailing(bot, logger))
     # запускаем поллинг
     logger.info("Запуск")
-    executor.start_polling(dp, loop=loop, skip_updates=True)
+    start_webhook(
+        dispatcher=dp,
+        loop=loop,
+        skip_updates=True,
+        on_startup=on_startup,
+        webhook_path=config.WEBHOOK_PATH,
+        host=config.WEBAPP_HOST,
+        port=config.WEBAPP_PORT,
+    )
 
 
 if __name__ == "__main__":

@@ -8,8 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.future import select
 
 
-database_url = os.getenv(
-    "DATABASE_URL", "sqlite+aiosqlite:///db/subscribers.db")
+database_url = os.getenv("DATABASE_URL")\
+    .replace("postgres", "postgresql+asyncpg")
 engine = create_async_engine(database_url)
 Base = declarative_base()
 
