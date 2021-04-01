@@ -2,6 +2,8 @@ import asyncio
 import datetime as dt
 from random import choice
 
+import pytz
+
 import const
 import db
 import weather
@@ -13,7 +15,7 @@ async def mailing(bot, logger):
         seconds_delta, next_fifteen = _get_next_fifteen_minutes()
         await asyncio.sleep(seconds_delta)
 
-        subscribers = await db.get_subscribers_by_time(next_fifteen)
+        subscribers = await db.get_subscribers_by_mailing_time(next_fifteen)
         forecast, wtype = await weather.current_weather()
         for subscriber in subscribers:
             user_id = subscriber.id
@@ -31,20 +33,33 @@ async def mailing(bot, logger):
 
 def _get_next_fifteen_minutes():
     """Получаем количество секунд до слеющуюшего времени, кратного 15 минутам"""
-    now = dt.datetime.now()
-    next_fifteen = now.replace(
-        minute=now.minute // 15 * 15, second=0, microsecond=0
-    ) + dt.timedelta(minutes=15)
-    seconds_delta = (next_fifteen - dt.datetime.now()).total_seconds()
-    return seconds_delta, (next_fifteen.hour, next_fifteen.minute)
+    now = _get_current_time()
+    next_fifteen = _round_time_by_fifteen_minutes(now) + dt.timedelta(minutes=15)
+    seconds_delta = _get_time_difference(next_fifteen, now)
+    return seconds_delta, next_fifteen.time()
+
+
+def _get_current_time():
+    return dt.datetime.now(pytz.timezone("Europe/Moscow"))
+
+
+def _round_time_by_fifteen_minutes(time):
+    return time.replace(
+        minute=time.minute // 15 * 15,
+        second=0,
+        microsecond=0)
+
+
+def _get_time_difference(time1, time2):
+    return (time1 - time2).total_seconds()
 
 
 async def get_user_mailing_info(user_id):
     """Получаем информацию о подписке пользователя"""
     is_subscriber = await db.is_user_in_subscription(user_id)
     if is_subscriber:
-        time = await db.get_subscriber_time(user_id)
-        text = const.USER_IN_SUBSCRIBE.format(*time)
+        time = await db.get_subscriber_mailing_time(user_id)
+        text = const.USER_IN_SUBSCRIBE.format(time.hour, time.minute)
     else:
         text = const.USER_NOT_IN_SUBSCRIBE
     return text

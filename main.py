@@ -1,4 +1,5 @@
 import asyncio
+import datetime as dt
 import os
 from random import choice
 
@@ -99,13 +100,13 @@ async def set_hour_callback(call, state):
 @dp.callback_query_handler(state=NewSub.minute)
 async def set_minute_callback(call, state):
     async with state.proxy() as data:
-        time = (data["hour"], int(call.data))
-    user_id = call["from"]["id"]
-    await db.new_subscriber(user_id, time)
+        user_id = call["from"]["id"]
+        time = dt.time(hour=data["hour"], minute=int(call.data))
+        await db.new_subscriber(user_id, time)
 
     await call.message.delete()
     await bot.send_message(
-        text="Вы подписались на рассылку по времени {}:{:02}".format(*time),
+        text="Вы подписались на рассылку по времени {}:{:02}".format(time.hour, time.minute),
         chat_id=call.message.chat.id,
     )
     logger.info(f"Пользователь {user_id} внесён в рассылку")
@@ -135,13 +136,13 @@ async def change_hour_callback(call, state):
 @dp.callback_query_handler(state=ChangeTime.minute)
 async def change_minute_callback(call, state):
     async with state.proxy() as data:
-        time = (data["hour"], int(call.data))
         user_id = call["from"]["id"]
-        await db.change_subscriber_time(user_id, time)
+        time = dt.time(hour=data["hour"], minute=int(call.data))
+        await db.change_subscriber_mailing_time(user_id, time)
 
     await call.message.delete()
     await bot.send_message(
-        text="Вы изменили время рассылки на {}:{:02}".format(*time),
+        text="Вы изменили время рассылки на {}:{:02}".format(time.hour, time.minute),
         chat_id=call.message.chat.id,
     )
     logger.info(f"Пользователь {user_id} изменил время рассылки")
