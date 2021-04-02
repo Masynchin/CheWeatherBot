@@ -1,7 +1,6 @@
 import asyncio
 import datetime as dt
 import os
-from random import choice
 
 from aiogram import Bot, Dispatcher, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -9,15 +8,17 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.filters import Text as TextFilter
 from aiogram.types.message import ParseMode
 
-import const
+import config
 import db
 import keyboards
 from logger import logger
 import mailing
+import templates
+import stickers
 import weather
 
 
-bot = Bot(token=os.getenv("BOT_TOKEN"))
+bot = Bot(token=config.BOT_TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
@@ -27,41 +28,44 @@ dp = Dispatcher(bot, storage=storage)
 
 @dp.message_handler(commands=["start"])
 async def send_welcome(message):
-    await message.answer(const.WELCOME_TEXT,
+    await message.answer(templates.WELCOME,
         parse_mode=ParseMode.MARKDOWN, reply_markup=keyboards.main)
     logger.info(f"Пользователь {message.from_user['id']} выполнил /start")
 
 
-@dp.message_handler(TextFilter(equals=const.HELP))
+@dp.message_handler(TextFilter(equals=keyboards.HELP))
 async def send_info(message):
-    await message.answer(const.INFO_TEXT, parse_mode=ParseMode.MARKDOWN)
+    await message.answer(templates.INFO, parse_mode=ParseMode.MARKDOWN)
 
 
 # ПРОГНОЗ
 
 
-@dp.message_handler(TextFilter(equals=const.WEATHER))
+@dp.message_handler(TextFilter(equals=keyboards.WEATHER))
 async def send_weather(message):
     text, wtype = await weather.current_weather()
-    await message.answer_sticker(choice(const.STICKERS[wtype]))
+    sticker = stickers.get_by_weather(wtype)
+    await message.answer_sticker(sticker)
     await message.answer(text)
     logger.info(
         f"Пользователь {message.from_user['id']} получил текущую погоду")
 
 
-@dp.message_handler(TextFilter(equals=const.HOUR_FORECAST))
+@dp.message_handler(TextFilter(equals=keyboards.HOUR_FORECAST))
 async def send_hour_forecast(message):
     text, wtype = await weather.hourly_forecast()
-    await message.answer_sticker(choice(const.STICKERS[wtype]))
+    sticker = stickers.get_by_weather(wtype)
+    await message.answer_sticker(sticker)
     await message.answer(text)
     logger.info(
         f"Пользователь {message.from_user['id']} получил прогноз погоды на час")
 
 
-@dp.message_handler(TextFilter(equals=const.TOMORROW_FORECAST))
+@dp.message_handler(TextFilter(equals=keyboards.TOMORROW_FORECAST))
 async def send_weather(message):
     text, wtype = await weather.daily_forecast()
-    await message.answer_sticker(choice(const.STICKERS[wtype]))
+    sticker = stickers.get_by_weather(wtype)
+    await message.answer_sticker(sticker)
     await message.answer(text)
     logger.info(
         f"Пользователь {message.from_user['id']} получил прогноз погоды на день")
@@ -70,7 +74,7 @@ async def send_weather(message):
 # О РАССЫЛКЕ
 
 
-@dp.message_handler(TextFilter(equals=const.MAILING))
+@dp.message_handler(TextFilter(equals=keyboards.MAILING))
 async def send_mailing_info(message):
     user_id = message.from_user["id"]
     text = await mailing.get_user_mailing_info(user_id)
@@ -106,7 +110,7 @@ async def set_minute_callback(call, state):
 
     await call.message.delete()
     await bot.send_message(
-        text="Вы подписались на рассылку по времени {}:{:02}".format(time.hour, time.minute),
+        text=templates.USER_SUBSCRIBED.format(time.hour, time.minute),
         chat_id=call.message.chat.id,
     )
     logger.info(f"Пользователь {user_id} внесён в рассылку")
@@ -142,7 +146,7 @@ async def change_minute_callback(call, state):
 
     await call.message.delete()
     await bot.send_message(
-        text="Вы изменили время рассылки на {}:{:02}".format(time.hour, time.minute),
+        text=templates.USER_CHANGED_MAILING_TIME.format(time.hour, time.minute),
         chat_id=call.message.chat.id,
     )
     logger.info(f"Пользователь {user_id} изменил время рассылки")

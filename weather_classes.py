@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field, validator
 
-import const
+import templates
 
 
 class WeatherDescription(BaseModel):
@@ -96,8 +96,8 @@ class WeatherResponse(BaseModel):
         return [alert for alert in alerts if not _is_english_alert(alert)]
 
     def current_weather(self):
-        text = (const.WEATHER_TEXT_WITH_WIND_GUST
-            if self.current.wind_gust is not None else const.WEATHER_TEXT)
+        text = (templates.WEATHER_WITH_WIND_GUST
+            if self.current.wind_gust is not None else templates.WEATHER)
 
         return text.format(
             **self.current.weather_type.dict(),
@@ -109,8 +109,8 @@ class WeatherResponse(BaseModel):
 
     def houry_forecast(self):
         forecast = self._get_nearest_hour_forecast()
-        text = (const.WEATHER_TEXT_WITH_WIND_GUST
-            if forecast.wind_gust is not None else const.WEATHER_TEXT)
+        text = (templates.WEATHER_WITH_WIND_GUST
+            if forecast.wind_gust is not None else templates.WEATHER)
 
         return text.format(
             **forecast.weather_type.dict(),
@@ -129,8 +129,8 @@ class WeatherResponse(BaseModel):
 
     def daily_forecast(self):
         forecast = self._get_nearest_daily_forecast()
-        text = (const.DAILY_FORECAST_TEXT_WITH_WIND_GUST
-            if forecast.wind_gust is not None else const.DAILY_FORECAST_TEXT)
+        text = (templates.DAILY_FORECAST_WITH_WIND_GUST
+            if forecast.wind_gust is not None else templates.DAILY_FORECAST)
 
         return text.format(
             **forecast.dict(),
@@ -152,6 +152,6 @@ class WeatherResponse(BaseModel):
         if not self.alerts:
             return ""
         return "\n\n" + "\n".join(
-            const.ALERT_TEXT.format(**alert.dict())
+            templates.ALERT.format(**alert.dict())
             for alert in self.alerts
         )
