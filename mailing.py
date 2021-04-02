@@ -4,8 +4,9 @@ from random import choice
 
 import pytz
 
-import const
 import db
+import stickers
+import templates
 import weather
 
 
@@ -19,7 +20,8 @@ async def mailing(bot, logger):
         forecast, wtype = await weather.current_weather()
         for subscriber in subscribers:
             user_id = subscriber.id
-            await bot.send_sticker(user_id, choice(const.STICKERS[wtype]))
+            sticker = stickers.get_by_weather(wtype)
+            await bot.send_sticker(user_id, sticker)
             msg = await bot.send_message(
                 user_id, f"Ваш ежедневный прогноз 🤗\n\n{forecast}")
             logger.info(f"Пользователь {user_id} получил ежедневный прогноз")
@@ -59,7 +61,5 @@ async def get_user_mailing_info(user_id):
     is_subscriber = await db.is_user_in_subscription(user_id)
     if is_subscriber:
         time = await db.get_subscriber_mailing_time(user_id)
-        text = const.USER_IN_SUBSCRIBE.format(time.hour, time.minute)
-    else:
-        text = const.USER_NOT_IN_SUBSCRIBE
-    return text
+        return templates.USER_IN_MAILING.format(time.hour, time.minute)
+    return templates.USER_NOT_IN_MAILING

@@ -5,19 +5,24 @@ from aiogram.types import (
     InlineKeyboardButton,
 )
 
-import const
+
+WEATHER = "Текущая погода \N{glowing star}"
+HOUR_FORECAST = "В ближайший час \N{sun behind cloud}"
+TOMORROW_FORECAST = "На завтра \N{cloud}"
+MAILING = "О рассылке \N{open mailbox with raised flag}"
+HELP = "Помощь \N{books}"
 
 
 def _create_main_keyboard():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row(KeyboardButton(const.WEATHER))
+    keyboard.row(KeyboardButton(WEATHER))
     keyboard.row(
-        KeyboardButton(const.HOUR_FORECAST),
-        KeyboardButton(const.TOMORROW_FORECAST)
+        KeyboardButton(HOUR_FORECAST),
+        KeyboardButton(TOMORROW_FORECAST)
     )
     keyboard.row(
-        KeyboardButton(const.MAILING),
-        KeyboardButton(const.HELP),
+        KeyboardButton(MAILING),
+        KeyboardButton(HELP),
     )
     return keyboard
 

@@ -2,7 +2,7 @@ import datetime as dt
 
 import aiohttp
 
-import const
+import config
 from weather_classes import WeatherResponse
 
 
@@ -48,6 +48,6 @@ def cached(old_weather):
 @cached
 async def _get_weather():
     async with aiohttp.ClientSession() as session:
-        async with session.get(const.URL) as response:
+        async with session.get(config.WEATHER_API_URL) as response:
             data = await response.json()
             return WeatherResponse(**data)
