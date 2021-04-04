@@ -23,4 +23,4 @@ def get_by_weather(weather_type):
 
 def _log_undefined_weather_type(weather_type):
     with open("undefined_weather_types.txt", "a") as f:
-        f.write(f"\n{key}")
+        f.write(f"{weather_type}\n")
