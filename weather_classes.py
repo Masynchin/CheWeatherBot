@@ -89,10 +89,12 @@ class WeatherResponse(BaseModel):
     current: Weather
     hourly: List[Weather]
     daily: List[DailyWeather]
-    alerts: List[Alert]
+    alerts: List[Alert] = None
 
     @validator("alerts")
     def filter_alerts(cls, alerts):
+        if alerts is None:
+            return []
         return [alert for alert in alerts if not _is_english_alert(alert)]
 
     def current_weather(self):
