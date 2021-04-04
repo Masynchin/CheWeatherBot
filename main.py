@@ -31,7 +31,7 @@ dp = Dispatcher(bot, storage=storage)
 async def send_welcome(message):
     await message.answer(templates.WELCOME,
         parse_mode=ParseMode.MARKDOWN, reply_markup=keyboards.main)
-    logger.info(f"Пользователь {message.from_user['id']} выполнил /start")
+    logger.info("Пользователь {} выполнил /start", message.from_user["id"])
 
 
 @dp.message_handler(TextFilter(equals=keyboards.HELP))
@@ -49,7 +49,7 @@ async def send_weather(message):
     await message.answer_sticker(sticker)
     await message.answer(text)
     logger.info(
-        f"Пользователь {message.from_user['id']} получил текущую погоду")
+        "Пользователь {} получил текущую погоду", message.from_user["id"])
 
 
 @dp.message_handler(TextFilter(equals=keyboards.HOUR_FORECAST))
@@ -59,7 +59,7 @@ async def send_hour_forecast(message):
     await message.answer_sticker(sticker)
     await message.answer(text)
     logger.info(
-        f"Пользователь {message.from_user['id']} получил прогноз погоды на час")
+        "Пользователь {} получил прогноз погоды на час", message.from_user["id"])
 
 
 @dp.message_handler(TextFilter(equals=keyboards.TOMORROW_FORECAST))
@@ -69,7 +69,7 @@ async def send_weather(message):
     await message.answer_sticker(sticker)
     await message.answer(text)
     logger.info(
-        f"Пользователь {message.from_user['id']} получил прогноз погоды на день")
+        "Пользователь {} получил прогноз погоды на день", message.from_user["id"])
 
 
 # О РАССЫЛКЕ
@@ -114,7 +114,7 @@ async def set_minute_callback(call, state):
         text=templates.USER_SUBSCRIBED.format(time.hour, time.minute),
         chat_id=call.message.chat.id,
     )
-    logger.info(f"Пользователь {user_id} внесён в рассылку")
+    logger.info("Пользователь {} внесён в рассылку", user_id)
     await state.finish()
 
 
@@ -150,7 +150,7 @@ async def change_minute_callback(call, state):
         text=templates.USER_CHANGED_MAILING_TIME.format(time.hour, time.minute),
         chat_id=call.message.chat.id,
     )
-    logger.info(f"Пользователь {user_id} изменил время рассылки")
+    logger.info("Пользователь {} изменил время рассылки", user_id)
     await state.finish()
 
 
@@ -159,7 +159,7 @@ async def cancel_mailing(message):
     user_id = message.from_user["id"]
     await db.delete_subscriber(user_id)
     await message.answer("Успешно удалено из подписки")
-    logger.info(f"Пользователь {user_id} удалён из подписки")
+    logger.info("Пользователь {} удалён из подписки", user_id)
 
 
 # MAIN
