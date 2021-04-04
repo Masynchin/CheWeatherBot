@@ -1,5 +1,4 @@
 import asyncio
-import os
 
 from sqlalchemy import Column, Integer, Time
 from sqlalchemy.orm import declarative_base, sessionmaker
@@ -7,10 +6,10 @@ from sqlalchemy.sql import exists
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.future import select
 
+import config
 
-database_url = os.getenv(
-    "DATABASE_URL", "sqlite+aiosqlite:///db/subscribers.db")
-engine = create_async_engine(database_url)
+
+engine = create_async_engine(config.DATABASE_URL)
 Base = declarative_base()
 
 

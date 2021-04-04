@@ -12,3 +12,6 @@ WEATHER_API_URL = "https://api.openweathermap.org/data/2.5/onecall?" + urlencode
     "exclude": "minutely",
     "lang": "ru",
 })
+
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "sqlite+aiosqlite:///db/subscribers.db")
