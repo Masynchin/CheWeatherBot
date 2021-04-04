@@ -96,9 +96,9 @@ async def subscribe_to_mailing(message):
 @dp.callback_query_handler(state=NewSub.hour)
 async def set_hour_callback(call, state):
     await state.update_data(hour=int(call.data))
-    await NewSub.next()
     await call.message.edit_text(
         "Выберите минуты:", reply_markup=keyboards.minute_choice)
+    await NewSub.next()
 
 
 @dp.callback_query_handler(state=NewSub.minute)
@@ -108,13 +108,13 @@ async def set_minute_callback(call, state):
         time = dt.time(hour=data["hour"], minute=int(call.data))
         await db.new_subscriber(user_id, time)
 
+    await state.finish()
     await call.message.delete()
     await bot.send_message(
         text=templates.USER_SUBSCRIBED.format(time.hour, time.minute),
         chat_id=call.message.chat.id,
     )
     logger.info("Пользователь {} внесён в рассылку", user_id)
-    await state.finish()
 
 
 class ChangeTime(StatesGroup):
