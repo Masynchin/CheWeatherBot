@@ -154,9 +154,9 @@ async def change_time_mailing(message):
     Пользователь решил поменять время рассылки,
     отправляем клавиатуру с выбором нового часа рассылки
     """
-    await ChangeTime.hour.set()
     await message.answer(
         "Выберите час:", reply_markup=keyboards.hour_choice)
+    await ChangeTime.hour.set()
 
 
 @dp.callback_query_handler(state=ChangeTime.hour)
@@ -179,13 +179,13 @@ async def change_minute_callback(call, state):
         time = dt.time(hour=data["hour"], minute=int(call.data))
         await db.change_subscriber_mailing_time(user_id, time)
 
+    await state.finish()
     await call.message.delete()
     await bot.send_message(
         text=templates.USER_CHANGED_MAILING_TIME.format(time.hour, time.minute),
         chat_id=call.message.chat.id,
     )
     logger.info("Пользователь {} изменил время рассылки", user_id)
-    await state.finish()
 
 
 @dp.message_handler(commands=["cancel_mailing"])
