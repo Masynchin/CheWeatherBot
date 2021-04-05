@@ -1,3 +1,5 @@
+"""Модуль для получения погоды с сайта данных о погоде"""
+
 import datetime as dt
 
 import aiohttp
@@ -7,28 +9,36 @@ from weather_classes import WeatherResponse
 
 
 async def current_weather():
+    """Получение текущей погоды - сводка и её тип (ясно, облачно и т.п.)"""
     weather = await get_weather()
     return (weather.current_weather(), weather.current_weather_type())
 
 
 async def hourly_forecast():
+    """Получение прогноза на час - сводка и его тип (ясно, облачно и т.п.)"""
     weather = await get_weather()
     return (weather.houry_forecast(), weather.houry_forecast_type())
 
 
 async def daily_forecast():
+    """Получение прогноза на день - сводка и его тип (ясно, облачно и т.п.)"""
     weather = await get_weather()
     return (weather.daily_forecast(), weather.daily_forecast_type())
 
 
 async def get_weather():
-    """Кеширование результатов погоды раз в 5 минут"""
+    """Кеширование результатов погоды раз в 5 минут.
+
+    Эта фукнция вызывается снаружи, внутри она вызывает _get_weather(),
+    но уже с параметром времени, по которому происходит кеширование
+    """
     now = dt.datetime.now()
     time = (now.hour, now.minute // 5 * 5)
     return await _get_weather(time)
 
 
 def cached(old_weather):
+    """Декоратор для кеширования функций _get_weather() по времени"""
     cached_dict = {}
 
     async def cached_weather(time):
@@ -47,6 +57,7 @@ def cached(old_weather):
 
 @cached
 async def _get_weather():
+    """Получение прогноза погода в виде экземляра WeatherResponse"""
     async with aiohttp.ClientSession() as session:
         async with session.get(config.WEATHER_API_URL) as response:
             data = await response.json()

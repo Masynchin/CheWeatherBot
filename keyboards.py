@@ -1,3 +1,8 @@
+"""Модуль с клавиатурами для пользователей.
+
+Содержит все клавиатуры и их команды ('Помощь', 'О рассылке' и т.д.)
+"""
+
 from aiogram.types import (
     ReplyKeyboardMarkup,
     KeyboardButton,
@@ -6,6 +11,7 @@ from aiogram.types import (
 )
 
 
+# команды на клавиатуре, импортируются в main
 WEATHER = "Текущая погода \N{glowing star}"
 HOUR_FORECAST = "В ближайший час \N{sun behind cloud}"
 TOMORROW_FORECAST = "На завтра \N{cloud}"
@@ -14,6 +20,7 @@ HELP = "Помощь \N{books}"
 
 
 def _create_main_keyboard():
+    """Основная клавиатура. Создаётся на месте"""
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row(KeyboardButton(WEATHER))
     keyboard.row(
@@ -28,6 +35,7 @@ def _create_main_keyboard():
 
 
 def _create_hour_choice_keyboard():
+    """Inline-клавиатура для выбора часа рассылки. Создаётся на месте"""
     inline_keyboard = InlineKeyboardMarkup()
     hours = [f"{hour:02}" for hour in range(24)]
     for i in range(0, 24, 6):
@@ -40,6 +48,7 @@ def _create_hour_choice_keyboard():
 
 
 def _create_minute_choice_keyboard():
+    """Inline-клавиатура для выбора минуты рассылки. Создаётся на месте"""
     inline_keyboard = InlineKeyboardMarkup()
     minutes = [f"{minute:02}" for minute in range(0, 60, 15)]
     inline_keyboard.row(*[
