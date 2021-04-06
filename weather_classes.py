@@ -1,3 +1,9 @@
+"""Модуль с классом обработки ответа с погодного сервера.
+
+Содержит основной класс - WeatherResponse, которий используется
+для получения сводки погоды в виде текста
+"""
+
 import datetime as dt
 from string import ascii_letters
 from typing import List, Optional
@@ -86,6 +92,13 @@ def _is_english_alert(alert):
 
 
 class WeatherResponse(BaseModel):
+    """Класс, преобразующий ответ с погодного сайта в удобный формат.
+
+    Предназначен для получения сводки погоды/прогноза в виде текста.
+    Предоставляет числовые данные - температура, ветренность, облачность,
+    влажность и скорость ветра. Также выдаёт предупреждения, если таковые есть
+    """
+
     current: Weather
     hourly: List[Weather]
     daily: List[DailyWeather]
