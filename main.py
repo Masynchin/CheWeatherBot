@@ -202,14 +202,16 @@ async def cancel_mailing(message):
 
 @logger.catch(level="CRITICAL")
 def main():
-    """Главная функция, отвечающая за приём сообщений и рассылку"""
-
-    # добавляем рассылку в loop
-    loop = asyncio.get_event_loop()
-    loop.create_task(mailing.mailing(bot, logger))
-    # запускаем поллинг
+    """Главная функция, отвечающая за запуск бота и рассылки"""
     logger.info("Запуск")
-    executor.start_polling(dp, loop=loop, skip_updates=True)
+    main_loop = asyncio.get_event_loop()
+    add_mailing_to_main_loop(main_loop)
+    executor.start_polling(dp, loop=main_loop, skip_updates=True)
+
+
+def add_mailing_to_main_loop(loop):
+    """Добавляем асинхронную рассылку в основной event loop"""
+    loop.create_task(mailing.mailing(bot, logger))
 
 
 if __name__ == "__main__":
