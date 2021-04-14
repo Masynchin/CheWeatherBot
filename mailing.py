@@ -6,13 +6,14 @@
 import asyncio
 
 import db
+from logger import logger
 import stickers
 import templates
 import utils
 import weather
 
 
-async def mailing(bot, logger):
+async def mailing(bot):
     """Отправление рассылки.
     
     Функция импортируется в main, где встаивается в основной loop.

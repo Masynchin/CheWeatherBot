@@ -247,7 +247,7 @@ def main():
 
 def add_mailing_to_main_loop(loop):
     """Добавляем асинхронную рассылку в основной event loop"""
-    loop.create_task(mailing.mailing(bot, logger))
+    loop.create_task(mailing.mailing(bot))
 
 
 if __name__ == "__main__":
