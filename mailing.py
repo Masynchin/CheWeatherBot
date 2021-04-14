@@ -25,19 +25,16 @@ async def mailing(bot, logger):
 
         subscribers = await db.get_subscribers_by_mailing_time(next_fifteen)
         forecast, wtype = await weather.get_current_weather()
+
         for subscriber in subscribers:
             user_id = subscriber.id
             sticker = stickers.get_by_weather(wtype)
             await bot.send_sticker(user_id, sticker)
-            msg = await bot.send_message(
+            message = await bot.send_message(
                 user_id, f"Ваш ежедневный прогноз 🤗\n\n{forecast}")
-            logger.info(f"Пользователь {user_id} получил ежедневный прогноз")
+            await unpin_all_and_pin_message(bot, message)
 
-            await bot.pin_chat_message(
-                chat_id=msg.chat.id,
-                message_id=msg.message_id,
-                disable_notification=True,
-            )
+            logger.info(f"Пользователь {user_id} получил ежедневный прогноз")
 
 
 def _get_next_fifteen_minutes():
@@ -50,6 +47,16 @@ def _get_next_fifteen_minutes():
     next_fifteen = utils.get_next_time_round_by_fifteen_minutes(now)
     seconds_delta = utils.get_time_difference(next_fifteen, now)
     return seconds_delta, next_fifteen.time()
+
+
+async def unpin_all_and_pin_message(bot, message):
+    """Открепляем все предыдущие прогнозы и прикляем новый"""
+    await bot.unpin_all_chat_messages(message.chat.id)
+    await bot.pin_chat_message(
+        chat_id=message.chat.id,
+        message_id=message.message_id,
+        disable_notification=True,
+    )
 
 
 async def get_user_mailing_info(user_id):
