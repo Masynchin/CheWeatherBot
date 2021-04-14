@@ -4,18 +4,16 @@
 """
 
 import asyncio
-import datetime as dt
-from random import choice
-
-import pytz
 
 import db
+from logger import logger
 import stickers
 import templates
+import utils
 import weather
 
 
-async def mailing(bot, logger):
+async def mailing(bot):
     """Отправление рассылки.
     
     Функция импортируется в main, где встаивается в основной loop.
@@ -28,19 +26,16 @@ async def mailing(bot, logger):
 
         subscribers = await db.get_subscribers_by_mailing_time(next_fifteen)
         forecast, wtype = await weather.get_current_weather()
+
         for subscriber in subscribers:
             user_id = subscriber.id
             sticker = stickers.get_by_weather(wtype)
             await bot.send_sticker(user_id, sticker)
-            msg = await bot.send_message(
-                user_id, f"Ваш ежедневный прогноз 🤗\n\n{forecast}")
-            logger.info(f"Пользователь {user_id} получил ежедневный прогноз")
+            message = await bot.send_message(
+                user_id, templates.MAILING_MESSAGE.format(forecast))
+            await unpin_all_and_pin_message(bot, message)
 
-            await bot.pin_chat_message(
-                chat_id=msg.chat.id,
-                message_id=msg.message_id,
-                disable_notification=True,
-            )
+            logger.info(f"Пользователь {user_id} получил ежедневный прогноз")
 
 
 def _get_next_fifteen_minutes():
@@ -49,28 +44,20 @@ def _get_next_fifteen_minutes():
     Функция вызывается раз в 15 минут, выдаёт количество секунд, на которое
     должна заснуть рассылка, и само время, по которому она опросит БД
     """
-    now = _get_current_time()
-    next_fifteen = _round_time_by_fifteen_minutes(now) + dt.timedelta(minutes=15)
-    seconds_delta = _get_time_difference(next_fifteen, now)
+    now = utils.get_current_time()
+    next_fifteen = utils.get_next_time_round_by_fifteen_minutes(now)
+    seconds_delta = utils.get_time_difference(next_fifteen, now)
     return seconds_delta, next_fifteen.time()
 
 
-def _get_current_time():
-    """Текущее время по Москве (часовой пояс Череповца)"""
-    return dt.datetime.now(pytz.timezone("Europe/Moscow"))
-
-
-def _round_time_by_fifteen_minutes(time):
-    """Округляем время до кратного 15 минутам.
-
-    Например: 15.37.123456 -> 15.30.00
-    """
-    return time.replace(minute=time.minute // 15 * 15, second=0, microsecond=0)
-
-
-def _get_time_difference(time1, time2):
-    """Получаем количество секунд между двумя временами"""
-    return (time1 - time2).total_seconds()
+async def unpin_all_and_pin_message(bot, message):
+    """Открепляем все предыдущие прогнозы и прикляем новый"""
+    await bot.unpin_all_chat_messages(message.chat.id)
+    await bot.pin_chat_message(
+        chat_id=message.chat.id,
+        message_id=message.message_id,
+        disable_notification=True,
+    )
 
 
 async def get_user_mailing_info(user_id):

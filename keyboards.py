@@ -10,11 +10,14 @@ from aiogram.types import (
     InlineKeyboardButton,
 )
 
+import utils
+
 
 # команды на клавиатуре, импортируются в main
 WEATHER = "Текущая погода \N{glowing star}"
 HOUR_FORECAST = "В ближайший час \N{sun behind cloud}"
-TOMORROW_FORECAST = "На завтра \N{cloud}"
+EXACT_HOUR_FORECAST = "В ... часов \N{cloud}"
+TOMORROW_FORECAST = "На завтра \N{umbrella with rain drops}"
 MAILING = "О рассылке \N{open mailbox with raised flag}"
 HELP = "Помощь \N{books}"
 
@@ -22,10 +25,13 @@ HELP = "Помощь \N{books}"
 def _create_main_keyboard():
     """Основная клавиатура. Создаётся на месте"""
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row(KeyboardButton(WEATHER))
     keyboard.row(
+        KeyboardButton(WEATHER),
         KeyboardButton(HOUR_FORECAST),
-        KeyboardButton(TOMORROW_FORECAST)
+    )
+    keyboard.row(
+        KeyboardButton(EXACT_HOUR_FORECAST),
+        KeyboardButton(TOMORROW_FORECAST),
     )
     keyboard.row(
         KeyboardButton(MAILING),
@@ -54,6 +60,20 @@ def _create_minute_choice_keyboard():
     inline_keyboard.row(*[
         InlineKeyboardButton(minute, callback_data=minute) for minute in minutes
     ])
+    return inline_keyboard
+
+
+def forecast_hour_choice():
+    """Inline-клавиатура для выбора минуты рассылки. Вызывается из main"""
+    start_time = utils.get_current_time()
+    start_time = utils.round_time_by_hours(start_time)
+
+    inline_keyboard = InlineKeyboardMarkup()
+    hours = utils.get_next_twelve_hours(start_time)
+    for row in zip(hours[:4], hours[4:8], hours[8:]):
+        row = [InlineKeyboardButton(b, callback_data=b) for b in row]
+        inline_keyboard.row(*row)
+
     return inline_keyboard
 
 

@@ -6,12 +6,15 @@
 
 import keyboards
 
+
 WELCOME = (
     "Это бот, позволяющий получить информацию о погоде в Череповце\n\n"
     "Этой командой (/start) вам выдаётся клавиатура, "
     "на которой расположены основные команды:\n\n"
     f"*{keyboards.WEATHER}* - позволяет получить данные о текущей погоде\n"
     f"*{keyboards.HOUR_FORECAST}* - позволяет получить прогноз погоды на ближайший час\n"
+    f"*{keyboards.EXACT_HOUR_FORECAST}* - позволяет получить прогноз погоды "
+    "в конкретный час, в пределах следующих 12 часов\n"
     f"*{keyboards.TOMORROW_FORECAST}* - позволяет получить прогноз погоды на завтра\n"
     f"*{keyboards.MAILING}* - позволяет узнать о подписке на ежедневный прогноз погоды\n"
     f"*{keyboards.HELP}* - поможет разобраться с управлением"
@@ -22,10 +25,11 @@ INFO = (
     "Основные функции бота:\n"
     f"*{keyboards.WEATHER}* - получить текущую погоду\n"
     f"*{keyboards.HOUR_FORECAST}* - получить прогноз погоды на ближайший час\n"
+    f"*{keyboards.EXACT_HOUR_FORECAST}* - получить прогноз погоды в конкретный час\n"
     f"*{keyboards.TOMORROW_FORECAST}* - получить прогноз погоды на завтра\n"
     f"*{keyboards.MAILING}* - получить информацию о рассылке\n\n"
     "Эти команды расположены на клавиатуре, "
-    "которую бот выдаёт при вводе команды /start. "
+    "которую бот выдаёт в ответ на команду /start. "
     "Если у вас её нет, то нажмите на эту команду"
 )
 
@@ -71,3 +75,5 @@ DAILY_FORECAST_WITH_WIND_GUST = DAILY_FORECAST.replace(
     "Ветер: {wind_speed}", "Ветер: {wind_speed} (порывы до {wind_gust})")
 
 ALERT = "⚠ {event} ({description})"
+
+MAILING_MESSAGE = "Ваш ежедневный прогноз \N{smiling face with smiling eyes}\n\n{}"
