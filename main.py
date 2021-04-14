@@ -70,6 +70,42 @@ async def send_hour_forecast(message):
         "Пользователь {} получил прогноз погоды на час", message.from_user["id"])
 
 
+class ChooseForecastHour(StatesGroup):
+    """Состояние пользователя при выборе конкретного часа прогноза"""
+    hour = State()
+
+
+@dp.message_handler(TextFilter(equals=keyboards.EXACT_HOUR_FORECAST))
+async def send_exact_hour_forecast(message):
+    """
+    Пользователь назавал на кнопку прогноза в конкретный час.
+    Отправляем клавиатуру с двенадцатью ближайшими часами
+    """
+    await ChooseForecastHour.hour.set()
+    await message.answer(
+        "Выберите час прогноза:", reply_markup=keyboards.forecast_hour_choice())
+
+
+@dp.callback_query_handler(state=ChooseForecastHour.hour)
+async def handle_hour_forecast_choice(call, state):
+    """Отправка прогноза на час, выбранный пользователем"""
+    await state.finish()
+
+    hour = dt.datetime.strptime(call.data, "%H:%M").time()
+    text, wtype = await weather.get_exact_hour_forecast(hour)
+    sticker = stickers.get_by_weather(wtype)
+
+    hour = hour.strftime("%H:%M")
+    await call.message.edit_text(f"Прогноз на {hour}")
+    await call.message.answer_sticker(sticker)
+    await call.message.answer(text)
+    logger.info(
+        "Пользователь {} получил прогноз погоды на {} часов",
+        call.from_user["id"],
+        hour,
+    )
+
+
 @dp.message_handler(TextFilter(equals=keyboards.TOMORROW_FORECAST))
 async def send_weather(message):
     """Отправка прогноза на день"""

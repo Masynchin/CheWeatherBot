@@ -4,14 +4,11 @@
 """
 
 import asyncio
-import datetime as dt
-from random import choice
-
-import pytz
 
 import db
 import stickers
 import templates
+import utils
 import weather
 
 
@@ -49,28 +46,10 @@ def _get_next_fifteen_minutes():
     Функция вызывается раз в 15 минут, выдаёт количество секунд, на которое
     должна заснуть рассылка, и само время, по которому она опросит БД
     """
-    now = _get_current_time()
-    next_fifteen = _round_time_by_fifteen_minutes(now) + dt.timedelta(minutes=15)
-    seconds_delta = _get_time_difference(next_fifteen, now)
+    now = utils.get_current_time()
+    next_fifteen = utils.get_next_time_round_by_fifteen_minutes(now)
+    seconds_delta = utils.get_time_difference(next_fifteen, now)
     return seconds_delta, next_fifteen.time()
-
-
-def _get_current_time():
-    """Текущее время по Москве (часовой пояс Череповца)"""
-    return dt.datetime.now(pytz.timezone("Europe/Moscow"))
-
-
-def _round_time_by_fifteen_minutes(time):
-    """Округляем время до кратного 15 минутам.
-
-    Например: 15.37.123456 -> 15.30.00
-    """
-    return time.replace(minute=time.minute // 15 * 15, second=0, microsecond=0)
-
-
-def _get_time_difference(time1, time2):
-    """Получаем количество секунд между двумя временами"""
-    return (time1 - time2).total_seconds()
 
 
 async def get_user_mailing_info(user_id):

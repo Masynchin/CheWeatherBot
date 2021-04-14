@@ -1,10 +1,9 @@
 """Модуль для получения погоды с сайта данных о погоде"""
 
-import datetime as dt
-
 import aiohttp
 
 import config
+import utils
 from weather_classes import WeatherResponse
 
 
@@ -20,6 +19,14 @@ async def get_hourly_forecast():
     return (weather.houry_forecast(), weather.houry_forecast_type())
 
 
+async def get_exact_hour_forecast(hour):
+    weather = await get_weather()
+    return (
+        weather.exact_hour_forecast(hour),
+        weather.exact_hour_forecast_type(hour)
+    )
+
+
 async def get_daily_forecast():
     """Получение прогноза на день - сводка и его тип (ясно, облачно и т.п.)"""
     weather = await get_weather()
@@ -32,7 +39,7 @@ async def get_weather():
     Функция вызывает _get_weather() но с аргументом времени, по которому
     происходит кеширование результата ответа погодного сервера
     """
-    now = dt.datetime.now()
+    now = utils.get_current_time()
     time = (now.hour, now.minute // 5 * 5)
     return await _get_weather(time)
 

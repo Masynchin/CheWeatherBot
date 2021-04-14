@@ -142,6 +142,24 @@ class WeatherResponse(BaseModel):
         nearest_forecast = min(future_forecasts, key=lambda f: f.timestamp)
         return nearest_forecast
 
+    def exact_hour_forecast(self, hour):
+        forecast = self._get_exact_hour_forecast(hour)
+        text = (templates.WEATHER_WITH_WIND_GUST
+            if forecast.wind_gust is not None else templates.WEATHER)
+
+        return text.format(
+            **forecast.weather_type.dict(),
+            **forecast.dict()
+        ) + self._generate_alert_text()
+
+    def exact_hour_forecast_type(self, hour):
+        forecast = self._get_exact_hour_forecast(hour)
+        return forecast.weather_type.main
+
+    def _get_exact_hour_forecast(self, hour):
+        forecast = [f for f in self.hourly if f.timestamp.time() == hour][0]
+        return forecast
+
     def daily_forecast(self):
         forecast = self._get_nearest_daily_forecast()
         text = (templates.DAILY_FORECAST_WITH_WIND_GUST
