@@ -75,3 +75,5 @@ DAILY_FORECAST_WITH_WIND_GUST = DAILY_FORECAST.replace(
     "Ветер: {wind_speed}", "Ветер: {wind_speed} (порывы до {wind_gust})")
 
 ALERT = "⚠ {event} ({description})"
+
+MAILING_MESSAGE = "Ваш ежедневный прогноз \N{smiling face with smiling eyes}\n\n{}"
