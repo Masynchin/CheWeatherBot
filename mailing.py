@@ -24,9 +24,9 @@ async def mailing(bot):
         seconds_delta, next_fifteen = _get_next_fifteen_minutes()
         await asyncio.sleep(seconds_delta)
 
-        subscribers = await db.get_subscribers_by_mailing_time(next_fifteen)
         forecast, wtype = await weather.get_current_weather()
         sticker = stickers.get_by_weather(wtype)
+        subscribers = await db.get_subscribers_by_mailing_time(next_fifteen)
 
         for subscriber in subscribers:
             user_id = subscriber.id
