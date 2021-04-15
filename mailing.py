@@ -26,10 +26,10 @@ async def mailing(bot):
 
         subscribers = await db.get_subscribers_by_mailing_time(next_fifteen)
         forecast, wtype = await weather.get_current_weather()
+        sticker = stickers.get_by_weather(wtype)
 
         for subscriber in subscribers:
             user_id = subscriber.id
-            sticker = stickers.get_by_weather(wtype)
             await bot.send_sticker(user_id, sticker)
             message = await bot.send_message(
                 user_id, templates.MAILING_MESSAGE.format(forecast))
