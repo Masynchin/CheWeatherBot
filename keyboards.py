@@ -18,26 +18,20 @@ WEATHER = "Текущая погода \N{glowing star}"
 HOUR_FORECAST = "В ближайший час \N{sun behind cloud}"
 EXACT_HOUR_FORECAST = "В ... часов \N{cloud}"
 TOMORROW_FORECAST = "На завтра \N{umbrella with rain drops}"
-MAILING = "О рассылке \N{open mailbox with raised flag}"
+EXACT_DAY_FORECAST = "В конкретный день \N{closed umbrella}"
+MAILING = "О рассылке \N{postbox}"
 HELP = "Помощь \N{books}"
 
 
 def _create_main_keyboard():
     """Основная клавиатура. Создаётся на месте"""
-    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row(
-        KeyboardButton(WEATHER),
-        KeyboardButton(HOUR_FORECAST),
-    )
-    keyboard.row(
-        KeyboardButton(EXACT_HOUR_FORECAST),
-        KeyboardButton(TOMORROW_FORECAST),
-    )
-    keyboard.row(
-        KeyboardButton(MAILING),
-        KeyboardButton(HELP),
-    )
-    return keyboard
+    buttons = [
+        [KeyboardButton(WEATHER), KeyboardButton(HOUR_FORECAST)],
+        [KeyboardButton(EXACT_HOUR_FORECAST), KeyboardButton(TOMORROW_FORECAST)],
+        [KeyboardButton(EXACT_DAY_FORECAST)],
+        [KeyboardButton(MAILING), KeyboardButton(HELP)],
+    ]
+    return ReplyKeyboardMarkup(buttons, resize_keyboard=True)
 
 
 def _create_hour_choice_keyboard():
@@ -65,14 +59,30 @@ def _create_minute_choice_keyboard():
 
 def forecast_hour_choice():
     """Inline-клавиатура для выбора минуты рассылки. Вызывается из main"""
-    start_time = utils.get_current_time()
-    start_time = utils.round_time_by_hours(start_time)
-
     inline_keyboard = InlineKeyboardMarkup()
-    hours = utils.get_next_twelve_hours(start_time)
-    for row in zip(hours[:4], hours[4:8], hours[8:]):
-        row = [InlineKeyboardButton(b, callback_data=b) for b in row]
-        inline_keyboard.row(*row)
+    hours = utils.get_next_twelve_hours()
+    hours_splitted_by_three_columns = zip(hours[:4], hours[4:8], hours[8:])
+
+    for row in hours_splitted_by_three_columns:
+        inline_keyboard.row(*[
+            InlineKeyboardButton(
+                utils.format_date_as_hour(hour),
+                callback_data=hour.timestamp(),
+            )
+            for hour in row
+        ])
+
+    return inline_keyboard
+
+
+def forecast_day_choice():
+    """Inline-клавиатура для выбора дня рассылки. Вызывается из main"""
+    inline_keyboard = InlineKeyboardMarkup()
+    for day in utils.get_next_seven_days():
+        text = utils.format_date_as_day(day)
+        timestamp = day.timestamp()
+        button = InlineKeyboardButton(text, callback_data=timestamp)
+        inline_keyboard.row(button)
 
     return inline_keyboard
 

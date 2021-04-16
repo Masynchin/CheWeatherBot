@@ -157,7 +157,7 @@ class WeatherResponse(BaseModel):
         return forecast.weather_type.main
 
     def _get_exact_hour_forecast(self, hour):
-        forecast = [f for f in self.hourly if f.timestamp.time() == hour][0]
+        forecast = [f for f in self.hourly if f.timestamp == hour][0]
         return forecast
 
     def daily_forecast(self):
@@ -169,6 +169,7 @@ class WeatherResponse(BaseModel):
             **forecast.dict(),
             **forecast.feels_like.dict(),
             **forecast.temp.dict(),
+            **forecast.weather_type.dict(),
         ) + self._generate_alert_text()
 
     def daily_forecast_type(self):
@@ -180,6 +181,26 @@ class WeatherResponse(BaseModel):
         future_forecasts = filter(lambda f: f.timestamp > now, self.daily)
         nearest_forecast = min(future_forecasts, key=lambda f: f.timestamp)
         return nearest_forecast
+
+    def exact_day_forecast(self, day):
+        forecast = self._get_exact_day_forecast(day)
+        text = (templates.DAILY_FORECAST_WITH_WIND_GUST
+            if forecast.wind_gust is not None else templates.DAILY_FORECAST)
+
+        return text.format(
+            **forecast.dict(),
+            **forecast.feels_like.dict(),
+            **forecast.temp.dict(),
+            **forecast.weather_type.dict(),
+        ) + self._generate_alert_text()
+
+    def exact_day_forecast_type(self, day):
+        forecast = self._get_exact_day_forecast(day)
+        return forecast.weather_type.main
+
+    def _get_exact_day_forecast(self, day):
+        forecast = [f for f in self.daily if f.timestamp.date() == day.date()][0]
+        return forecast
 
     def _generate_alert_text(self):
         if not self.alerts:

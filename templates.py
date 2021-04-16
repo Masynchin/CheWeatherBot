@@ -16,6 +16,8 @@ WELCOME = (
     f"*{keyboards.EXACT_HOUR_FORECAST}* - позволяет получить прогноз погоды "
     "в конкретный час, в пределах следующих 12 часов\n"
     f"*{keyboards.TOMORROW_FORECAST}* - позволяет получить прогноз погоды на завтра\n"
+    f"*{keyboards.EXACT_DAY_FORECAST}* - позволяет получить прогноз погоды "
+    "в конкретный день, в пределах следующей недели\n"
     f"*{keyboards.MAILING}* - позволяет узнать о подписке на ежедневный прогноз погоды\n"
     f"*{keyboards.HELP}* - поможет разобраться с управлением"
 )
@@ -27,6 +29,7 @@ INFO = (
     f"*{keyboards.HOUR_FORECAST}* - получить прогноз погоды на ближайший час\n"
     f"*{keyboards.EXACT_HOUR_FORECAST}* - получить прогноз погоды в конкретный час\n"
     f"*{keyboards.TOMORROW_FORECAST}* - получить прогноз погоды на завтра\n"
+    f"*{keyboards.EXACT_DAY_FORECAST}* - получить прогноз погоды в конкретный день\n"
     f"*{keyboards.MAILING}* - получить информацию о рассылке\n\n"
     "Эти команды расположены на клавиатуре, "
     "которую бот выдаёт в ответ на команду /start. "
@@ -61,6 +64,7 @@ WEATHER_WITH_WIND_GUST = WEATHER.replace(
     "Ветер: {wind_speed}", "Ветер: {wind_speed} (порывы до {wind_gust})")
 
 DAILY_FORECAST = (
+    "{description}\n\n"
     "Утром: {morn_temp} (ощущается как {morn_feels_like})\n"
     "Днём: {day_temp} (ощущается как {day_feels_like})\n"
     "Вечером: {eve_temp} (ощущается как {eve_feels_like})\n"
@@ -77,3 +81,5 @@ DAILY_FORECAST_WITH_WIND_GUST = DAILY_FORECAST.replace(
 ALERT = "⚠ {event} ({description})"
 
 MAILING_MESSAGE = "Ваш ежедневный прогноз \N{smiling face with smiling eyes}\n\n{}"
+
+MAINTAINCE_MESSAGE = "Произошла непредвиденная ошибка. Мастера уже в пути!"

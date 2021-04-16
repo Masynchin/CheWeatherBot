@@ -14,12 +14,19 @@ async def get_current_weather():
 
 
 async def get_hourly_forecast():
-    """Получение прогноза на час - сводка и его тип (ясно, облачно и т.п.)"""
+    """
+    Получение прогноза на час -
+    сводка и тип погоды (ясно, облачно и т.п.)
+    """
     weather = await get_weather()
     return (weather.houry_forecast(), weather.houry_forecast_type())
 
 
 async def get_exact_hour_forecast(hour):
+    """
+    Получение прогноза в конкретный час -
+    сводка и тип погоды (ясно, облачно и т.п.)
+    """
     weather = await get_weather()
     return (
         weather.exact_hour_forecast(hour),
@@ -31,6 +38,18 @@ async def get_daily_forecast():
     """Получение прогноза на день - сводка и его тип (ясно, облачно и т.п.)"""
     weather = await get_weather()
     return (weather.daily_forecast(), weather.daily_forecast_type())
+
+
+async def get_exact_day_forecast(day):
+    """
+    Получение прогноза в конкретный день -
+    сводка и тип погоды (ясно, облачно и т.п.)
+    """
+    weather = await get_weather()
+    return (
+        weather.exact_day_forecast(day),
+        weather.exact_day_forecast_type(day)
+    )
 
 
 async def get_weather():
