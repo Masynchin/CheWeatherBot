@@ -44,3 +44,37 @@ def _round_time_by_fifteen_minutes(time):
 def get_time_difference(time1, time2):
     """Получаем количество секунд между двумя временами"""
     return (time1 - time2).total_seconds()
+
+
+def get_next_seven_days():
+    """Получаем следующие семь дней начиная от завтрашнего"""
+    start_day = get_current_time()
+    return [start_day + dt.timedelta(days=i) for i in range(1, 8)]
+
+
+def convert_json_timestamp_to_datetime(json_timestamp):
+    """Перевод таймштампа из JSON'а колбэка в dt.datetime
+
+    Например: '16892286320.0' -> dt.datetime(...)
+    """
+    timestamp = int(float(json_timestamp))
+    return dt.datetime.utcfromtimestamp(timestamp)
+
+
+def format_date_as_day(date):
+    """Преобразуем dt.datetime в строку вида 'день - дд.мм'
+
+    Например: dt.datetime(..day=15, month=4..) -> 'Четверг - 22.04'
+    """
+    weekday = get_weekday_name_from_datetime(date)
+    return date.strftime(f"{weekday} - %d.%m")
+
+
+def get_weekday_name_from_datetime(date):
+    """Получаем день недели на русском из dt.datetime"""
+    current_date = date.astimezone(pytz.timezone("Europe/Moscow"))
+    weekday_index = current_date.weekday()
+    return [
+        "Понедельник", "Вторник", "Среда", "Четверг",
+        "Пятница", "Суббота", "Воскресенье",
+    ][weekday_index]

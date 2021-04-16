@@ -40,6 +40,18 @@ async def get_daily_forecast():
     return (weather.daily_forecast(), weather.daily_forecast_type())
 
 
+async def get_exact_day_forecast(day):
+    """
+    Получение прогноза в конкретный день -
+    сводка и тип погоды (ясно, облачно и т.п.)
+    """
+    weather = await get_weather()
+    return (
+        weather.exact_day_forecast(day),
+        weather.exact_day_forecast_type(day)
+    )
+
+
 async def get_weather():
     """Кеширование результатов погоды раз в 5 минут.
 

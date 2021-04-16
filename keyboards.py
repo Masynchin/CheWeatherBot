@@ -18,6 +18,7 @@ WEATHER = "Текущая погода \N{glowing star}"
 HOUR_FORECAST = "В ближайший час \N{sun behind cloud}"
 EXACT_HOUR_FORECAST = "В ... часов \N{cloud}"
 TOMORROW_FORECAST = "На завтра \N{umbrella with rain drops}"
+EXACT_DAY_FORECAST = "В конкретный день \N{closed umbrella}"
 MAILING = "О рассылке \N{open mailbox with raised flag}"
 HELP = "Помощь \N{books}"
 
@@ -32,6 +33,9 @@ def _create_main_keyboard():
     keyboard.row(
         KeyboardButton(EXACT_HOUR_FORECAST),
         KeyboardButton(TOMORROW_FORECAST),
+    )
+    keyboard.row(
+        KeyboardButton(EXACT_DAY_FORECAST),
     )
     keyboard.row(
         KeyboardButton(MAILING),
@@ -73,6 +77,18 @@ def forecast_hour_choice():
     for row in zip(hours[:4], hours[4:8], hours[8:]):
         row = [InlineKeyboardButton(b, callback_data=b) for b in row]
         inline_keyboard.row(*row)
+
+    return inline_keyboard
+
+
+def forecast_day_choice():
+    """Inline-клавиатура для выбора дня рассылки. Вызывается из main"""
+    inline_keyboard = InlineKeyboardMarkup()
+    for day in utils.get_next_seven_days():
+        text = utils.format_date_as_day(day)
+        timestamp = day.timestamp()
+        button = InlineKeyboardButton(text, callback_data=timestamp)
+        inline_keyboard.row(button)
 
     return inline_keyboard
 

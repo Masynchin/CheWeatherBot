@@ -20,6 +20,7 @@ from logger import logger
 import mailing
 import templates
 import stickers
+import utils
 import weather
 
 
@@ -78,7 +79,7 @@ class ChooseForecastHour(StatesGroup):
 @dp.message_handler(TextFilter(equals=keyboards.EXACT_HOUR_FORECAST))
 async def send_exact_hour_forecast(message):
     """
-    Пользователь назавал на кнопку прогноза в конкретный час.
+    Пользователь нажал на кнопку прогноза в конкретный час.
     Отправляем клавиатуру с двенадцатью ближайшими часами
     """
     await ChooseForecastHour.hour.set()
@@ -115,6 +116,42 @@ async def send_weather(message):
     await message.answer(text)
     logger.info(
         "Пользователь {} получил прогноз погоды на день", message.from_user["id"])
+
+
+class ChooseForecastDay(StatesGroup):
+    """Состояние пользователя при выборе конкретного дня прогноза"""
+    day = State()
+
+
+@dp.message_handler(TextFilter(equals=keyboards.EXACT_DAY_FORECAST))
+async def send_exact_day_forecast(message):
+    """
+    Пользователь нажал на кнопку прогноза в конкретный день.
+    Отправляем клавиатуру со следующими семью днями
+    """
+    await ChooseForecastDay.day.set()
+    await message.answer(
+        "Выберите день прогноза:", reply_markup=keyboards.forecast_day_choice())
+
+
+@dp.callback_query_handler(state=ChooseForecastDay.day)
+async def handle_hour_forecast_choice(call, state):
+    """Отправка прогноза на день, выбранный пользователем"""
+    await state.finish()
+
+    day = utils.convert_json_timestamp_to_datetime(call.data)
+    text, wtype = await weather.get_exact_day_forecast(day)
+    sticker = stickers.get_by_weather(wtype)
+
+    day = utils.format_date_as_day(day)
+    await call.message.edit_text(f"Прогноз на {day}")
+    await call.message.answer_sticker(sticker)
+    await call.message.answer(text)
+    logger.info(
+        "Пользователь {} получил прогноз погоды на {}",
+        call.from_user["id"],
+        day,
+    )
 
 
 # О РАССЫЛКЕ
