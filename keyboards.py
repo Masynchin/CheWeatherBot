@@ -19,7 +19,7 @@ HOUR_FORECAST = "В ближайший час \N{sun behind cloud}"
 EXACT_HOUR_FORECAST = "В ... часов \N{cloud}"
 TOMORROW_FORECAST = "На завтра \N{umbrella with rain drops}"
 EXACT_DAY_FORECAST = "В конкретный день \N{closed umbrella}"
-MAILING = "О рассылке \N{open mailbox with raised flag}"
+MAILING = "О рассылке \N{postbox}"
 HELP = "Помощь \N{books}"
 
 
