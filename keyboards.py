@@ -25,23 +25,13 @@ HELP = "Помощь \N{books}"
 
 def _create_main_keyboard():
     """Основная клавиатура. Создаётся на месте"""
-    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row(
-        KeyboardButton(WEATHER),
-        KeyboardButton(HOUR_FORECAST),
-    )
-    keyboard.row(
-        KeyboardButton(EXACT_HOUR_FORECAST),
-        KeyboardButton(TOMORROW_FORECAST),
-    )
-    keyboard.row(
-        KeyboardButton(EXACT_DAY_FORECAST),
-    )
-    keyboard.row(
-        KeyboardButton(MAILING),
-        KeyboardButton(HELP),
-    )
-    return keyboard
+    buttons = [
+        [KeyboardButton(WEATHER), KeyboardButton(HOUR_FORECAST)],
+        [KeyboardButton(EXACT_HOUR_FORECAST), KeyboardButton(TOMORROW_FORECAST)],
+        [KeyboardButton(EXACT_DAY_FORECAST)],
+        [KeyboardButton(MAILING), KeyboardButton(HELP)],
+    ]
+    return ReplyKeyboardMarkup(buttons, resize_keyboard=True)
 
 
 def _create_hour_choice_keyboard():
