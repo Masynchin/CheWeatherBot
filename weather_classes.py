@@ -169,6 +169,7 @@ class WeatherResponse(BaseModel):
             **forecast.dict(),
             **forecast.feels_like.dict(),
             **forecast.temp.dict(),
+            **forecast.weather_type.dict(),
         ) + self._generate_alert_text()
 
     def daily_forecast_type(self):
@@ -190,6 +191,7 @@ class WeatherResponse(BaseModel):
             **forecast.dict(),
             **forecast.feels_like.dict(),
             **forecast.temp.dict(),
+            **forecast.weather_type.dict(),
         ) + self._generate_alert_text()
 
     def exact_day_forecast_type(self, day):

@@ -64,6 +64,7 @@ WEATHER_WITH_WIND_GUST = WEATHER.replace(
     "Ветер: {wind_speed}", "Ветер: {wind_speed} (порывы до {wind_gust})")
 
 DAILY_FORECAST = (
+    "{description}\n\n"
     "Утром: {morn_temp} (ощущается как {morn_feels_like})\n"
     "Днём: {day_temp} (ощущается как {day_feels_like})\n"
     "Вечером: {eve_temp} (ощущается как {eve_feels_like})\n"
