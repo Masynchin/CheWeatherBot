@@ -157,7 +157,7 @@ class WeatherResponse(BaseModel):
         return forecast.weather_type.main
 
     def _get_exact_hour_forecast(self, hour):
-        forecast = [f for f in self.hourly if f.timestamp.time() == hour][0]
+        forecast = [f for f in self.hourly if f.timestamp == hour][0]
         return forecast
 
     def daily_forecast(self):

@@ -92,7 +92,7 @@ async def handle_hour_forecast_choice(call, state):
     """Отправка прогноза на час, выбранный пользователем"""
     await state.finish()
 
-    hour = dt.datetime.strptime(call.data, "%H:%M").time()
+    hour = utils.convert_json_timestamp_to_datetime(call.data)
     text, wtype = await weather.get_exact_hour_forecast(hour)
     sticker = stickers.get_by_weather(wtype)
 

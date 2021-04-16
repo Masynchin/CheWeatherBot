@@ -59,14 +59,18 @@ def _create_minute_choice_keyboard():
 
 def forecast_hour_choice():
     """Inline-клавиатура для выбора минуты рассылки. Вызывается из main"""
-    start_time = utils.get_current_time()
-    start_time = utils.round_time_by_hours(start_time)
-
     inline_keyboard = InlineKeyboardMarkup()
-    hours = utils.get_next_twelve_hours(start_time)
-    for row in zip(hours[:4], hours[4:8], hours[8:]):
-        row = [InlineKeyboardButton(b, callback_data=b) for b in row]
-        inline_keyboard.row(*row)
+    hours = utils.get_next_twelve_hours()
+    hours_splitted_by_three_columns = zip(hours[:4], hours[4:8], hours[8:])
+
+    for row in hours_splitted_by_three_columns:
+        inline_keyboard.row(*[
+            InlineKeyboardButton(
+                utils.format_date_as_hour(hour),
+                callback_data=hour.timestamp(),
+            )
+            for hour in row
+        ])
 
     return inline_keyboard
 
