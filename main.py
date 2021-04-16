@@ -270,6 +270,18 @@ async def cancel_mailing(message):
     logger.info("Пользователь {} удалён из подписки", user_id)
 
 
+# ОБРАБОТКА ОШИБОК
+
+
+@dp.errors_handler()
+async def handle_errors(update, error):
+    """Обработка непредвиденных ошибок"""
+    await update.message.answer_sticker(stickers.MAINTAINCE_STICKER)
+    await update.message.answer(templates.MAINTAINCE_MESSAGE)
+    logger.exception("Произошла непредвиденная ошибка!")
+    return True
+
+
 # MAIN
 
 

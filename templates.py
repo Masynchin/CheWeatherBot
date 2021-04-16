@@ -81,3 +81,5 @@ DAILY_FORECAST_WITH_WIND_GUST = DAILY_FORECAST.replace(
 ALERT = "⚠ {event} ({description})"
 
 MAILING_MESSAGE = "Ваш ежедневный прогноз \N{smiling face with smiling eyes}\n\n{}"
+
+MAINTAINCE_MESSAGE = "Произошла непредвиденная ошибка. Мастера уже в пути!"
