@@ -17,7 +17,7 @@ def _load_stickers():
 
 STICKERS = _load_stickers()
 
-UNDEFINED_WEATHER_STICKER = STICKERS["undefinedWeatherSticker"]
+UNDEFINED_WEATHER_STICKERS = STICKERS["undefinedWeatherStickers"]
 MAINTAINCE_STICKER = STICKERS["maintainceSticker"]
 STICKERS = STICKERS["weatherTypes"]
 
@@ -29,7 +29,7 @@ def get_by_weather(weather_type):
     """
     if weather_type not in STICKERS:
         _log_undefined_weather_type(weather_type)
-        return UNDEFINED_WEATHER_STICKER
+        return choice(UNDEFINED_WEATHER_STICKERS)
     return choice(STICKERS[weather_type])
 
 
