@@ -1,4 +1,5 @@
 aiogram>=2.12
+aiohttp>=3.7.4
 aiosqlite>=0.17.0
 loguru>=0.5.3
 sqlalchemy>=1.4.3
