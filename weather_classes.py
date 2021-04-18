@@ -11,6 +11,7 @@ from typing import List, Optional
 from pydantic import BaseModel, Field, validator
 
 import templates
+import utils
 
 
 class WeatherDescription(BaseModel):
@@ -128,7 +129,7 @@ class WeatherResponse(BaseModel):
         return text, weather_type
 
     def _get_nearest_hour_forecast(self):
-        now = dt.datetime.now(dt.timezone.utc)
+        now = utils.get_current_time()
         future_forecasts = filter(lambda f: f.timestamp > now, self.hourly)
         nearest_forecast = min(future_forecasts, key=lambda f: f.timestamp)
         return nearest_forecast
@@ -156,7 +157,7 @@ class WeatherResponse(BaseModel):
         return text, weather_type
 
     def _get_nearest_daily_forecast(self):
-        now = dt.datetime.now(dt.timezone.utc)
+        now = utils.get_current_time()
         future_forecasts = filter(lambda f: f.timestamp > now, self.daily)
         nearest_forecast = min(future_forecasts, key=lambda f: f.timestamp)
         return nearest_forecast
