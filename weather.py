@@ -20,7 +20,7 @@ async def get_hourly_forecast():
     сводка и тип погоды (ясно, облачно и т.п.)
     """
     weather = await get_weather()
-    return (weather.houry_forecast(), weather.houry_forecast_type())
+    return (weather.hourly_forecast(), weather.hourly_forecast_type())
 
 
 async def get_exact_hour_forecast(hour):

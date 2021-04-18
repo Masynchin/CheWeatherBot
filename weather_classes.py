@@ -122,7 +122,7 @@ class WeatherResponse(BaseModel):
     def current_weather_type(self):
         return self.current.weather_type.main
 
-    def houry_forecast(self):
+    def hourly_forecast(self):
         forecast = self._get_nearest_hour_forecast()
         text = (templates.WEATHER_WITH_WIND_GUST
             if forecast.wind_gust is not None else templates.WEATHER)
@@ -132,7 +132,7 @@ class WeatherResponse(BaseModel):
             **forecast.dict()
         ) + self._generate_alert_text()
 
-    def houry_forecast_type(self):
+    def hourly_forecast_type(self):
         forecast = self._get_nearest_hour_forecast()
         return forecast.weather_type.main
 
