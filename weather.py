@@ -1,6 +1,7 @@
 """Модуль для получения погоды с сайта данных о погоде"""
 
 import aiohttp
+from async_lru import alru_cache
 
 import config
 import utils
@@ -63,26 +64,8 @@ async def get_weather():
     return await _get_weather(time)
 
 
-def cached(old_weather):
-    """Декоратор для кеширования функций _get_weather() по времени"""
-    cached_dict = {}
-
-    async def cached_weather(time):
-        cached_forecast = cached_dict.get(time)
-        if cached_forecast:
-            return cached_forecast
-        else:
-            cached_dict.clear()
-
-            new_forecast = await old_weather()
-            cached_dict[time] = new_forecast
-            return new_forecast
-
-    return cached_weather
-
-
-@cached
-async def _get_weather():
+@alru_cache(maxsize=1)
+async def _get_weather(time):
     """Получение прогноза погода в виде экземляра WeatherResponse"""
     async with aiohttp.ClientSession() as session:
         async with session.get(config.WEATHER_API_URL) as response:
