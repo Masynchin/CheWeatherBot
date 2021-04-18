@@ -52,33 +52,42 @@ USER_SUBSCRIBED = "Вы подписались на рассылку по вре
 USER_CHANGED_MAILING_TIME = "Вы изменили время рассылки на {}:{:02}"
 
 WEATHER = (
-    "{description}\n\n"
-    "Температура: {temp}\n"
-    "Ощущается как: {feels_like}\n\n"
-    "Ветер: {wind_speed}\n"
-    "Влажность: {humidity}\n"
-    "Облачность: {cloudiness}"
+    "{forecast.weather_type.description}\n\n"
+    "Температура: {forecast.temp}\n"
+    "Ощущается как: {forecast.feels_like}\n\n"
+    "Ветер: {forecast.wind_speed}\n"
+    "Влажность: {forecast.humidity}\n"
+    "Облачность: {forecast.cloudiness}"
 )
 
 WEATHER_WITH_WIND_GUST = WEATHER.replace(
-    "Ветер: {wind_speed}", "Ветер: {wind_speed} (порывы до {wind_gust})")
+    "Ветер: {forecast.wind_speed}",
+    "Ветер: {forecast.wind_speed} (порывы до {forecast.wind_gust})"
+)
 
 DAILY_FORECAST = (
-    "{description}\n\n"
-    "Утром: {morn_temp} (ощущается как {morn_feels_like})\n"
-    "Днём: {day_temp} (ощущается как {day_feels_like})\n"
-    "Вечером: {eve_temp} (ощущается как {eve_feels_like})\n"
-    "Ночью: {night_temp} (ощущается как {night_feels_like})\n\n"
-    "Минимальная температура: {min_temp}, максимальная: {max_temp}\n\n"
-    "Ветер: {wind_speed}\n"
-    "Влажность: {humidity}\n"
-    "Облачность: {cloudiness}"
+    "{forecast.weather_type.description}\n\n"
+    "Утром: {forecast.temp.morn_temp} "
+        "(ощущается как {forecast.feels_like.morn_feels_like})\n"
+    "Днём: {forecast.temp.day_temp} "
+        "(ощущается как {forecast.feels_like.day_feels_like})\n"
+    "Вечером: {forecast.temp.eve_temp} "
+        "(ощущается как {forecast.feels_like.eve_feels_like})\n"
+    "Ночью: {forecast.temp.night_temp} "
+        "(ощущается как {forecast.feels_like.night_feels_like})\n\n"
+    "Минимальная температура: {forecast.temp.min_temp}, "
+        "максимальная: {forecast.temp.max_temp}\n\n"
+    "Ветер: {forecast.wind_speed}\n"
+    "Влажность: {forecast.humidity}\n"
+    "Облачность: {forecast.cloudiness}"
 )
 
 DAILY_FORECAST_WITH_WIND_GUST = DAILY_FORECAST.replace(
-    "Ветер: {wind_speed}", "Ветер: {wind_speed} (порывы до {wind_gust})")
+    "Ветер: {forecast.wind_speed}",
+    "Ветер: {forecast.wind_speed} (порывы до {forecast.wind_gust})"
+)
 
-ALERT = "⚠ {event} ({description})"
+ALERT = "⚠ {alert.event} ({alert.description})"
 
 MAILING_MESSAGE = "Ваш ежедневный прогноз \N{smiling face with smiling eyes}\n\n{}"
 

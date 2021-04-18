@@ -115,9 +115,7 @@ class WeatherResponse(BaseModel):
             if self.current.wind_gust is not None else templates.WEATHER)
 
         return text.format(
-            **self.current.weather_type.dict(),
-            **self.current.dict()
-        ) + self._generate_alert_text()
+            forecast=self.current) + self._generate_alert_text()
 
     def current_weather_type(self):
         return self.current.weather_type.main
@@ -127,10 +125,7 @@ class WeatherResponse(BaseModel):
         text = (templates.WEATHER_WITH_WIND_GUST
             if forecast.wind_gust is not None else templates.WEATHER)
 
-        return text.format(
-            **forecast.weather_type.dict(),
-            **forecast.dict()
-        ) + self._generate_alert_text()
+        return text.format(forecast=forecast) + self._generate_alert_text()
 
     def hourly_forecast_type(self):
         forecast = self._get_nearest_hour_forecast()
@@ -147,10 +142,7 @@ class WeatherResponse(BaseModel):
         text = (templates.WEATHER_WITH_WIND_GUST
             if forecast.wind_gust is not None else templates.WEATHER)
 
-        return text.format(
-            **forecast.weather_type.dict(),
-            **forecast.dict()
-        ) + self._generate_alert_text()
+        return text.format(forecast=forecast) + self._generate_alert_text()
 
     def exact_hour_forecast_type(self, hour):
         forecast = self._get_exact_hour_forecast(hour)
@@ -165,12 +157,7 @@ class WeatherResponse(BaseModel):
         text = (templates.DAILY_FORECAST_WITH_WIND_GUST
             if forecast.wind_gust is not None else templates.DAILY_FORECAST)
 
-        return text.format(
-            **forecast.dict(),
-            **forecast.feels_like.dict(),
-            **forecast.temp.dict(),
-            **forecast.weather_type.dict(),
-        ) + self._generate_alert_text()
+        return text.format(forecast=forecast) + self._generate_alert_text()
 
     def daily_forecast_type(self):
         forecast = self._get_nearest_daily_forecast()
@@ -187,12 +174,7 @@ class WeatherResponse(BaseModel):
         text = (templates.DAILY_FORECAST_WITH_WIND_GUST
             if forecast.wind_gust is not None else templates.DAILY_FORECAST)
 
-        return text.format(
-            **forecast.dict(),
-            **forecast.feels_like.dict(),
-            **forecast.temp.dict(),
-            **forecast.weather_type.dict(),
-        ) + self._generate_alert_text()
+        return text.format(forecast=forecast) + self._generate_alert_text()
 
     def exact_day_forecast_type(self, day):
         forecast = self._get_exact_day_forecast(day)
@@ -206,6 +188,6 @@ class WeatherResponse(BaseModel):
         if not self.alerts:
             return ""
         return "\n\n" + "\n".join(
-            templates.ALERT.format(**alert.dict())
+            templates.ALERT.format(alert=alert)
             for alert in self.alerts
         )
