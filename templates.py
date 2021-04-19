@@ -91,4 +91,4 @@ ALERT = "⚠ {alert.event} ({alert.description})"
 
 MAILING_MESSAGE = "Ваш ежедневный прогноз \N{smiling face with smiling eyes}\n\n{}"
 
-MAINTAINCE_MESSAGE = "Произошла непредвиденная ошибка. Мастера уже в пути!"
+MAINTAINCE_MESSAGE = "Произошла непредвиденная ошибка. Бригада ремонтников уже в пути!"
