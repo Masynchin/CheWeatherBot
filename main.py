@@ -108,7 +108,7 @@ async def handle_hour_forecast_choice(call, state):
 
 
 @dp.message_handler(TextFilter(equals=keyboards.TOMORROW_FORECAST))
-async def send_weather(message):
+async def send_daily_forecast(message):
     """Отправка прогноза на день"""
     text, weather_type = await weather.get_daily_forecast()
     sticker = stickers.get_by_weather(weather_type)
@@ -135,7 +135,7 @@ async def send_exact_day_forecast(message):
 
 
 @dp.callback_query_handler(state=ChooseForecastDay.day)
-async def handle_hour_forecast_choice(call, state):
+async def handle_daily_forecast_choice(call, state):
     """Отправка прогноза на день, выбранный пользователем"""
     await state.finish()
 
