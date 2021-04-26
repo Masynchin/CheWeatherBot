@@ -1,6 +1,6 @@
 import datetime as dt
 import sys
-sys.path.insert(0, "")  # cause of `db` folder and `db` module
+sys.path.insert(0, "app")
 
 import pytest
 

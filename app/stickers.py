@@ -1,8 +1,8 @@
 """Модуль со стикерами, прикрепляемыми к прогнозам погоды.
 
 Все стикеры, разбитые по типу погоды, находятся в файле stickers.json.
-Также там находится стикер нераспознанной погоды (UNDEFINED_WEATHER_STICKER)
-и стикер для ситуаций, когда упал сервер (MAINTAINCE_STICKER)
+Также там находятся стикеры нераспознанной погоды (_UNDEFINED_WEATHER_STICKERS)
+и стикер для ситуаций, когда возникла непредвиденная ошибка (MAINTAINCE_STICKER)
 """
 
 import json
@@ -15,11 +15,11 @@ def _load_stickers():
         return json.load(f)
 
 
-STICKERS = _load_stickers()
+_STICKERS = _load_stickers()
 
-UNDEFINED_WEATHER_STICKERS = STICKERS["undefinedWeatherStickers"]
-MAINTAINCE_STICKER = STICKERS["maintainceSticker"]
-STICKERS = STICKERS["weatherTypes"]
+MAINTAINCE_STICKER = _STICKERS["maintainceSticker"]
+_UNDEFINED_WEATHER_STICKERS = _STICKERS["undefinedWeatherStickers"]
+_WEATHER_TYPES = _STICKERS["weatherTypes"]
 
 
 def get_by_weather(weather_type):
@@ -27,10 +27,10 @@ def get_by_weather(weather_type):
     Получаем случайный стикер по типу погоды,
     либо отправляем стикер нераспознанной погоды
     """
-    if weather_type not in STICKERS:
+    if weather_type not in _WEATHER_TYPES:
         _log_undefined_weather_type(weather_type)
-        return choice(UNDEFINED_WEATHER_STICKERS)
-    return choice(STICKERS[weather_type])
+        return choice(_UNDEFINED_WEATHER_STICKERS)
+    return choice(_WEATHER_TYPES[weather_type])
 
 
 def _log_undefined_weather_type(weather_type):

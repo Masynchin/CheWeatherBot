@@ -53,8 +53,8 @@ async def send_info(message):
 @dp.message_handler(TextFilter(equals=keyboards.WEATHER))
 async def send_weather(message):
     """Отправка текущей погоды"""
-    text, wtype = await weather.get_current_weather()
-    sticker = stickers.get_by_weather(wtype)
+    text, weather_type = await weather.get_current_weather()
+    sticker = stickers.get_by_weather(weather_type)
     await message.answer_sticker(sticker)
     await message.answer(text)
     logger.info(
@@ -64,8 +64,8 @@ async def send_weather(message):
 @dp.message_handler(TextFilter(equals=keyboards.HOUR_FORECAST))
 async def send_hour_forecast(message):
     """Отправка прогноза на следующий час"""
-    text, wtype = await weather.get_hourly_forecast()
-    sticker = stickers.get_by_weather(wtype)
+    text, weather_type = await weather.get_hourly_forecast()
+    sticker = stickers.get_by_weather(weather_type)
     await message.answer_sticker(sticker)
     await message.answer(text)
     logger.info(
@@ -94,8 +94,8 @@ async def handle_hour_forecast_choice(call, state):
     await state.finish()
 
     hour = utils.convert_json_timestamp_to_datetime(call.data)
-    text, wtype = await weather.get_exact_hour_forecast(hour)
-    sticker = stickers.get_by_weather(wtype)
+    text, weather_type = await weather.get_exact_hour_forecast(hour)
+    sticker = stickers.get_by_weather(weather_type)
 
     hour = hour.strftime("%H:%M")
     await call.message.edit_text(f"Прогноз на {hour}")
@@ -109,10 +109,10 @@ async def handle_hour_forecast_choice(call, state):
 
 
 @dp.message_handler(TextFilter(equals=keyboards.TOMORROW_FORECAST))
-async def send_weather(message):
+async def send_daily_forecast(message):
     """Отправка прогноза на день"""
-    text, wtype = await weather.get_daily_forecast()
-    sticker = stickers.get_by_weather(wtype)
+    text, weather_type = await weather.get_daily_forecast()
+    sticker = stickers.get_by_weather(weather_type)
     await message.answer_sticker(sticker)
     await message.answer(text)
     logger.info(
@@ -136,13 +136,13 @@ async def send_exact_day_forecast(message):
 
 
 @dp.callback_query_handler(state=ChooseForecastDay.day)
-async def handle_hour_forecast_choice(call, state):
+async def handle_daily_forecast_choice(call, state):
     """Отправка прогноза на день, выбранный пользователем"""
     await state.finish()
 
     day = utils.convert_json_timestamp_to_datetime(call.data)
-    text, wtype = await weather.get_exact_day_forecast(day)
-    sticker = stickers.get_by_weather(wtype)
+    text, weather_type = await weather.get_exact_day_forecast(day)
+    sticker = stickers.get_by_weather(weather_type)
 
     day = utils.format_date_as_day(day)
     await call.message.edit_text(f"Прогноз на {day}")
@@ -166,8 +166,8 @@ async def send_mailing_info(message):
     что его нет в рассылке, если его нет в рассылке
     """
     user_id = message.from_user["id"]
-    text = await mailing.get_user_mailing_info(user_id)
-    await message.answer(text)
+    mailing_info = await mailing.get_user_mailing_info(user_id)
+    await message.answer(mailing_info)
 
 
 class NewSub(StatesGroup):
@@ -297,11 +297,11 @@ async def on_startup(dp):
 def main():
     """Главная функция, отвечающая за запуск бота и рассылки"""
     logger.info("Запуск")
-    main_loop = asyncio.get_event_loop()
-    add_mailing_to_main_loop(main_loop)
+    loop = asyncio.get_event_loop()
+    add_mailing_to_loop(loop)
     start_webhook(
         dispatcher=dp,
-        loop=main_loop,
+        loop=loop,
         skip_updates=True,
         on_startup=on_startup,
         webhook_path=config.WEBHOOK_PATH,
@@ -310,10 +310,6 @@ def main():
     )
 
 
-def add_mailing_to_main_loop(loop):
+def add_mailing_to_loop(loop):
     """Добавляем асинхронную рассылку в основной event loop"""
     loop.create_task(mailing.mailing(bot))
-
-
-if __name__ == "__main__":
-    main()

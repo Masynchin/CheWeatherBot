@@ -11,6 +11,7 @@ from typing import List, Optional
 from pydantic import BaseModel, Field, validator
 
 import templates
+import utils
 
 
 class WeatherDescription(BaseModel):
@@ -110,93 +111,65 @@ class WeatherResponse(BaseModel):
             return []
         return [alert for alert in alerts if not _is_english_alert(alert)]
 
-    def current_weather(self):
+    def get_current_weather(self):
         text = (templates.WEATHER_WITH_WIND_GUST
             if self.current.wind_gust is not None else templates.WEATHER)
 
-        return text.format(
-            **self.current.weather_type.dict(),
-            **self.current.dict()
-        ) + self._generate_alert_text()
+        text = text.format(forecast=self.current) + self._generate_alert_text()
+        weather_type = self.current.weather_type.main
+        return text, weather_type
 
-    def current_weather_type(self):
-        return self.current.weather_type.main
-
-    def houry_forecast(self):
+    def get_hourly_forecast(self):
         forecast = self._get_nearest_hour_forecast()
         text = (templates.WEATHER_WITH_WIND_GUST
             if forecast.wind_gust is not None else templates.WEATHER)
 
-        return text.format(
-            **forecast.weather_type.dict(),
-            **forecast.dict()
-        ) + self._generate_alert_text()
-
-    def houry_forecast_type(self):
-        forecast = self._get_nearest_hour_forecast()
-        return forecast.weather_type.main
+        text = text.format(forecast=forecast) + self._generate_alert_text()
+        weather_type = forecast.weather_type.main
+        return text, weather_type
 
     def _get_nearest_hour_forecast(self):
-        now = dt.datetime.now(dt.timezone.utc)
+        now = utils.get_current_time()
         future_forecasts = filter(lambda f: f.timestamp > now, self.hourly)
         nearest_forecast = min(future_forecasts, key=lambda f: f.timestamp)
         return nearest_forecast
 
-    def exact_hour_forecast(self, hour):
+    def get_exact_hour_forecast(self, hour):
         forecast = self._get_exact_hour_forecast(hour)
         text = (templates.WEATHER_WITH_WIND_GUST
             if forecast.wind_gust is not None else templates.WEATHER)
 
-        return text.format(
-            **forecast.weather_type.dict(),
-            **forecast.dict()
-        ) + self._generate_alert_text()
-
-    def exact_hour_forecast_type(self, hour):
-        forecast = self._get_exact_hour_forecast(hour)
-        return forecast.weather_type.main
+        text = text.format(forecast=forecast) + self._generate_alert_text()
+        weather_type = forecast.weather_type.main
+        return text, weather_type
 
     def _get_exact_hour_forecast(self, hour):
         forecast = [f for f in self.hourly if f.timestamp == hour][0]
         return forecast
 
-    def daily_forecast(self):
+    def get_daily_forecast(self):
         forecast = self._get_nearest_daily_forecast()
         text = (templates.DAILY_FORECAST_WITH_WIND_GUST
             if forecast.wind_gust is not None else templates.DAILY_FORECAST)
 
-        return text.format(
-            **forecast.dict(),
-            **forecast.feels_like.dict(),
-            **forecast.temp.dict(),
-            **forecast.weather_type.dict(),
-        ) + self._generate_alert_text()
-
-    def daily_forecast_type(self):
-        forecast = self._get_nearest_daily_forecast()
-        return forecast.weather_type.main
+        text = text.format(forecast=forecast) + self._generate_alert_text()
+        weather_type = forecast.weather_type.main
+        return text, weather_type
 
     def _get_nearest_daily_forecast(self):
-        now = dt.datetime.now(dt.timezone.utc)
+        now = utils.get_current_time()
         future_forecasts = filter(lambda f: f.timestamp > now, self.daily)
         nearest_forecast = min(future_forecasts, key=lambda f: f.timestamp)
         return nearest_forecast
 
-    def exact_day_forecast(self, day):
+    def get_exact_day_forecast(self, day):
         forecast = self._get_exact_day_forecast(day)
         text = (templates.DAILY_FORECAST_WITH_WIND_GUST
             if forecast.wind_gust is not None else templates.DAILY_FORECAST)
 
-        return text.format(
-            **forecast.dict(),
-            **forecast.feels_like.dict(),
-            **forecast.temp.dict(),
-            **forecast.weather_type.dict(),
-        ) + self._generate_alert_text()
-
-    def exact_day_forecast_type(self, day):
-        forecast = self._get_exact_day_forecast(day)
-        return forecast.weather_type.main
+        text = text.format(forecast=forecast) + self._generate_alert_text()
+        weather_type = forecast.weather_type.main
+        return text, weather_type
 
     def _get_exact_day_forecast(self, day):
         forecast = [f for f in self.daily if f.timestamp.date() == day.date()][0]
@@ -206,6 +179,6 @@ class WeatherResponse(BaseModel):
         if not self.alerts:
             return ""
         return "\n\n" + "\n".join(
-            templates.ALERT.format(**alert.dict())
+            templates.ALERT.format(alert=alert)
             for alert in self.alerts
         )

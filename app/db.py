@@ -8,7 +8,6 @@ import asyncio
 
 from sqlalchemy import Column, Integer, Time
 from sqlalchemy.orm import declarative_base, sessionmaker
-from sqlalchemy.sql import exists
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.future import select
 
