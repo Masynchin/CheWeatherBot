@@ -1,6 +1,7 @@
 [flake8]
 docstring-convention = numpy
 exclude = env, __main__.py
+classmethod_decorators = classmethod, validator
 ignore =
     # ingnore blank line separator rule on long one-line docstrings
     D205
