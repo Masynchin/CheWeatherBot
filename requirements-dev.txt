@@ -1,0 +1,11 @@
+# tests
+pytest
+pytest-asyncio
+
+# linting and formatting
+black
+flake8
+flake8-bugbear
+flake8-comprehensions
+flake8-docstrings
+pep8-naming
