@@ -32,7 +32,8 @@ async def mailing(bot):
             user_id = subscriber.id
             await bot.send_sticker(user_id, sticker)
             message = await bot.send_message(
-                user_id, templates.MAILING_MESSAGE.format(forecast))
+                user_id, templates.MAILING_MESSAGE.format(forecast)
+            )
             await unpin_all_and_pin_message(bot, message)
 
             logger.info(f"Пользователь {user_id} получил ежедневный прогноз")

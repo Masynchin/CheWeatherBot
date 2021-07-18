@@ -52,8 +52,9 @@ class Weather(BaseWeather):
     temp: float
     feels_like: float
 
-    _decorate_temp = validator(
-        "temp", "feels_like", allow_reuse=True)(_decorate_temp)
+    _decorate_temp = validator("temp", "feels_like", allow_reuse=True)(
+        _decorate_temp
+    )
 
 
 class DailyTemperature(BaseModel):
@@ -64,8 +65,15 @@ class DailyTemperature(BaseModel):
     min_temp: float = Field(alias="min")
     max_temp: float = Field(alias="max")
 
-    _decorate_temp = validator("morn_temp", "day_temp", "eve_temp",
-        "night_temp", "min_temp", "max_temp", allow_reuse=True)(_decorate_temp)
+    _decorate_temp = validator(
+        "morn_temp",
+        "day_temp",
+        "eve_temp",
+        "night_temp",
+        "min_temp",
+        "max_temp",
+        allow_reuse=True,
+    )(_decorate_temp)
 
 
 class DailyFeelsLike(BaseModel):
@@ -74,8 +82,13 @@ class DailyFeelsLike(BaseModel):
     eve_feels_like: float = Field(alias="eve")
     night_feels_like: float = Field(alias="night")
 
-    _decorate_temp = validator("morn_feels_like", "day_feels_like",
-        "eve_feels_like", "night_feels_like", allow_reuse=True)(_decorate_temp)
+    _decorate_temp = validator(
+        "morn_feels_like",
+        "day_feels_like",
+        "eve_feels_like",
+        "night_feels_like",
+        allow_reuse=True,
+    )(_decorate_temp)
 
 
 class DailyWeather(BaseWeather):
@@ -112,8 +125,11 @@ class WeatherResponse(BaseModel):
         return [alert for alert in alerts if not _is_english_alert(alert)]
 
     def get_current_weather(self):
-        text = (templates.WEATHER_WITH_WIND_GUST
-            if self.current.wind_gust is not None else templates.WEATHER)
+        text = (
+            templates.WEATHER_WITH_WIND_GUST
+            if self.current.wind_gust is not None
+            else templates.WEATHER
+        )
 
         text = text.format(forecast=self.current) + self._generate_alert_text()
         weather_type = self.current.weather_type.main
@@ -121,8 +137,11 @@ class WeatherResponse(BaseModel):
 
     def get_hourly_forecast(self):
         forecast = self._get_nearest_hour_forecast()
-        text = (templates.WEATHER_WITH_WIND_GUST
-            if forecast.wind_gust is not None else templates.WEATHER)
+        text = (
+            templates.WEATHER_WITH_WIND_GUST
+            if forecast.wind_gust is not None
+            else templates.WEATHER
+        )
 
         text = text.format(forecast=forecast) + self._generate_alert_text()
         weather_type = forecast.weather_type.main
@@ -136,8 +155,11 @@ class WeatherResponse(BaseModel):
 
     def get_exact_hour_forecast(self, hour):
         forecast = self._get_exact_hour_forecast(hour)
-        text = (templates.WEATHER_WITH_WIND_GUST
-            if forecast.wind_gust is not None else templates.WEATHER)
+        text = (
+            templates.WEATHER_WITH_WIND_GUST
+            if forecast.wind_gust is not None
+            else templates.WEATHER
+        )
 
         text = text.format(forecast=forecast) + self._generate_alert_text()
         weather_type = forecast.weather_type.main
@@ -149,8 +171,11 @@ class WeatherResponse(BaseModel):
 
     def get_daily_forecast(self):
         forecast = self._get_nearest_daily_forecast()
-        text = (templates.DAILY_FORECAST_WITH_WIND_GUST
-            if forecast.wind_gust is not None else templates.DAILY_FORECAST)
+        text = (
+            templates.DAILY_FORECAST_WITH_WIND_GUST
+            if forecast.wind_gust is not None
+            else templates.DAILY_FORECAST
+        )
 
         text = text.format(forecast=forecast) + self._generate_alert_text()
         weather_type = forecast.weather_type.main
@@ -164,8 +189,11 @@ class WeatherResponse(BaseModel):
 
     def get_exact_day_forecast(self, day):
         forecast = self._get_exact_day_forecast(day)
-        text = (templates.DAILY_FORECAST_WITH_WIND_GUST
-            if forecast.wind_gust is not None else templates.DAILY_FORECAST)
+        text = (
+            templates.DAILY_FORECAST_WITH_WIND_GUST
+            if forecast.wind_gust is not None
+            else templates.DAILY_FORECAST
+        )
 
         text = text.format(forecast=forecast) + self._generate_alert_text()
         weather_type = forecast.weather_type.main
@@ -179,6 +207,5 @@ class WeatherResponse(BaseModel):
         if not self.alerts:
             return ""
         return "\n\n" + "\n".join(
-            templates.ALERT.format(alert=alert)
-            for alert in self.alerts
+            templates.ALERT.format(alert=alert) for alert in self.alerts
         )

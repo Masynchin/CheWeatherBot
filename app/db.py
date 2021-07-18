@@ -20,6 +20,7 @@ Base = declarative_base()
 
 class Subscriber(Base):
     """Модель подписчика рассылки"""
+
     __tablename__ = "subscribers"
 
     id = Column(Integer, primary_key=True)
@@ -27,7 +28,8 @@ class Subscriber(Base):
 
 
 async_session = sessionmaker(
-    bind=engine, expire_on_commit=False, class_=AsyncSession)
+    bind=engine, expire_on_commit=False, class_=AsyncSession
+)
 
 
 async def new_subscriber(subscriber_id, mailing_time):
@@ -57,8 +59,9 @@ async def delete_subscriber(subscriber_id):
 async def get_subscribers_by_mailing_time(mailing_time):
     """Получение всех подписчиков с определённым временем рассылки"""
     async with async_session() as session:
-        statement = select(Subscriber)\
-            .where(Subscriber.mailing_time == mailing_time)
+        statement = select(Subscriber).where(
+            Subscriber.mailing_time == mailing_time
+        )
         subscribers = await session.execute(statement)
         return subscribers.scalars().all()
 

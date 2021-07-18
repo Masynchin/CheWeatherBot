@@ -62,21 +62,21 @@ WEATHER = (
 
 WEATHER_WITH_WIND_GUST = WEATHER.replace(
     "Ветер: {forecast.wind_speed}",
-    "Ветер: {forecast.wind_speed} (порывы до {forecast.wind_gust})"
+    "Ветер: {forecast.wind_speed} (порывы до {forecast.wind_gust})",
 )
 
 DAILY_FORECAST = (
     "{forecast.weather_type.description}\n\n"
     "Утром: {forecast.temp.morn_temp} "
-        "(ощущается как {forecast.feels_like.morn_feels_like})\n"
+    "(ощущается как {forecast.feels_like.morn_feels_like})\n"
     "Днём: {forecast.temp.day_temp} "
-        "(ощущается как {forecast.feels_like.day_feels_like})\n"
+    "(ощущается как {forecast.feels_like.day_feels_like})\n"
     "Вечером: {forecast.temp.eve_temp} "
-        "(ощущается как {forecast.feels_like.eve_feels_like})\n"
+    "(ощущается как {forecast.feels_like.eve_feels_like})\n"
     "Ночью: {forecast.temp.night_temp} "
-        "(ощущается как {forecast.feels_like.night_feels_like})\n\n"
+    "(ощущается как {forecast.feels_like.night_feels_like})\n\n"
     "Минимальная температура: {forecast.temp.min_temp}, "
-        "максимальная: {forecast.temp.max_temp}\n\n"
+    "максимальная: {forecast.temp.max_temp}\n\n"
     "Ветер: {forecast.wind_speed}\n"
     "Влажность: {forecast.humidity}\n"
     "Облачность: {forecast.cloudiness}"
@@ -84,11 +84,15 @@ DAILY_FORECAST = (
 
 DAILY_FORECAST_WITH_WIND_GUST = DAILY_FORECAST.replace(
     "Ветер: {forecast.wind_speed}",
-    "Ветер: {forecast.wind_speed} (порывы до {forecast.wind_gust})"
+    "Ветер: {forecast.wind_speed} (порывы до {forecast.wind_gust})",
 )
 
 ALERT = "⚠ {alert.event} ({alert.description})"
 
-MAILING_MESSAGE = "Ваш ежедневный прогноз \N{smiling face with smiling eyes}\n\n{}"
+MAILING_MESSAGE = (
+    "Ваш ежедневный прогноз \N{smiling face with smiling eyes}\n\n{}"
+)
 
-MAINTAINCE_MESSAGE = "Произошла непредвиденная ошибка. Бригада ремонтников уже в пути!"
+MAINTAINCE_MESSAGE = (
+    "Произошла непредвиденная ошибка. Бригада ремонтников уже в пути!"
+)

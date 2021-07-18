@@ -35,8 +35,11 @@ dp = Dispatcher(bot, storage=storage)
 @dp.message_handler(commands=["start"])
 async def send_welcome(message):
     """Приветсвенное сообщение с клавиатурой и информацией о командах"""
-    await message.answer(templates.WELCOME,
-        parse_mode=ParseMode.MARKDOWN, reply_markup=keyboards.main)
+    await message.answer(
+        templates.WELCOME,
+        parse_mode=ParseMode.MARKDOWN,
+        reply_markup=keyboards.main,
+    )
     logger.info("Пользователь {} выполнил /start", message.from_user["id"])
 
 
@@ -57,7 +60,8 @@ async def send_weather(message):
     await message.answer_sticker(sticker)
     await message.answer(text)
     logger.info(
-        "Пользователь {} получил текущую погоду", message.from_user["id"])
+        "Пользователь {} получил текущую погоду", message.from_user["id"]
+    )
 
 
 @dp.message_handler(TextFilter(equals=keyboards.HOUR_FORECAST))
@@ -68,11 +72,14 @@ async def send_hour_forecast(message):
     await message.answer_sticker(sticker)
     await message.answer(text)
     logger.info(
-        "Пользователь {} получил прогноз погоды на час", message.from_user["id"])
+        "Пользователь {} получил прогноз погоды на час",
+        message.from_user["id"],
+    )
 
 
 class ChooseForecastHour(StatesGroup):
     """Состояние пользователя при выборе конкретного часа прогноза"""
+
     hour = State()
 
 
@@ -84,7 +91,9 @@ async def send_exact_hour_forecast(message):
     """
     await ChooseForecastHour.hour.set()
     await message.answer(
-        "Выберите час прогноза:", reply_markup=keyboards.forecast_hour_choice())
+        "Выберите час прогноза:",
+        reply_markup=keyboards.forecast_hour_choice(),
+    )
 
 
 @dp.callback_query_handler(state=ChooseForecastHour.hour)
@@ -115,11 +124,14 @@ async def send_daily_forecast(message):
     await message.answer_sticker(sticker)
     await message.answer(text)
     logger.info(
-        "Пользователь {} получил прогноз погоды на день", message.from_user["id"])
+        "Пользователь {} получил прогноз погоды на день",
+        message.from_user["id"],
+    )
 
 
 class ChooseForecastDay(StatesGroup):
     """Состояние пользователя при выборе конкретного дня прогноза"""
+
     day = State()
 
 
@@ -131,7 +143,9 @@ async def send_exact_day_forecast(message):
     """
     await ChooseForecastDay.day.set()
     await message.answer(
-        "Выберите день прогноза:", reply_markup=keyboards.forecast_day_choice())
+        "Выберите день прогноза:",
+        reply_markup=keyboards.forecast_day_choice(),
+    )
 
 
 @dp.callback_query_handler(state=ChooseForecastDay.day)
@@ -171,6 +185,7 @@ async def send_mailing_info(message):
 
 class NewSub(StatesGroup):
     """Состояния пользователя при выборе времени для регистрации в рассылке"""
+
     hour = State()
     minute = State()
 
@@ -182,8 +197,7 @@ async def subscribe_to_mailing(message):
     отправляем клавиатуру с выбором часа рассылки
     """
     await NewSub.hour.set()
-    await message.answer(
-        "Выберите час:", reply_markup=keyboards.hour_choice)
+    await message.answer("Выберите час:", reply_markup=keyboards.hour_choice)
 
 
 @dp.callback_query_handler(state=NewSub.hour)
@@ -194,7 +208,8 @@ async def set_hour_callback(call, state):
     """
     await state.update_data(hour=int(call.data))
     await call.message.edit_text(
-        "Выберите минуты:", reply_markup=keyboards.minute_choice)
+        "Выберите минуты:", reply_markup=keyboards.minute_choice
+    )
     await NewSub.next()
 
 
@@ -217,6 +232,7 @@ async def set_minute_callback(call, state):
 
 class ChangeTime(StatesGroup):
     """Состояния пользователя при изменении времени рассылки"""
+
     hour = State()
     minute = State()
 
@@ -227,8 +243,7 @@ async def change_time_mailing(message):
     Пользователь решил поменять время рассылки,
     отправляем клавиатуру с выбором нового часа рассылки
     """
-    await message.answer(
-        "Выберите час:", reply_markup=keyboards.hour_choice)
+    await message.answer("Выберите час:", reply_markup=keyboards.hour_choice)
     await ChangeTime.hour.set()
 
 
@@ -241,7 +256,8 @@ async def change_hour_callback(call, state):
     await state.update_data(hour=int(call.data))
     await ChangeTime.next()
     await call.message.edit_text(
-        "Выберите минуты:", reply_markup=keyboards.minute_choice)
+        "Выберите минуты:", reply_markup=keyboards.minute_choice
+    )
 
 
 @dp.callback_query_handler(state=ChangeTime.minute)
@@ -255,7 +271,9 @@ async def change_minute_callback(call, state):
     await state.finish()
     await call.message.delete()
     await bot.send_message(
-        text=templates.USER_CHANGED_MAILING_TIME.format(time.hour, time.minute),
+        text=templates.USER_CHANGED_MAILING_TIME.format(
+            time.hour, time.minute
+        ),
         chat_id=call.message.chat.id,
     )
     logger.info("Пользователь {} изменил время рассылки", user_id)

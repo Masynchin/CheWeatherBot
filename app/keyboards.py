@@ -27,7 +27,10 @@ def _create_main_keyboard():
     """Основная клавиатура. Создаётся на месте"""
     buttons = [
         [KeyboardButton(WEATHER), KeyboardButton(HOUR_FORECAST)],
-        [KeyboardButton(EXACT_HOUR_FORECAST), KeyboardButton(TOMORROW_FORECAST)],
+        [
+            KeyboardButton(EXACT_HOUR_FORECAST),
+            KeyboardButton(TOMORROW_FORECAST),
+        ],
         [KeyboardButton(EXACT_DAY_FORECAST)],
         [KeyboardButton(MAILING), KeyboardButton(HELP)],
     ]
@@ -52,7 +55,8 @@ def _create_minute_choice_keyboard():
     inline_keyboard = InlineKeyboardMarkup()
     minutes = [f"{minute:02}" for minute in range(0, 60, 15)]
     inline_keyboard.row(*[
-        InlineKeyboardButton(minute, callback_data=minute) for minute in minutes
+        InlineKeyboardButton(minute, callback_data=minute)
+        for minute in minutes
     ])
     return inline_keyboard
 

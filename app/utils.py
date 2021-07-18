@@ -93,6 +93,11 @@ def get_weekday_name_from_datetime(date):
     current_date = date.astimezone(pytz.timezone("Europe/Moscow"))
     weekday_index = current_date.weekday()
     return [
-        "Понедельник", "Вторник", "Среда", "Четверг",
-        "Пятница", "Суббота", "Воскресенье",
+        "Понедельник",
+        "Вторник",
+        "Среда",
+        "Четверг",
+        "Пятница",
+        "Суббота",
+        "Воскресенье",
     ][weekday_index]
