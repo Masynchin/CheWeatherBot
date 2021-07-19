@@ -68,7 +68,8 @@ async def get_user_mailing_info(user_id):
     Если нет, то возращаем шаблон с тем, что его нет в рассылке
     """
     is_subscriber = await db.is_user_in_subscription(user_id)
-    if is_subscriber:
-        time = await db.get_subscriber_mailing_time(user_id)
-        return templates.USER_IN_MAILING.format(time.hour, time.minute)
-    return templates.USER_NOT_IN_MAILING
+    if not is_subscriber:
+        return templates.USER_NOT_IN_MAILING
+
+    time = await db.get_subscriber_mailing_time(user_id)
+    return templates.USER_IN_MAILING.format(time.hour, time.minute)
