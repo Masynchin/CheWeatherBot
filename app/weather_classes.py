@@ -239,10 +239,7 @@ class WeatherResponse(BaseModel):
             if self.current.wind_gust is not None
             else templates.WEATHER
         )
-
-        text = template.format(forecast=self.current) + self._generate_alert_text()
-        weather_type = self.current.weather_type.main
-        return text, weather_type
+        return _get_forecast_info(self.current, template, self.alerts)
 
     def get_hourly_forecast(self):
         """Получение погоды в ближайший час"""
@@ -252,10 +249,7 @@ class WeatherResponse(BaseModel):
             if forecast.wind_gust is not None
             else templates.WEATHER
         )
-
-        text = template.format(forecast=forecast) + self._generate_alert_text()
-        weather_type = forecast.weather_type.main
-        return text, weather_type
+        return _get_forecast_info(forecast, template, self.alerts)
 
     def _get_nearest_hour_forecast(self):
         """Получение данных о погоде в ближайший час"""
@@ -272,15 +266,13 @@ class WeatherResponse(BaseModel):
             if forecast.wind_gust is not None
             else templates.WEATHER
         )
-
-        text = template.format(forecast=forecast) + self._generate_alert_text()
-        weather_type = forecast.weather_type.main
-        return text, weather_type
+        return _get_forecast_info(forecast, template, self.alerts)
 
     def _get_exact_hour_forecast(self, hour):
         """Получение данных о прогнозе погоды в конкретный час"""
-        forecast = [f for f in self.hourly if f.timestamp == hour][0]
-        return forecast
+        for forecast in self.hourly:
+            if forecast.timestamp == hour:
+                return forecast
 
     def get_daily_forecast(self):
         """Получение прогноза на ближайший день"""
@@ -290,10 +282,7 @@ class WeatherResponse(BaseModel):
             if forecast.wind_gust is not None
             else templates.DAILY_FORECAST
         )
-
-        text = template.format(forecast=forecast) + self._generate_alert_text()
-        weather_type = forecast.weather_type.main
-        return text, weather_type
+        return _get_forecast_info(forecast, template, self.alerts)
 
     def _get_nearest_daily_forecast(self):
         """Получение данных о прогнозе на ближайший день"""
@@ -310,20 +299,27 @@ class WeatherResponse(BaseModel):
             if forecast.wind_gust is not None
             else templates.DAILY_FORECAST
         )
-
-        text = template.format(forecast=forecast) + self._generate_alert_text()
-        weather_type = forecast.weather_type.main
-        return text, weather_type
+        return _get_forecast_info(forecast, template, self.alerts)
 
     def _get_exact_day_forecast(self, day):
         """Получение данных о прогнозе на конкретный день"""
-        forecast = [f for f in self.daily if f.timestamp.date() == day.date()][0]
-        return forecast
+        for forecast in self.daily:
+            if forecast.timestamp.date() == day.date():
+                return forecast
 
-    def _generate_alert_text(self):
-        """Генерация текста с предупреждениями"""
-        if not self.alerts:
-            return ""
-        return "\n\n" + "\n".join(
-            templates.ALERT.format(alert=alert) for alert in self.alerts
-        )
+
+def _get_forecast_info(forecast, template, alerts):
+    """Получение текстовой сводки погоды и её тип"""
+    text = template.format(forecast=forecast) + _generate_alert_text(alerts)
+    weather_type = forecast.weather_type.main
+    return text, weather_type
+
+
+def _generate_alert_text(alerts):
+    """Генерация текста с предупреждениями"""
+    if not alerts:
+        return ""
+
+    return "\n\n" + "\n".join(
+        templates.ALERT.format(alert=alert) for alert in alerts
+    )
