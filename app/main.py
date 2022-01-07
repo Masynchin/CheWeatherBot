@@ -308,6 +308,7 @@ def main():
     """Главная функция, отвечающая за запуск бота и рассылки"""
     logger.info("Запуск")
     loop = asyncio.get_event_loop()
+    loop.run_until_complete(db.create_db())
     add_mailing_to_loop(loop)
     executor.start_polling(dp, loop=loop, skip_updates=True)
 

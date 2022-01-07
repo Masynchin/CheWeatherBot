@@ -4,8 +4,6 @@
 отправляющие запросы напрямую в БД
 """
 
-import asyncio
-
 from sqlalchemy import Column, Integer, Time
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -84,7 +82,3 @@ async def create_db():
     """Инициализируем БД"""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-
-
-loop = asyncio.get_event_loop()
-loop.run_until_complete(create_db())
