@@ -13,9 +13,6 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field, validator
 
-from app import templates
-from app import utils
-
 
 class WeatherDescription(BaseModel):
     """Представление описания погоды.
@@ -231,95 +228,3 @@ class WeatherResponse(BaseModel):
         if alerts is None:
             return []
         return [alert for alert in alerts if not _is_english_alert(alert)]
-
-    def get_current_weather(self):
-        """Получение текущей погоды"""
-        template = (
-            templates.WEATHER_WITH_WIND_GUST
-            if self.current.wind_gust is not None
-            else templates.WEATHER
-        )
-        return _get_forecast_info(self.current, template, self.alerts)
-
-    def get_hourly_forecast(self):
-        """Получение погоды в ближайший час"""
-        forecast = self._get_nearest_hour_forecast()
-        template = (
-            templates.WEATHER_WITH_WIND_GUST
-            if forecast.wind_gust is not None
-            else templates.WEATHER
-        )
-        return _get_forecast_info(forecast, template, self.alerts)
-
-    def _get_nearest_hour_forecast(self):
-        """Получение данных о погоде в ближайший час"""
-        now = utils.get_current_time()
-        future_forecasts = filter(lambda f: f.timestamp > now, self.hourly)
-        nearest_forecast = min(future_forecasts, key=lambda f: f.timestamp)
-        return nearest_forecast
-
-    def get_exact_hour_forecast(self, hour):
-        """Получение прогноза погоды в конкретный час"""
-        forecast = self._get_exact_hour_forecast(hour)
-        template = (
-            templates.WEATHER_WITH_WIND_GUST
-            if forecast.wind_gust is not None
-            else templates.WEATHER
-        )
-        return _get_forecast_info(forecast, template, self.alerts)
-
-    def _get_exact_hour_forecast(self, hour):
-        """Получение данных о прогнозе погоды в конкретный час"""
-        for forecast in self.hourly:
-            if forecast.timestamp == hour:
-                return forecast
-
-    def get_daily_forecast(self):
-        """Получение прогноза на ближайший день"""
-        forecast = self._get_nearest_daily_forecast()
-        template = (
-            templates.DAILY_FORECAST_WITH_WIND_GUST
-            if forecast.wind_gust is not None
-            else templates.DAILY_FORECAST
-        )
-        return _get_forecast_info(forecast, template, self.alerts)
-
-    def _get_nearest_daily_forecast(self):
-        """Получение данных о прогнозе на ближайший день"""
-        now = utils.get_current_time()
-        future_forecasts = filter(lambda f: f.timestamp > now, self.daily)
-        nearest_forecast = min(future_forecasts, key=lambda f: f.timestamp)
-        return nearest_forecast
-
-    def get_exact_day_forecast(self, day):
-        """Получение прогноза на конкретный день"""
-        forecast = self._get_exact_day_forecast(day)
-        template = (
-            templates.DAILY_FORECAST_WITH_WIND_GUST
-            if forecast.wind_gust is not None
-            else templates.DAILY_FORECAST
-        )
-        return _get_forecast_info(forecast, template, self.alerts)
-
-    def _get_exact_day_forecast(self, day):
-        """Получение данных о прогнозе на конкретный день"""
-        for forecast in self.daily:
-            if forecast.timestamp.date() == day.date():
-                return forecast
-
-
-def _get_forecast_info(forecast, template, alerts):
-    """Получение текстовой сводки погоды и её тип"""
-    text = template.format(forecast=forecast) + _generate_alert_text(alerts)
-    weather_type = forecast.weather_type.main
-    return text, weather_type
-
-
-def _generate_alert_text(alerts):
-    """Генерация текста с предупреждениями"""
-    if not alerts:
-        return ""
-
-    return "\n\n" + "\n".join(
-        templates.ALERT.format(alert=alert) for alert in alerts
-    )
