@@ -13,8 +13,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field, validator
 
-import templates
-import utils
+from app import templates
+from app import utils
 
 
 class WeatherDescription(BaseModel):

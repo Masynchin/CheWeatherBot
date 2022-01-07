@@ -4,7 +4,7 @@
 погодных предпреждений и состояний пользователя по отношению к рассылке
 """
 
-import keyboards
+from app import keyboards
 
 
 WELCOME = (

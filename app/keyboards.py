@@ -10,7 +10,7 @@ from aiogram.types import (
     InlineKeyboardButton,
 )
 
-import utils
+from app import utils
 
 
 # команды на клавиатуре, импортируются в main

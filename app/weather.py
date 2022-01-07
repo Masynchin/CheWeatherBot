@@ -3,9 +3,9 @@
 import aiohttp
 from async_lru import alru_cache
 
-import config
-import utils
-from weather_classes import WeatherResponse
+from app import config
+from app import utils
+from app.weather_classes import WeatherResponse
 
 
 async def get_current_weather():

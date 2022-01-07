@@ -1,11 +1,8 @@
 import datetime as dt
-import sys
-
-sys.path.insert(0, "app")
 
 import pytest
 
-import db
+from app import db
 
 
 mailing_time = dt.time(hour=18, minute=45)

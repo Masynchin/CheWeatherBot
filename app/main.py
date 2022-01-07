@@ -13,15 +13,15 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.filters import Text as TextFilter
 from aiogram.types.message import ParseMode
 
-import config
-import db
-import keyboards
-from logger import logger
-import mailing
-import templates
-import stickers
-import utils
-import weather
+from app import config
+from app import db
+from app import keyboards
+from app.logger import logger
+from app import mailing
+from app import templates
+from app import stickers
+from app import utils
+from app import weather
 
 
 bot = Bot(token=config.BOT_TOKEN)

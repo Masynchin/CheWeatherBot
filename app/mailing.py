@@ -5,12 +5,12 @@
 
 import asyncio
 
-import db
-from logger import logger
-import stickers
-import templates
-import utils
-import weather
+from app import db
+from app.logger import logger
+from app import stickers
+from app import templates
+from app import utils
+from app import weather
 
 
 async def mailing(bot):
