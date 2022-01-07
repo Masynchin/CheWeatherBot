@@ -1,10 +1,11 @@
 """Модуль для получения погоды с сайта данных о погоде"""
 
+import time
+
 import aiohttp
 from async_lru import alru_cache
 
 from app import config
-from app import utils
 from app.weather_classes import WeatherResponse
 
 
@@ -58,9 +59,7 @@ async def get_weather():
     Функция вызывает _get_weather() но с аргументом времени, по которому
     происходит кеширование результата ответа погодного сервера
     """
-    now = utils.get_current_time()
-    time = (now.hour, now.minute // 5 * 5)
-    return await _get_weather(time)
+    return await _get_weather(time.time() // 300)
 
 
 @alru_cache(maxsize=1)
