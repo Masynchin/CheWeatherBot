@@ -16,12 +16,12 @@ from aiogram.types.message import ParseMode
 from app import config
 from app import db
 from app import keyboards
-from app.logger import logger
 from app import mailing
-from app import templates
 from app import stickers
+from app import templates
 from app import utils
 from app import weather
+from app.logger import logger
 
 
 bot = Bot(token=config.BOT_TOKEN)

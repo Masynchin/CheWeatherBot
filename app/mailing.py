@@ -6,11 +6,11 @@
 import asyncio
 
 from app import db
-from app.logger import logger
 from app import stickers
 from app import templates
 from app import utils
 from app import weather
+from app.logger import logger
 
 
 async def mailing(bot):
