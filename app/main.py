@@ -68,7 +68,8 @@ async def send_weather(message):
 @dp.message_handler(TextFilter(equals=keyboards.HOUR_FORECAST))
 async def send_hour_forecast(message):
     """Отправка прогноза на следующий час"""
-    forecast = await weather.get_hourly_forecast()
+    timestamp = utils.get_current_time()
+    forecast = await weather.get_hourly_forecast(timestamp)
     text = forecast.format()
     sticker = forecast.get_sticker()
     await message.answer_sticker(sticker)
@@ -122,7 +123,8 @@ async def handle_hour_forecast_choice(call, state):
 @dp.message_handler(TextFilter(equals=keyboards.TOMORROW_FORECAST))
 async def send_daily_forecast(message):
     """Отправка прогноза на день"""
-    forecast = await weather.get_daily_forecast()
+    timestamp = utils.get_current_time()
+    forecast = await weather.get_daily_forecast(timestamp)
     text = forecast.format()
     sticker = forecast.get_sticker()
     await message.answer_sticker(sticker)

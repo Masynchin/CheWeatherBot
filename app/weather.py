@@ -6,7 +6,6 @@ import aiohttp
 from async_lru import alru_cache
 
 from app import config
-from app import utils
 from app.forecasts import CurrentForecast, DailyForecast, HourlyForecast
 from app.weather_classes import WeatherResponse
 
@@ -17,23 +16,22 @@ async def get_current_weather():
     return CurrentForecast(weather.current, weather.alerts)
 
 
-async def get_hourly_forecast():
+async def get_hourly_forecast(timestamp):
     """
     Получение прогноза на час -
     сводка и тип погоды (ясно, облачно и т.п.)
     """
     weather = await get_weather()
-    forecast = _get_next_forecast(weather.hourly)
+    forecast = _get_next_forecast(weather.hourly, timestamp)
     return HourlyForecast(forecast, weather.alerts)
 
 
-def _get_next_forecast(forecasts):
+def _get_next_forecast(forecasts, timestamp):
     """Получение данных о погоде в следующее время.
 
     Используется для получения прогноза на следующий час или следующий день
     """
-    now = utils.get_current_time()
-    future_forecasts = filter(lambda f: f.timestamp > now, forecasts)
+    future_forecasts = filter(lambda f: f.timestamp > timestamp, forecasts)
     nearest_forecast = min(future_forecasts, key=lambda f: f.timestamp)
     return nearest_forecast
 
@@ -55,10 +53,10 @@ def _get_exact_hour_forecast(forecasts, hour):
             return forecast
 
 
-async def get_daily_forecast():
+async def get_daily_forecast(timestamp):
     """Получение прогноза на день - сводка и его тип (ясно, облачно и т.п.)"""
     weather = await get_weather()
-    forecast = _get_next_forecast(weather.daily)
+    forecast = _get_next_forecast(weather.daily, timestamp)
     return DailyForecast(forecast, weather.alerts)
 
 
