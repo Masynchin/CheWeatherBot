@@ -53,38 +53,38 @@ USER_CHANGED_MAILING_TIME = "Вы изменили время рассылки �
 
 WEATHER = (
     "{forecast.weather_type.description}\n\n"
-    "Температура: {forecast.temp}\n"
-    "Ощущается как: {forecast.feels_like}\n\n"
-    "Ветер: {forecast.wind_speed}\n"
-    "Влажность: {forecast.humidity}\n"
-    "Облачность: {forecast.cloudiness}"
+    "Температура: {forecast.temp:+.2f}°\n"
+    "Ощущается как: {forecast.feels_like:+.2f}°\n\n"
+    "Ветер: {forecast.wind_speed} м/с\n"
+    "Влажность: {forecast.humidity}%\n"
+    "Облачность: {forecast.cloudiness}%"
 )
 
 WEATHER_WITH_WIND_GUST = WEATHER.replace(
-    "Ветер: {forecast.wind_speed}",
-    "Ветер: {forecast.wind_speed} (порывы до {forecast.wind_gust})",
+    "Ветер: {forecast.wind_speed} м/с",
+    "Ветер: {forecast.wind_speed} м/с (порывы до {forecast.wind_gust} м/с)",
 )
 
 DAILY_FORECAST = (
     "{forecast.weather_type.description}\n\n"
-    "Утром: {forecast.temp.morn_temp} "
-    "(ощущается как {forecast.feels_like.morn_feels_like})\n"
-    "Днём: {forecast.temp.day_temp} "
-    "(ощущается как {forecast.feels_like.day_feels_like})\n"
-    "Вечером: {forecast.temp.eve_temp} "
-    "(ощущается как {forecast.feels_like.eve_feels_like})\n"
-    "Ночью: {forecast.temp.night_temp} "
-    "(ощущается как {forecast.feels_like.night_feels_like})\n\n"
-    "Минимальная температура: {forecast.temp.min_temp}, "
-    "максимальная: {forecast.temp.max_temp}\n\n"
-    "Ветер: {forecast.wind_speed}\n"
-    "Влажность: {forecast.humidity}\n"
-    "Облачность: {forecast.cloudiness}"
+    "Утром: {forecast.temp.morn_temp:+.2f}° "
+    "(ощущается как {forecast.feels_like.morn_feels_like:+.2f}°)\n"
+    "Днём: {forecast.temp.day_temp:+.2f}° "
+    "(ощущается как {forecast.feels_like.day_feels_like:+.2f}°)\n"
+    "Вечером: {forecast.temp.eve_temp:+.2f}° "
+    "(ощущается как {forecast.feels_like.eve_feels_like:+.2f}°)\n"
+    "Ночью: {forecast.temp.night_temp:+.2f}° "
+    "(ощущается как {forecast.feels_like.night_feels_like:+.2f}°)\n\n"
+    "Минимальная температура: {forecast.temp.min_temp:+.2f}°, "
+    "максимальная: {forecast.temp.max_temp:+.2f}°\n\n"
+    "Ветер: {forecast.wind_speed} м/с\n"
+    "Влажность: {forecast.humidity}%\n"
+    "Облачность: {forecast.cloudiness}%"
 )
 
 DAILY_FORECAST_WITH_WIND_GUST = DAILY_FORECAST.replace(
-    "Ветер: {forecast.wind_speed}",
-    "Ветер: {forecast.wind_speed} (порывы до {forecast.wind_gust})",
+    "Ветер: {forecast.wind_speed} м/с",
+    "Ветер: {forecast.wind_speed} м/с (порывы до {forecast.wind_gust} м/с)",
 )
 
 ALERT = "⚠ {alert.event} ({alert.description})"

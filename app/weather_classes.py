@@ -34,15 +34,6 @@ class WeatherDescription(BaseModel):
         return description.capitalize()
 
 
-def _decorate_temp(temp: float) -> str:
-    """Превращаем численное значение температуры в строку.
-
-    -10 -> "-10°"
-    10 -> "+10°"
-    """
-    return f"+{temp}°" if temp > 0 else f"{temp}°"
-
-
 class BaseWeather(BaseModel):
     """Базовое представление погоды.
 
@@ -69,22 +60,6 @@ class BaseWeather(BaseModel):
     wind_gust: Optional[float] = None
     weather_type: List[WeatherDescription] = Field(alias="weather")
 
-    @validator("wind_speed", "wind_gust")
-    def decorate_temperate(cls, wind):
-        """Превращаем численное значение скорости ветра в строку.
-
-        10.2 -> "10.2 м/с"
-        """
-        return f"{wind} м/с"
-
-    @validator("cloudiness", "humidity")
-    def decorate_percentage(cls, percentage):
-        """Превращаем численное значение процентов в строку.
-
-        10 -> "10%"
-        """
-        return f"{percentage}%"
-
     @validator("weather_type")
     def first_element_from_list(cls, weather_type):
         """Используем только первое описание погоды.
@@ -110,10 +85,6 @@ class Weather(BaseWeather):
     temp: float
     feels_like: float
 
-    _decorate_temp = validator("temp", "feels_like", allow_reuse=True)(
-        _decorate_temp
-    )
-
 
 class DailyTemperature(BaseModel):
     """Представление действительной температуры для дневной погоды.
@@ -136,16 +107,6 @@ class DailyTemperature(BaseModel):
     min_temp: float = Field(alias="min")
     max_temp: float = Field(alias="max")
 
-    _decorate_temp = validator(
-        "morn_temp",
-        "day_temp",
-        "eve_temp",
-        "night_temp",
-        "min_temp",
-        "max_temp",
-        allow_reuse=True,
-    )(_decorate_temp)
-
 
 class DailyFeelsLike(BaseModel):
     """Представление ощущаемой температуры для дневной погоды.
@@ -163,15 +124,6 @@ class DailyFeelsLike(BaseModel):
     day_feels_like: float = Field(alias="day")
     eve_feels_like: float = Field(alias="eve")
     night_feels_like: float = Field(alias="night")
-
-    _decorate_temp = validator(
-        "morn_feels_like",
-        "day_feels_like",
-        "eve_feels_like",
-        "night_feels_like",
-        allow_reuse=True,
-    )(_decorate_temp)
-
 
 class DailyWeather(BaseWeather):
     """Представление дневной погоды.
