@@ -25,15 +25,14 @@ async def mailing(bot):
         await asyncio.sleep(seconds_delta)
 
         forecast, wtype = await weather.get_current_weather()
+        message_text = templates.MAILING_MESSAGE.format(forecast)
         sticker = stickers.get_by_weather(wtype)
         subscribers = await db.get_subscribers_by_mailing_time(next_fifteen)
 
         for subscriber in subscribers:
             user_id = subscriber.id
             await bot.send_sticker(user_id, sticker)
-            message = await bot.send_message(
-                user_id, templates.MAILING_MESSAGE.format(forecast)
-            )
+            message = await bot.send_message(user_id, message_text)
             await unpin_all_and_pin_message(bot, message)
 
             logger.info(f"Пользователь {user_id} получил ежедневный прогноз")
