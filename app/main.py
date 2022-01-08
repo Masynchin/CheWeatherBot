@@ -55,8 +55,9 @@ async def send_info(message):
 @dp.message_handler(TextFilter(equals=keyboards.WEATHER))
 async def send_weather(message):
     """Отправка текущей погоды"""
-    text, weather_type = await weather.get_current_weather()
-    sticker = stickers.get_by_weather(weather_type)
+    forecast = await weather.get_current_weather()
+    text = forecast.format()
+    sticker = forecast.get_sticker()
     await message.answer_sticker(sticker)
     await message.answer(text)
     logger.info(
@@ -67,8 +68,9 @@ async def send_weather(message):
 @dp.message_handler(TextFilter(equals=keyboards.HOUR_FORECAST))
 async def send_hour_forecast(message):
     """Отправка прогноза на следующий час"""
-    text, weather_type = await weather.get_hourly_forecast()
-    sticker = stickers.get_by_weather(weather_type)
+    forecast = await weather.get_hourly_forecast()
+    text = forecast.format()
+    sticker = forecast.get_sticker()
     await message.answer_sticker(sticker)
     await message.answer(text)
     logger.info(
@@ -102,8 +104,9 @@ async def handle_hour_forecast_choice(call, state):
     await state.finish()
 
     hour = utils.convert_json_timestamp_to_datetime(call.data)
-    text, weather_type = await weather.get_exact_hour_forecast(hour)
-    sticker = stickers.get_by_weather(weather_type)
+    forecast = await weather.get_exact_hour_forecast(hour)
+    text = forecast.format()
+    sticker = forecast.get_sticker()
 
     hour = hour.strftime("%H:%M")
     await call.message.edit_text(f"Прогноз на {hour}")
@@ -119,8 +122,9 @@ async def handle_hour_forecast_choice(call, state):
 @dp.message_handler(TextFilter(equals=keyboards.TOMORROW_FORECAST))
 async def send_daily_forecast(message):
     """Отправка прогноза на день"""
-    text, weather_type = await weather.get_daily_forecast()
-    sticker = stickers.get_by_weather(weather_type)
+    forecast = await weather.get_daily_forecast()
+    text = forecast.format()
+    sticker = forecast.get_sticker()
     await message.answer_sticker(sticker)
     await message.answer(text)
     logger.info(
@@ -154,8 +158,9 @@ async def handle_daily_forecast_choice(call, state):
     await state.finish()
 
     day = utils.convert_json_timestamp_to_datetime(call.data)
-    text, weather_type = await weather.get_exact_day_forecast(day)
-    sticker = stickers.get_by_weather(weather_type)
+    forecast = await weather.get_exact_day_forecast(day)
+    text = forecast.format()
+    sticker = forecast.get_sticker()
 
     day = utils.format_date_as_day(day)
     await call.message.edit_text(f"Прогноз на {day}")

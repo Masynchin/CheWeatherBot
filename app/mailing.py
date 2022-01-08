@@ -6,7 +6,6 @@
 import asyncio
 
 from app import db
-from app import stickers
 from app import templates
 from app import utils
 from app import weather
@@ -24,9 +23,9 @@ async def mailing(bot):
         seconds_delta, next_fifteen = _get_next_fifteen_minutes()
         await asyncio.sleep(seconds_delta)
 
-        forecast, wtype = await weather.get_current_weather()
-        message_text = templates.MAILING_MESSAGE.format(forecast)
-        sticker = stickers.get_by_weather(wtype)
+        forecast = await weather.get_current_weather()
+        message_text = templates.MAILING_MESSAGE.format(forecast.format())
+        sticker = forecast.get_sticker()
         subscribers = await db.get_subscribers_by_mailing_time(next_fifteen)
 
         for subscriber in subscribers:
