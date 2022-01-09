@@ -64,7 +64,8 @@ def _create_minute_choice_keyboard():
 def forecast_hour_choice():
     """Inline-клавиатура для выбора минуты рассылки. Вызывается из main"""
     inline_keyboard = InlineKeyboardMarkup()
-    hours = utils.get_next_twelve_hours()
+    start_from = utils.get_current_time()
+    hours = utils.get_next_twelve_hours(start_from)
     hours_splitted_by_three_columns = zip(hours[:4], hours[4:8], hours[8:])
 
     for row in hours_splitted_by_three_columns:
@@ -82,7 +83,9 @@ def forecast_hour_choice():
 def forecast_day_choice():
     """Inline-клавиатура для выбора дня рассылки. Вызывается из main"""
     inline_keyboard = InlineKeyboardMarkup()
-    for day in utils.get_next_seven_days():
+    start_from = utils.get_current_time()
+
+    for day in utils.get_next_seven_days(start_from):
         text = utils.format_date_as_day(day)
         timestamp = day.timestamp()
         button = InlineKeyboardButton(text, callback_data=timestamp)

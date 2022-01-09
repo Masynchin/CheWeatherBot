@@ -18,10 +18,9 @@ def round_time_by_hours(time):
     return time.replace(minute=0, second=0, microsecond=0)
 
 
-def get_next_twelve_hours():
+def get_next_twelve_hours(start_from):
     """Получаем следующие 12 часов в виде HH:MM"""
-    start_hour = get_current_time()
-    start_hour = round_time_by_hours(start_hour)
+    start_hour = round_time_by_hours(start_from)
     return [start_hour + dt.timedelta(hours=i) for i in range(1, 13)]
 
 
@@ -55,10 +54,9 @@ def get_time_difference(time1, time2):
     return (time1 - time2).total_seconds()
 
 
-def get_next_seven_days():
+def get_next_seven_days(start_from):
     """Получаем следующие семь дней начиная от завтрашнего"""
-    start_day = get_current_time()
-    start_day = _round_date_by_day(start_day)
+    start_day = _round_date_by_day(start_from)
     return [start_day + dt.timedelta(days=i) for i in range(1, 8)]
 
 
