@@ -125,6 +125,7 @@ class DailyFeelsLike(BaseModel):
     eve_feels_like: float = Field(alias="eve")
     night_feels_like: float = Field(alias="night")
 
+
 class DailyWeather(BaseWeather):
     """Представление дневной погоды.
 
