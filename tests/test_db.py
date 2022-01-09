@@ -1,3 +1,4 @@
+import asyncio
 import datetime as dt
 
 import pytest
@@ -6,6 +7,20 @@ from app import db
 
 
 mailing_time = dt.time(hour=18, minute=45)
+
+
+@pytest.fixture(scope="module")
+def event_loop():
+    loop = asyncio.get_event_loop()
+    yield loop
+    loop.close()
+
+
+@pytest.fixture(scope="module", autouse=True)
+async def init_db():
+    """Инициализация ДБ для тестов этого модуля"""
+    await db.create_db()
+    yield
 
 
 @pytest.mark.asyncio
