@@ -61,7 +61,7 @@ pip install -r requirements.txt
 pip install -r requirements-dev.txt
 ~~~
 
-### Переменные окружения:
+### Переменные окружения
 
 - `BOT_TOKEN` - токен telegram бота
 - `WEATHER_API_KEY` - ключ с сайта openweathermap.org (тариф One Call API)
