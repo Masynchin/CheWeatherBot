@@ -32,16 +32,7 @@ def format_date_as_hour(date):
     return date.strftime("%H:%M")
 
 
-def get_next_time_round_by_fifteen_minutes(time):
-    """Получение следующего времени, кратного 15 минутам.
-
-    Например: 09:22:654321 -> 09:30:00
-    """
-    time = _round_time_by_fifteen_minutes(time)
-    return time + dt.timedelta(minutes=15)
-
-
-def _round_time_by_fifteen_minutes(time):
+def round_time_by_fifteen_minutes(time):
     """Округляем время до кратного 15 минутам.
 
     Например: 15.37.123456 -> 15.30.00
@@ -49,9 +40,9 @@ def _round_time_by_fifteen_minutes(time):
     return time.replace(minute=time.minute // 15 * 15, second=0, microsecond=0)
 
 
-def get_time_difference(time1, time2):
-    """Получаем количество секунд между двумя временами"""
-    return (time1 - time2).total_seconds()
+def get_time_until(time):
+    """Получаем количество секунд до времени в будущем"""
+    return (time - get_current_time()).total_seconds()
 
 
 def get_next_seven_days(start_from):

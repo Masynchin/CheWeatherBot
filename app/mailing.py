@@ -4,6 +4,7 @@
 """
 
 import asyncio
+import datetime as dt
 
 from app import db
 from app import templates
@@ -19,34 +20,39 @@ async def mailing(bot):
     Каждые 15 минут происходит запрос к БД на наличие подписчиков с
     данным временем, и каждому отправляет прогноз погоды
     """
+    start_from = utils.get_current_time()
+    for mailing_time in iterate_mailing_time(start_from):
+        await sleep_until(mailing_time)
+        await send_mailing(bot, mailing_time.time())
+
+
+def iterate_mailing_time(start_from):
+    """Итерируемся по времени рассылок начиная с ближайшей следующей"""
+    start_from = utils.round_time_by_fifteen_minutes(start_from)
     while True:
-        seconds_delta, next_fifteen = _get_next_fifteen_minutes()
-        await asyncio.sleep(seconds_delta)
-
-        forecast = await weather.get_current_weather()
-        message_text = templates.MAILING_MESSAGE.format(forecast.format())
-        sticker = forecast.get_sticker()
-        subscribers = await db.get_subscribers_by_mailing_time(next_fifteen)
-
-        for subscriber in subscribers:
-            user_id = subscriber.id
-            await bot.send_sticker(user_id, sticker)
-            message = await bot.send_message(user_id, message_text)
-            await unpin_all_and_pin_message(bot, message)
-
-            logger.info(f"Пользователь {user_id} получил ежедневный прогноз")
+        start_from += dt.timedelta(minutes=15)
+        yield start_from
 
 
-def _get_next_fifteen_minutes():
-    """Получение следующего времени рассылки.
+async def sleep_until(sleep_to):
+    """Спим до определённого времени"""
+    await asyncio.sleep(utils.get_time_until(sleep_to))
 
-    Функция вызывается раз в 15 минут, выдаёт количество секунд, на которое
-    должна заснуть рассылка, и само время, по которому она опросит БД
-    """
-    now = utils.get_current_time()
-    next_fifteen = utils.get_next_time_round_by_fifteen_minutes(now)
-    seconds_delta = utils.get_time_difference(next_fifteen, now)
-    return seconds_delta, next_fifteen.time()
+
+async def send_mailing(bot, mailing_time):
+    """Отправляем рассылку пользователям с данным временем"""
+    forecast = await weather.get_current_weather()
+    message_text = templates.MAILING_MESSAGE.format(forecast.format())
+    sticker = forecast.get_sticker()
+    subscribers = await db.get_subscribers_by_mailing_time(mailing_time)
+
+    for subscriber in subscribers:
+        user_id = subscriber.id
+        await bot.send_sticker(user_id, sticker)
+        message = await bot.send_message(user_id, message_text)
+        await unpin_all_and_pin_message(bot, message)
+
+        logger.info(f"Пользователь {user_id} получил ежедневный прогноз")
 
 
 async def unpin_all_and_pin_message(bot, message):
