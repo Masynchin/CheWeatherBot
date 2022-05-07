@@ -38,7 +38,7 @@ async def send_welcome(message):
     await message.answer(
         templates.WELCOME,
         parse_mode=ParseMode.MARKDOWN,
-        reply_markup=keyboards.main,
+        reply_markup=keyboards.MainKeyboard(),
     )
     logger.info("Пользователь {} выполнил /start", message.from_user["id"])
 
@@ -95,7 +95,7 @@ async def send_exact_hour_forecast(message):
     await ChooseForecastHour.hour.set()
     await message.answer(
         "Выберите час прогноза:",
-        reply_markup=keyboards.forecast_hour_choice(),
+        reply_markup=keyboards.ForecastHourChoice.current(),
     )
 
 
@@ -150,7 +150,7 @@ async def send_exact_day_forecast(message):
     await ChooseForecastDay.day.set()
     await message.answer(
         "Выберите день прогноза:",
-        reply_markup=keyboards.forecast_day_choice(),
+        reply_markup=keyboards.ForecastDayChoice.current(),
     )
 
 
@@ -204,7 +204,9 @@ async def subscribe_to_mailing(message):
     отправляем клавиатуру с выбором часа рассылки
     """
     await NewSub.hour.set()
-    await message.answer("Выберите час:", reply_markup=keyboards.hour_choice)
+    await message.answer(
+        "Выберите час:", reply_markup=keyboards.HourChoiceKeyboard()
+    )
 
 
 @dp.callback_query_handler(state=NewSub.hour)
@@ -215,7 +217,7 @@ async def set_hour_callback(call, state):
     """
     await state.update_data(hour=int(call.data))
     await call.message.edit_text(
-        "Выберите минуты:", reply_markup=keyboards.minute_choice
+        "Выберите минуты:", reply_markup=keyboards.MinuteChoiceKeyboard()
     )
     await NewSub.next()
 
@@ -250,7 +252,9 @@ async def change_time_mailing(message):
     Пользователь решил поменять время рассылки,
     отправляем клавиатуру с выбором нового часа рассылки
     """
-    await message.answer("Выберите час:", reply_markup=keyboards.hour_choice)
+    await message.answer(
+        "Выберите час:", reply_markup=keyboards.HourChoiceKeyboard()
+    )
     await ChangeTime.hour.set()
 
 
@@ -263,7 +267,7 @@ async def change_hour_callback(call, state):
     await state.update_data(hour=int(call.data))
     await ChangeTime.next()
     await call.message.edit_text(
-        "Выберите минуты:", reply_markup=keyboards.minute_choice
+        "Выберите минуты:", reply_markup=keyboards.MinuteChoiceKeyboard()
     )
 
 

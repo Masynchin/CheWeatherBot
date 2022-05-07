@@ -24,14 +24,6 @@ def get_next_twelve_hours(start_from):
     return [start_hour + dt.timedelta(hours=i) for i in range(1, 13)]
 
 
-def format_date_as_hour(date):
-    """Преобразуем dt.datetime в строку вида 'ЧЧ:ММ'
-
-    Например: dt.datetime(..hour=23, second=57..) -> '23:57'
-    """
-    return date.strftime("%H:%M")
-
-
 def round_time_by_fifteen_minutes(time):
     """Округляем время до кратного 15 минутам.
 

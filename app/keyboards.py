@@ -9,6 +9,7 @@ from aiogram.types import (
     InlineKeyboardMarkup,
     InlineKeyboardButton,
 )
+from more_itertools import chunked
 
 from app import utils
 
@@ -23,77 +24,89 @@ MAILING = "О рассылке \N{postbox}"
 HELP = "Помощь \N{books}"
 
 
-def _create_main_keyboard():
-    """Основная клавиатура. Создаётся на месте"""
-    buttons = [
-        [KeyboardButton(WEATHER), KeyboardButton(HOUR_FORECAST)],
-        [
-            KeyboardButton(EXACT_HOUR_FORECAST),
-            KeyboardButton(TOMORROW_FORECAST),
-        ],
-        [KeyboardButton(EXACT_DAY_FORECAST)],
-        [KeyboardButton(MAILING), KeyboardButton(HELP)],
-    ]
-    return ReplyKeyboardMarkup(buttons, resize_keyboard=True)
+class MainKeyboard(ReplyKeyboardMarkup):
+    """Основная клавиатура"""
 
-
-def _create_hour_choice_keyboard():
-    """Inline-клавиатура для выбора часа рассылки. Создаётся на месте"""
-    inline_keyboard = InlineKeyboardMarkup()
-    hours = [f"{hour:02}" for hour in range(24)]
-    for i in range(0, 24, 6):
-        buttons = [
-            InlineKeyboardButton(hour, callback_data=hour)
-            for hour in hours[i:i+6]
-        ]
-        inline_keyboard.row(*buttons)
-    return inline_keyboard
-
-
-def _create_minute_choice_keyboard():
-    """Inline-клавиатура для выбора минуты рассылки. Создаётся на месте"""
-    inline_keyboard = InlineKeyboardMarkup()
-    minutes = [f"{minute:02}" for minute in range(0, 60, 15)]
-    inline_keyboard.row(*[
-        InlineKeyboardButton(minute, callback_data=minute)
-        for minute in minutes
-    ])
-    return inline_keyboard
-
-
-def forecast_hour_choice():
-    """Inline-клавиатура для выбора минуты рассылки. Вызывается из main"""
-    inline_keyboard = InlineKeyboardMarkup()
-    start_from = utils.get_current_time()
-    hours = utils.get_next_twelve_hours(start_from)
-    hours_splitted_by_three_columns = zip(hours[:4], hours[4:8], hours[8:])
-
-    for row in hours_splitted_by_three_columns:
-        inline_keyboard.row(*[
-            InlineKeyboardButton(
-                utils.format_date_as_hour(hour),
-                callback_data=hour.timestamp(),
-            )
-            for hour in row
+    def __init__(self):
+        super().__init__([
+            [KeyboardButton(WEATHER), KeyboardButton(HOUR_FORECAST)],
+            [
+                KeyboardButton(EXACT_HOUR_FORECAST),
+                KeyboardButton(TOMORROW_FORECAST),
+            ],
+            [KeyboardButton(EXACT_DAY_FORECAST)],
+            [KeyboardButton(MAILING), KeyboardButton(HELP)],
         ])
 
-    return inline_keyboard
+
+class HourChoiceKeyboard(InlineKeyboardMarkup):
+    """Inline-клавиатура для выбора часа рассылки"""
+
+    def __init__(self):
+        hours = range(24)
+        buttons = [HourButton(hour) for hour in hours]
+        rows = chunked(buttons, 6)
+        super().__init__(inline_keyboard=rows)
 
 
-def forecast_day_choice():
+class HourButton(InlineKeyboardButton):
+    """Кнопка клавиатуры выбора часа"""
+
+    def __init__(self, hour):
+        super().__init__(f"{hour:02}", callback_data=f"{hour:02}")
+
+
+class MinuteChoiceKeyboard(InlineKeyboardMarkup):
+    """Inline-клавиатура для выбора минуты рассылки"""
+
+    def __init__(self):
+        minutes = range(0, 60, 15)
+        buttons = [MinuteButton(minute) for minute in minutes]
+        super().__init__(inline_keyboard=[buttons])
+
+
+class MinuteButton(InlineKeyboardButton):
+    """Кнопка клавиатуры выбора минуты"""
+
+    def __init__(self, minute):
+        super().__init__(f"{minute:02}", callback_data=f"{minute:02}")
+
+
+class ForecastHourChoice(InlineKeyboardMarkup):
+    """Inline-клавиатура для выбора минуты рассылки"""
+
+    def __init__(self, start_from):
+        hours = utils.get_next_twelve_hours(start_from)
+        buttons = [ForecastHourButton(hour) for hour in hours]
+        rows = chunked(buttons, 3)
+        super().__init__(inline_keyboard=rows)
+
+    @classmethod
+    def current(cls):
+        return cls(utils.get_current_time())
+
+
+class ForecastHourButton(InlineKeyboardButton):
+    def __init__(self, hour):
+        super().__init__(f"{hour:%H:%M}", callback_data=hour.timestamp())
+
+
+class ForecastDayChoice(InlineKeyboardMarkup):
     """Inline-клавиатура для выбора дня рассылки. Вызывается из main"""
-    inline_keyboard = InlineKeyboardMarkup()
-    start_from = utils.get_current_time()
 
-    for day in utils.get_next_seven_days(start_from):
-        text = utils.format_date_as_day(day)
-        timestamp = day.timestamp()
-        button = InlineKeyboardButton(text, callback_data=timestamp)
-        inline_keyboard.row(button)
+    def __init__(self, start_from):
+        days = utils.get_next_seven_days(start_from)
+        buttons = [ForecastDayButton(day) for day in days]
+        rows = chunked(buttons, 1)
+        super().__init__(inline_keyboard=rows)
 
-    return inline_keyboard
+    @classmethod
+    def current(cls):
+        return cls(utils.get_current_time())
 
 
-main = _create_main_keyboard()
-hour_choice = _create_hour_choice_keyboard()
-minute_choice = _create_minute_choice_keyboard()
+class ForecastDayButton(InlineKeyboardButton):
+    def __init__(self, day):
+        super().__init__(
+            utils.format_date_as_day(day), callback_data=day.timestamp()
+        )
