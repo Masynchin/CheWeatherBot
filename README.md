@@ -76,6 +76,7 @@ pip install -r requirements-dev.txt
 - `BOT_TOKEN` - токен telegram бота
 - `WEATHER_API_KEY` - ключ с сайта openweathermap.org (тариф One Call API)
 - `DATABASE_URL` - путь к базе данных (по умолчанию `sqlite+aiosqlite:///db/subscribers.db`)
+- `RUN_TYPE` - режим работы бота (`polling` (по умолчанию) | `webhook`)
 
 ### Запуск
 
