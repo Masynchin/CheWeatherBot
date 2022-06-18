@@ -12,6 +12,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.filters import Text as TextFilter
 from aiogram.types.message import ParseMode
+from aiogram.utils.executor import start_webhook
 
 from app import config
 from app import db
@@ -321,9 +322,38 @@ def main():
     loop = asyncio.get_event_loop()
     loop.run_until_complete(db.create_db())
     add_mailing_to_loop(loop)
-    executor.start_polling(dp, loop=loop, skip_updates=True)
+    if config.RUN_TYPE == "polling":
+        polling(loop)
+    elif config.RUN_TYPE == "webhook":
+        webhook(loop)
 
 
 def add_mailing_to_loop(loop):
     """Добавляем асинхронную рассылку в основной event loop"""
     loop.create_task(mailing.mailing(bot))
+
+
+def polling(loop):
+    """Запуск бота в режиме long-polling"""
+    executor.start_polling(dp, loop=loop, skip_updates=True)
+
+
+def webhook(loop):
+    """Запуск бота в режиме webhook"""
+    start_webhook(
+        dispatcher=dp,
+        loop=loop,
+        skip_updates=True,
+        on_startup=on_startup,
+        webhook_path=config.WEBHOOK_PATH,
+        host=config.WEBAPP_HOST,
+        port=config.WEBAPP_PORT,
+    )
+
+
+async def on_startup(dp):
+    """Функция перед запуском бота в режиме webhook"""
+    await bot.set_webhook(
+        config.WEBHOOK_URL,
+        drop_pending_updates=True,
+    )

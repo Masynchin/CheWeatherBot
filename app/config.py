@@ -19,6 +19,18 @@ WEATHER_API_URL = "https://api.openweathermap.org/data/2.5/onecall?" + urlencode
     "lang": "ru",
 })
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL", "sqlite+aiosqlite:///subscribers.db"
+RUN_TYPE = os.getenv("RUN_TYPE", "polling")
+
+DATABASE_URL = (
+    os.getenv("DATABASE_URL", "sqlite+aiosqlite:///subscribers.db")
+    .replace("postgres", "postgresql+asyncpg")
 )
+
+HEROKU_APP_NAME = os.getenv("HEROKU_APP_NAME", "")
+
+WEBHOOK_HOST = f"https://{HEROKU_APP_NAME}.herokuapp.com"
+WEBHOOK_PATH = f"/webhook/{BOT_TOKEN}"
+WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
+
+WEBAPP_HOST = "0.0.0.0"
+WEBAPP_PORT = int(os.getenv("PORT", 8080))
