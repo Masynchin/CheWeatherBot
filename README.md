@@ -46,12 +46,12 @@ CheWeatherBot -  Telegram-бот на Python. Для получения инфо
 - Для работы с telegram используется [aiogram](https://github.com/aiogram/aiogram).
 - Для логирования используется [loguru](https://github.com/Delgan/loguru).
 
-### Работа с [OpenWeatherMap](https://openweathermap.org/)
+#### Работа с [OpenWeatherMap](https://openweathermap.org/)
 
 - Для запросов к API используется [aiohttp](https://github.com/aio-libs/aiohttp).
 - Для удобной работы с ответом API используется [pydantic](https://github.com/samuelcolvin/pydantic).
 
-### Хранение подписчиков рассылки
+#### Хранение подписчиков рассылки
 
 При разработке используется не PostgreSQL, а SQLite. Поэтому для однородности кода выбрана ORM [sqlalchemy](https://github.com/sqlalchemy/sqlalchemy).
 
