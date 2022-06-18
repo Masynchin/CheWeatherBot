@@ -36,7 +36,7 @@ class MainKeyboard(ReplyKeyboardMarkup):
             ],
             [KeyboardButton(EXACT_DAY_FORECAST)],
             [KeyboardButton(MAILING), KeyboardButton(HELP)],
-        ])
+        ], resize_keyboard=True)
 
 
 class HourChoiceKeyboard(InlineKeyboardMarkup):
