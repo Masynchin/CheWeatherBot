@@ -5,11 +5,6 @@ import datetime as dt
 import pytz
 
 
-def get_current_time():
-    """Текущее время по Москве (часовой пояс Череповца)"""
-    return dt.datetime.now(pytz.timezone("Europe/Moscow"))
-
-
 def round_time_by_hours(time):
     """Округляем время до кратного часу.
 
@@ -32,11 +27,6 @@ def round_time_by_fifteen_minutes(time):
     return time.replace(minute=time.minute // 15 * 15, second=0, microsecond=0)
 
 
-def get_time_until(time):
-    """Получаем количество секунд до времени в будущем"""
-    return (time - get_current_time()).total_seconds()
-
-
 def get_next_seven_days(start_from):
     """Получаем следующие семь дней начиная от завтрашнего"""
     start_day = _round_date_by_day(start_from)
@@ -49,15 +39,6 @@ def _round_date_by_day(date):
     Например 23.02.21 12:34:56 -> 23.02.21 00:00:00
     """
     return date.replace(hour=0, minute=0, second=0, microsecond=0)
-
-
-def convert_json_timestamp_to_datetime(json_timestamp):
-    """Перевод таймштампа из JSON'а колбэка в dt.datetime
-
-    Например: '16892286320.0' -> dt.datetime(...)
-    """
-    timestamp = int(float(json_timestamp))
-    return dt.datetime.fromtimestamp(timestamp, pytz.timezone("Europe/Moscow"))
 
 
 def format_date_as_day(date):

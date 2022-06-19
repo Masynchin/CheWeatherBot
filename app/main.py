@@ -22,6 +22,7 @@ from app import stickers
 from app import templates
 from app import utils
 from app import weather
+from app.che import CheDatetime
 from app.logger import logger
 
 
@@ -69,7 +70,7 @@ async def send_weather(message):
 @dp.message_handler(TextFilter(equals=keyboards.HOUR_FORECAST))
 async def send_hour_forecast(message):
     """Отправка прогноза на следующий час"""
-    timestamp = utils.get_current_time()
+    timestamp = CheDatetime.current()
     forecast = await weather.get_hourly_forecast(timestamp)
     text = forecast.format()
     sticker = forecast.get_sticker()
@@ -105,7 +106,7 @@ async def handle_hour_forecast_choice(call, state):
     """Отправка прогноза на час, выбранный пользователем"""
     await state.finish()
 
-    hour = utils.convert_json_timestamp_to_datetime(call.data)
+    hour = CheDatetime.from_timestamp(call.data)
     forecast = await weather.get_exact_hour_forecast(hour)
     text = forecast.format()
     sticker = forecast.get_sticker()
@@ -124,7 +125,7 @@ async def handle_hour_forecast_choice(call, state):
 @dp.message_handler(TextFilter(equals=keyboards.TOMORROW_FORECAST))
 async def send_daily_forecast(message):
     """Отправка прогноза на день"""
-    timestamp = utils.get_current_time()
+    timestamp = CheDatetime.current()
     forecast = await weather.get_daily_forecast(timestamp)
     text = forecast.format()
     sticker = forecast.get_sticker()
@@ -160,7 +161,7 @@ async def handle_daily_forecast_choice(call, state):
     """Отправка прогноза на день, выбранный пользователем"""
     await state.finish()
 
-    day = utils.convert_json_timestamp_to_datetime(call.data)
+    day = CheDatetime.from_timestamp(call.data)
     forecast = await weather.get_exact_day_forecast(day)
     text = forecast.format()
     sticker = forecast.get_sticker()

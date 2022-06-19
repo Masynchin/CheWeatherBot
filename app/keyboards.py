@@ -12,6 +12,7 @@ from aiogram.types import (
 from more_itertools import chunked
 
 from app import utils
+from app.che import CheDatetime
 
 
 # команды на клавиатуре, импортируются в main
@@ -83,7 +84,7 @@ class ForecastHourChoice(InlineKeyboardMarkup):
 
     @classmethod
     def current(cls):
-        return cls(utils.get_current_time())
+        return cls(CheDatetime.current())
 
 
 class ForecastHourButton(InlineKeyboardButton):
@@ -102,7 +103,7 @@ class ForecastDayChoice(InlineKeyboardMarkup):
 
     @classmethod
     def current(cls):
-        return cls(utils.get_current_time())
+        return cls(CheDatetime.current())
 
 
 class ForecastDayButton(InlineKeyboardButton):
