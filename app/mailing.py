@@ -3,41 +3,21 @@
 Каждые 15 минут происходит рассылка всем её подписчикам
 """
 
-import asyncio
-import datetime as dt
-
 from app import db
 from app import templates
-from app import utils
 from app import weather
-from app.che import CheDatetime
 from app.logger import logger
 
 
-async def mailing(bot):
+async def mailing(bot, mailing_times):
     """Отправление рассылки.
 
     Функция импортируется в main, где встаивается в основной loop.
     Каждые 15 минут происходит запрос к БД на наличие подписчиков с
     данным временем, и каждому отправляет прогноз погоды
     """
-    start_from = CheDatetime.current()
-    for mailing_time in iterate_mailing_time(start_from):
-        await sleep_until(mailing_time)
+    async for mailing_time in mailing_times:
         await send_mailing(bot, mailing_time.time())
-
-
-def iterate_mailing_time(start_from):
-    """Итерируемся по времени рассылок начиная с ближайшей следующей"""
-    start_from = utils.round_time_by_fifteen_minutes(start_from)
-    while True:
-        start_from += dt.timedelta(minutes=15)
-        yield start_from
-
-
-async def sleep_until(sleep_to):
-    """Спим до определённого времени"""
-    await asyncio.sleep(CheDatetime.current().until(sleep_to))
 
 
 async def send_mailing(bot, mailing_time):

@@ -24,6 +24,7 @@ from app import utils
 from app import weather
 from app.che import CheDatetime
 from app.logger import logger
+from app.times import MailingDatetimes, SleepBetween
 
 
 bot = Bot(token=config.BOT_TOKEN)
@@ -331,7 +332,11 @@ def main():
 
 def add_mailing_to_loop(loop):
     """Добавляем асинхронную рассылку в основной event loop"""
-    loop.create_task(mailing.mailing(bot))
+    start = utils.round_time_by_fifteen_minutes(CheDatetime.current())
+    mailing_times = SleepBetween(
+        MailingDatetimes(start, dt.timedelta(minutes=15))
+    )
+    loop.create_task(mailing.mailing(bot, mailing_times))
 
 
 def polling(loop):
