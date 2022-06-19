@@ -44,9 +44,9 @@ class HourChoiceKeyboard(InlineKeyboardMarkup):
     """Inline-клавиатура для выбора часа рассылки"""
 
     def __init__(self):
-        hours = range(24)
+        hours = range(6, 24)
         buttons = [HourButton(hour) for hour in hours]
-        rows = chunked(buttons, 6)
+        rows = chunked(buttons, 3)
         super().__init__(inline_keyboard=rows)
 
 
