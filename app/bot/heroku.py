@@ -20,4 +20,4 @@ class Heroku(Webhook):
         app_name = os.getenv("HEROKU_APP_NAME")
         webhook_path = f"/webhook/{bot_token}"
         webapp_port = int(os.getenv("PORT"))
-        return cls(dp, tasks, bot_token, app_name, webhook_path, webapp_port)
+        return cls(dp, tasks, app_name, webhook_path, webapp_port)
