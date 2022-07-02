@@ -57,7 +57,7 @@ async def send_info(message):
 # ПРОГНОЗ
 
 
-@dp.message(TextFilter(text=keyboards.WEATHER))
+@dp.message(TextFilter(text=keyboards.WEATHER), state=None)
 async def send_weather(message):
     """Отправка текущей погоды"""
     forecast = await weather.get_current_weather()
@@ -70,7 +70,7 @@ async def send_weather(message):
     )
 
 
-@dp.message(TextFilter(text=keyboards.HOUR_FORECAST))
+@dp.message(TextFilter(text=keyboards.HOUR_FORECAST), state=None)
 async def send_hour_forecast(message):
     """Отправка прогноза на следующий час"""
     timestamp = CheDatetime.current()
@@ -125,7 +125,7 @@ async def handle_hour_forecast_choice(call, state):
     )
 
 
-@dp.message(TextFilter(text=keyboards.TOMORROW_FORECAST))
+@dp.message(TextFilter(text=keyboards.TOMORROW_FORECAST), state=None)
 async def send_daily_forecast(message):
     """Отправка прогноза на день"""
     timestamp = CheDatetime.current()
@@ -183,7 +183,7 @@ async def handle_daily_forecast_choice(call, state):
 # О РАССЫЛКЕ
 
 
-@dp.message(TextFilter(text=keyboards.MAILING))
+@dp.message(TextFilter(text=keyboards.MAILING), state=None)
 async def send_mailing_info(message):
     """Отправка информации о подписке пользователя на рассылку.
 
@@ -295,7 +295,7 @@ async def change_minute_callback(call, state):
     logger.info("Пользователь {} изменил время рассылки", user_id)
 
 
-@dp.message(commands=["cancel_mailing"])
+@dp.message(commands=["cancel_mailing"], state=None)
 async def cancel_mailing(message):
     """Пользователь решил отписаться от рассылки, удаляем из БД"""
     user_id = message.from_user.id
