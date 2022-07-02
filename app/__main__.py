@@ -1,3 +1,3 @@
-from app.main import main
+from app.bot.main import main
 
 main()

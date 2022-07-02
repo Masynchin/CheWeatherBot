@@ -4,18 +4,12 @@
 зарегистрироваться в рассылке, отписаться от рассылки
 """
 
-import asyncio
 import datetime as dt
 
-from aiohttp.web import Application, run_app
 from aiogram import Bot, Dispatcher
 from aiogram.dispatcher.fsm.state import State, StatesGroup
 from aiogram.dispatcher.filters import Text as TextFilter
 from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
-from aiogram.dispatcher.webhook.aiohttp_server import (
-    SimpleRequestHandler,
-    setup_application,
-)
 
 from app import config
 from app import db
@@ -25,9 +19,12 @@ from app import stickers
 from app import templates
 from app import utils
 from app import weather
+from app.bot.heroku import Heroku
+from app.bot.polling import Polling
+from app.bot.task import MailingTask
+from app.bot.webhook import Webhook
 from app.che import CheDatetime
 from app.logger import logger
-from app.times import MailingDatetimes, SleepBetween
 
 
 bot = Bot(token=config.BOT_TOKEN)
@@ -323,46 +320,8 @@ async def handle_errors(update):
 def main():
     """Главная функция, отвечающая за запуск бота и рассылки"""
     logger.info("Запуск")
+    task = MailingTask.default()
     if config.RUN_TYPE == "polling":
-        polling(dp)
+        Polling(dp, tasks=[task]).run(bot)
     elif config.RUN_TYPE == "webhook":
-        webhook(dp)
-
-
-async def on_polling_startup():
-    """Функция перед запуском бота в режиме polling"""
-    await db.create_db()
-    add_mailing_task()
-
-
-async def on_webhook_startup():
-    """Функция перед запуском бота в режиме webhook"""
-    await db.create_db()
-    add_mailing_task()
-    await bot.set_webhook(config.WEBHOOK_URL, drop_pending_updates=True)
-
-
-def add_mailing_task():
-    """Добавляем асинхронную рассылку в основной event loop"""
-    start = utils.round_time_by_fifteen_minutes(CheDatetime.current())
-    mailing_times = SleepBetween(
-        MailingDatetimes(start, dt.timedelta(minutes=15))
-    )
-    asyncio.create_task(mailing.mailing(bot, mailing_times))
-
-
-def polling(dp):
-    """Запуск бота в режиме long-polling"""
-    dp.startup.register(on_polling_startup)
-    dp.run_polling(bot)
-
-
-def webhook(dp):
-    """Запуск бота в режиме webhook"""
-    dp.startup.register(on_webhook_startup)
-    app = Application()
-    SimpleRequestHandler(dispatcher=dp, bot=bot).register(
-        app, path=config.WEBHOOK_PATH
-    )
-    setup_application(app, dp)
-    run_app(app, host=config.WEBAPP_HOST, port=config.WEBAPP_PORT)
+        Heroku.from_env(dp, tasks=[task], bot_token=config.BOT_TOKEN).run(bot)
