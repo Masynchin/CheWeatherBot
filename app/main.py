@@ -335,7 +335,7 @@ async def on_polling_startup():
     add_mailing_task()
 
 
-async def on_webhook_startup(dp, bot):
+async def on_webhook_startup():
     """Функция перед запуском бота в режиме webhook"""
     await db.create_db()
     add_mailing_task()
