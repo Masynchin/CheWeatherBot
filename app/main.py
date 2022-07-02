@@ -359,6 +359,7 @@ def polling(dp):
 
 def webhook(dp):
     """Запуск бота в режиме webhook"""
+    dp.startup.register(on_webhook_startup)
     app = Application()
     SimpleRequestHandler(dispatcher=dp, bot=bot).register(
         app, path=config.WEBHOOK_PATH
