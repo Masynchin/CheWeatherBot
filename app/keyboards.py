@@ -29,14 +29,14 @@ class MainKeyboard(ReplyKeyboardMarkup):
     """Основная клавиатура"""
 
     def __init__(self):
-        super().__init__([
-            [KeyboardButton(WEATHER), KeyboardButton(HOUR_FORECAST)],
+        super().__init__(keyboard=[
+            [KeyboardButton(text=WEATHER), KeyboardButton(text=HOUR_FORECAST)],
             [
-                KeyboardButton(EXACT_HOUR_FORECAST),
-                KeyboardButton(TOMORROW_FORECAST),
+                KeyboardButton(text=EXACT_HOUR_FORECAST),
+                KeyboardButton(text=TOMORROW_FORECAST),
             ],
-            [KeyboardButton(EXACT_DAY_FORECAST)],
-            [KeyboardButton(MAILING), KeyboardButton(HELP)],
+            [KeyboardButton(text=EXACT_DAY_FORECAST)],
+            [KeyboardButton(text=MAILING), KeyboardButton(text=HELP)],
         ], resize_keyboard=True)
 
 
@@ -46,7 +46,7 @@ class HourChoiceKeyboard(InlineKeyboardMarkup):
     def __init__(self):
         hours = range(6, 24)
         buttons = [HourButton(hour) for hour in hours]
-        rows = chunked(buttons, 3)
+        rows = list(chunked(buttons, 3))
         super().__init__(inline_keyboard=rows)
 
 
@@ -54,7 +54,7 @@ class HourButton(InlineKeyboardButton):
     """Кнопка клавиатуры выбора часа"""
 
     def __init__(self, hour):
-        super().__init__(f"{hour:02}", callback_data=f"{hour:02}")
+        super().__init__(text=f"{hour:02}", callback_data=f"{hour:02}")
 
 
 class MinuteChoiceKeyboard(InlineKeyboardMarkup):
@@ -70,7 +70,7 @@ class MinuteButton(InlineKeyboardButton):
     """Кнопка клавиатуры выбора минуты"""
 
     def __init__(self, minute):
-        super().__init__(f"{minute:02}", callback_data=f"{minute:02}")
+        super().__init__(text=f"{minute:02}", callback_data=f"{minute:02}")
 
 
 class ForecastHourChoice(InlineKeyboardMarkup):
@@ -79,7 +79,7 @@ class ForecastHourChoice(InlineKeyboardMarkup):
     def __init__(self, start_from):
         hours = utils.get_next_twelve_hours(start_from)
         buttons = [ForecastHourButton(hour) for hour in hours]
-        rows = chunked(buttons, 3)
+        rows = list(chunked(buttons, 3))
         super().__init__(inline_keyboard=rows)
 
     @classmethod
@@ -89,7 +89,7 @@ class ForecastHourChoice(InlineKeyboardMarkup):
 
 class ForecastHourButton(InlineKeyboardButton):
     def __init__(self, hour):
-        super().__init__(f"{hour:%H:%M}", callback_data=hour.timestamp())
+        super().__init__(text=f"{hour:%H:%M}", callback_data=hour.timestamp())
 
 
 class ForecastDayChoice(InlineKeyboardMarkup):
@@ -98,7 +98,7 @@ class ForecastDayChoice(InlineKeyboardMarkup):
     def __init__(self, start_from):
         days = utils.get_next_seven_days(start_from)
         buttons = [ForecastDayButton(day) for day in days]
-        rows = chunked(buttons, 1)
+        rows = list(chunked(buttons, 1))
         super().__init__(inline_keyboard=rows)
 
     @classmethod
@@ -109,5 +109,5 @@ class ForecastDayChoice(InlineKeyboardMarkup):
 class ForecastDayButton(InlineKeyboardButton):
     def __init__(self, day):
         super().__init__(
-            utils.format_date_as_day(day), callback_data=day.timestamp()
+            text=utils.format_date_as_day(day), callback_data=day.timestamp()
         )

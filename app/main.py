@@ -7,12 +7,15 @@
 import asyncio
 import datetime as dt
 
-from aiogram import Bot, Dispatcher, executor
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiohttp.web import Application, run_app
+from aiogram import Bot, Dispatcher
+from aiogram.dispatcher.fsm.state import State, StatesGroup
 from aiogram.dispatcher.filters import Text as TextFilter
-from aiogram.types.message import ParseMode
-from aiogram.utils.executor import start_webhook
+from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
+from aiogram.dispatcher.webhook.aiohttp_server import (
+    SimpleRequestHandler,
+    setup_application,
+)
 
 from app import config
 from app import db
@@ -28,34 +31,33 @@ from app.times import MailingDatetimes, SleepBetween
 
 
 bot = Bot(token=config.BOT_TOKEN)
-storage = MemoryStorage()
-dp = Dispatcher(bot, storage=storage)
+dp = Dispatcher(MemoryStorage())
 
 
 # START И ПОМОЩЬ
 
 
-@dp.message_handler(commands=["start"])
+@dp.message(commands=["start"])
 async def send_welcome(message):
     """Приветсвенное сообщение с клавиатурой и информацией о командах"""
     await message.answer(
         templates.WELCOME,
-        parse_mode=ParseMode.MARKDOWN,
+        parse_mode="MARKDOWN",
         reply_markup=keyboards.MainKeyboard(),
     )
-    logger.info("Пользователь {} выполнил /start", message.from_user["id"])
+    logger.info("Пользователь {} выполнил /start", message.from_user.id)
 
 
-@dp.message_handler(TextFilter(equals=keyboards.HELP))
+@dp.message(TextFilter(text=keyboards.HELP))
 async def send_info(message):
     """Информационное сообщение со всеми основными командами"""
-    await message.answer(templates.INFO, parse_mode=ParseMode.MARKDOWN)
+    await message.answer(templates.INFO, parse_mode="MARKDOWN")
 
 
 # ПРОГНОЗ
 
 
-@dp.message_handler(TextFilter(equals=keyboards.WEATHER))
+@dp.message(TextFilter(text=keyboards.WEATHER))
 async def send_weather(message):
     """Отправка текущей погоды"""
     forecast = await weather.get_current_weather()
@@ -64,11 +66,11 @@ async def send_weather(message):
     await message.answer_sticker(sticker)
     await message.answer(text)
     logger.info(
-        "Пользователь {} получил текущую погоду", message.from_user["id"]
+        "Пользователь {} получил текущую погоду", message.from_user.id
     )
 
 
-@dp.message_handler(TextFilter(equals=keyboards.HOUR_FORECAST))
+@dp.message(TextFilter(text=keyboards.HOUR_FORECAST))
 async def send_hour_forecast(message):
     """Отправка прогноза на следующий час"""
     timestamp = CheDatetime.current()
@@ -79,7 +81,7 @@ async def send_hour_forecast(message):
     await message.answer(text)
     logger.info(
         "Пользователь {} получил прогноз погоды на час",
-        message.from_user["id"],
+        message.from_user.id,
     )
 
 
@@ -89,23 +91,23 @@ class ChooseForecastHour(StatesGroup):
     hour = State()
 
 
-@dp.message_handler(TextFilter(equals=keyboards.EXACT_HOUR_FORECAST))
-async def send_exact_hour_forecast(message):
+@dp.message(TextFilter(text=keyboards.EXACT_HOUR_FORECAST))
+async def send_exact_hour_forecast(message, state):
     """
     Пользователь нажал на кнопку прогноза в конкретный час.
     Отправляем клавиатуру с двенадцатью ближайшими часами
     """
-    await ChooseForecastHour.hour.set()
+    await state.set_state(ChooseForecastHour.hour)
     await message.answer(
         "Выберите час прогноза:",
         reply_markup=keyboards.ForecastHourChoice.current(),
     )
 
 
-@dp.callback_query_handler(state=ChooseForecastHour.hour)
+@dp.callback_query(ChooseForecastHour.hour)
 async def handle_hour_forecast_choice(call, state):
     """Отправка прогноза на час, выбранный пользователем"""
-    await state.finish()
+    await state.clear()
 
     hour = CheDatetime.from_timestamp(call.data)
     forecast = await weather.get_exact_hour_forecast(hour)
@@ -118,12 +120,12 @@ async def handle_hour_forecast_choice(call, state):
     await call.message.answer(text)
     logger.info(
         "Пользователь {} получил прогноз погоды на {} часов",
-        call.from_user["id"],
+        call.from_user.id,
         hour,
     )
 
 
-@dp.message_handler(TextFilter(equals=keyboards.TOMORROW_FORECAST))
+@dp.message(TextFilter(text=keyboards.TOMORROW_FORECAST))
 async def send_daily_forecast(message):
     """Отправка прогноза на день"""
     timestamp = CheDatetime.current()
@@ -134,7 +136,7 @@ async def send_daily_forecast(message):
     await message.answer(text)
     logger.info(
         "Пользователь {} получил прогноз погоды на день",
-        message.from_user["id"],
+        message.from_user.id,
     )
 
 
@@ -144,23 +146,23 @@ class ChooseForecastDay(StatesGroup):
     day = State()
 
 
-@dp.message_handler(TextFilter(equals=keyboards.EXACT_DAY_FORECAST))
-async def send_exact_day_forecast(message):
+@dp.message(TextFilter(text=keyboards.EXACT_DAY_FORECAST))
+async def send_exact_day_forecast(message, state):
     """
     Пользователь нажал на кнопку прогноза в конкретный день.
     Отправляем клавиатуру со следующими семью днями
     """
-    await ChooseForecastDay.day.set()
+    await state.set_state(ChooseForecastDay.day)
     await message.answer(
         "Выберите день прогноза:",
         reply_markup=keyboards.ForecastDayChoice.current(),
     )
 
 
-@dp.callback_query_handler(state=ChooseForecastDay.day)
+@dp.callback_query(ChooseForecastDay.day)
 async def handle_daily_forecast_choice(call, state):
     """Отправка прогноза на день, выбранный пользователем"""
-    await state.finish()
+    await state.clear()
 
     day = CheDatetime.from_timestamp(call.data)
     forecast = await weather.get_exact_day_forecast(day)
@@ -173,7 +175,7 @@ async def handle_daily_forecast_choice(call, state):
     await call.message.answer(text)
     logger.info(
         "Пользователь {} получил прогноз погоды на {}",
-        call.from_user["id"],
+        call.from_user.id,
         day,
     )
 
@@ -181,14 +183,14 @@ async def handle_daily_forecast_choice(call, state):
 # О РАССЫЛКЕ
 
 
-@dp.message_handler(TextFilter(equals=keyboards.MAILING))
+@dp.message(TextFilter(text=keyboards.MAILING))
 async def send_mailing_info(message):
     """Отправка информации о подписке пользователя на рассылку.
 
     Отправляем время рассылки, если зарегистрирован, или шаблон с тем,
     что его нет в рассылке, если его нет в рассылке
     """
-    user_id = message.from_user["id"]
+    user_id = message.from_user.id
     mailing_info = await mailing.get_user_mailing_info(user_id)
     await message.answer(mailing_info)
 
@@ -200,19 +202,19 @@ class NewSub(StatesGroup):
     minute = State()
 
 
-@dp.message_handler(commands=["subscribe_to_mailing"])
-async def subscribe_to_mailing(message):
+@dp.message(commands=["subscribe_to_mailing"])
+async def subscribe_to_mailing(message, state):
     """
     Пользователь решил зарегистрироваться в рассылке,
     отправляем клавиатуру с выбором часа рассылки
     """
-    await NewSub.hour.set()
+    await state.set_state(NewSub.hour)
     await message.answer(
         "Выберите час:", reply_markup=keyboards.HourChoiceKeyboard()
     )
 
 
-@dp.callback_query_handler(state=NewSub.hour)
+@dp.callback_query(NewSub.hour)
 async def set_hour_callback(call, state):
     """
     После выбора часа рассылки отправляем
@@ -222,18 +224,18 @@ async def set_hour_callback(call, state):
     await call.message.edit_text(
         "Выберите минуты:", reply_markup=keyboards.MinuteChoiceKeyboard()
     )
-    await NewSub.next()
+    await state.set_state(NewSub.minute)
 
 
-@dp.callback_query_handler(state=NewSub.minute)
+@dp.callback_query(NewSub.minute)
 async def set_minute_callback(call, state):
     """Пользователь выбрал час и минуту рассылки, регистрируем его в БД"""
-    async with state.proxy() as data:
-        user_id = call["from"]["id"]
-        time = dt.time(hour=data["hour"], minute=int(call.data))
-        await db.new_subscriber(user_id, time)
+    data = await state.get_data()
+    user_id = call.from_user.id
+    time = dt.time(hour=data["hour"], minute=int(call.data))
+    await db.new_subscriber(user_id, time)
 
-    await state.finish()
+    await state.clear()
     await call.message.delete()  # удаляем клавитуру выбора минуты расылки
     await bot.send_message(
         text=templates.USER_SUBSCRIBED.format(time.hour, time.minute),
@@ -249,8 +251,8 @@ class ChangeTime(StatesGroup):
     minute = State()
 
 
-@dp.message_handler(commands=["change_time_mailing"])
-async def change_time_mailing(message):
+@dp.message(commands=["change_time_mailing"])
+async def change_time_mailing(message, state):
     """
     Пользователь решил поменять время рассылки,
     отправляем клавиатуру с выбором нового часа рассылки
@@ -258,31 +260,31 @@ async def change_time_mailing(message):
     await message.answer(
         "Выберите час:", reply_markup=keyboards.HourChoiceKeyboard()
     )
-    await ChangeTime.hour.set()
+    await state.set_state(ChangeTime.hour)
 
 
-@dp.callback_query_handler(state=ChangeTime.hour)
+@dp.callback_query(ChangeTime.hour)
 async def change_hour_callback(call, state):
     """
     После выбора нового часа рассылки отправляем
     клавиатуру с выбором новой минуты рассылки
     """
     await state.update_data(hour=int(call.data))
-    await ChangeTime.next()
+    await state.set_state(ChangeTime.minute)
     await call.message.edit_text(
         "Выберите минуты:", reply_markup=keyboards.MinuteChoiceKeyboard()
     )
 
 
-@dp.callback_query_handler(state=ChangeTime.minute)
+@dp.callback_query(ChangeTime.minute)
 async def change_minute_callback(call, state):
     """Пользователь выбрал новые час и минуту рассылки, обновляем его в БД"""
-    async with state.proxy() as data:
-        user_id = call["from"]["id"]
-        time = dt.time(hour=data["hour"], minute=int(call.data))
-        await db.change_subscriber_mailing_time(user_id, time)
+    data = await state.get_data()
+    user_id = call.from_user.id
+    time = dt.time(hour=data["hour"], minute=int(call.data))
+    await db.change_subscriber_mailing_time(user_id, time)
 
-    await state.finish()
+    await state.clear()
     await call.message.delete()
     await bot.send_message(
         text=templates.USER_CHANGED_MAILING_TIME.format(
@@ -293,10 +295,10 @@ async def change_minute_callback(call, state):
     logger.info("Пользователь {} изменил время рассылки", user_id)
 
 
-@dp.message_handler(commands=["cancel_mailing"])
+@dp.message(commands=["cancel_mailing"])
 async def cancel_mailing(message):
     """Пользователь решил отписаться от рассылки, удаляем из БД"""
-    user_id = message.from_user["id"]
+    user_id = message.from_user.id
     await db.delete_subscriber(user_id)
     await message.answer("Успешно удалено из подписки")
     logger.info("Пользователь {} удалён из подписки", user_id)
@@ -305,8 +307,8 @@ async def cancel_mailing(message):
 # ОБРАБОТКА ОШИБОК
 
 
-@dp.errors_handler()
-async def handle_errors(update, error):
+@dp.errors()
+async def handle_errors(update):
     """Обработка непредвиденных ошибок"""
     await update.message.answer_sticker(stickers.MAINTAINCE_STICKER)
     await update.message.answer(templates.MAINTAINCE_MESSAGE)
@@ -321,45 +323,45 @@ async def handle_errors(update, error):
 def main():
     """Главная функция, отвечающая за запуск бота и рассылки"""
     logger.info("Запуск")
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(db.create_db())
-    add_mailing_to_loop(loop)
     if config.RUN_TYPE == "polling":
-        polling(loop)
+        polling(dp)
     elif config.RUN_TYPE == "webhook":
-        webhook(loop)
+        webhook(dp)
 
 
-def add_mailing_to_loop(loop):
+async def on_polling_startup():
+    """Функция перед запуском бота в режиме polling"""
+    await db.create_db()
+    add_mailing_task()
+
+
+async def on_webhook_startup(dp, bot):
+    """Функция перед запуском бота в режиме webhook"""
+    await db.create_db()
+    add_mailing_task()
+    await bot.set_webhook(config.WEBHOOK_URL, drop_pending_updates=True)
+
+
+def add_mailing_task():
     """Добавляем асинхронную рассылку в основной event loop"""
     start = utils.round_time_by_fifteen_minutes(CheDatetime.current())
     mailing_times = SleepBetween(
         MailingDatetimes(start, dt.timedelta(minutes=15))
     )
-    loop.create_task(mailing.mailing(bot, mailing_times))
+    asyncio.create_task(mailing.mailing(bot, mailing_times))
 
 
-def polling(loop):
+def polling(dp):
     """Запуск бота в режиме long-polling"""
-    executor.start_polling(dp, loop=loop, skip_updates=True)
+    dp.startup.register(on_polling_startup)
+    dp.run_polling(bot)
 
 
-def webhook(loop):
+def webhook(dp):
     """Запуск бота в режиме webhook"""
-    start_webhook(
-        dispatcher=dp,
-        loop=loop,
-        skip_updates=True,
-        on_startup=on_startup,
-        webhook_path=config.WEBHOOK_PATH,
-        host=config.WEBAPP_HOST,
-        port=config.WEBAPP_PORT,
+    app = Application()
+    SimpleRequestHandler(dispatcher=dp, bot=bot).register(
+        app, path=config.WEBHOOK_PATH
     )
-
-
-async def on_startup(dp):
-    """Функция перед запуском бота в режиме webhook"""
-    await bot.set_webhook(
-        config.WEBHOOK_URL,
-        drop_pending_updates=True,
-    )
+    setup_application(app, dp)
+    run_app(app, host=config.WEBAPP_HOST, port=config.WEBAPP_PORT)
