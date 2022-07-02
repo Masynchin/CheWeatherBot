@@ -91,7 +91,7 @@ class ChooseForecastHour(StatesGroup):
     hour = State()
 
 
-@dp.message(TextFilter(text=keyboards.EXACT_HOUR_FORECAST))
+@dp.message(TextFilter(text=keyboards.EXACT_HOUR_FORECAST), state=None)
 async def send_exact_hour_forecast(message, state):
     """
     Пользователь нажал на кнопку прогноза в конкретный час.
@@ -146,7 +146,7 @@ class ChooseForecastDay(StatesGroup):
     day = State()
 
 
-@dp.message(TextFilter(text=keyboards.EXACT_DAY_FORECAST))
+@dp.message(TextFilter(text=keyboards.EXACT_DAY_FORECAST), state=None)
 async def send_exact_day_forecast(message, state):
     """
     Пользователь нажал на кнопку прогноза в конкретный день.
@@ -202,7 +202,7 @@ class NewSub(StatesGroup):
     minute = State()
 
 
-@dp.message(commands=["subscribe_to_mailing"])
+@dp.message(commands=["subscribe_to_mailing"], state=None)
 async def subscribe_to_mailing(message, state):
     """
     Пользователь решил зарегистрироваться в рассылке,
@@ -251,7 +251,7 @@ class ChangeTime(StatesGroup):
     minute = State()
 
 
-@dp.message(commands=["change_time_mailing"])
+@dp.message(commands=["change_time_mailing"], state=None)
 async def change_time_mailing(message, state):
     """
     Пользователь решил поменять время рассылки,
