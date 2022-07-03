@@ -23,37 +23,34 @@
 
 ## Мотивация
 
-- Хотелось без лишних усилий получать подробную информацию о текущей погоде.
+- Хочу без лишних усилий получать подробную информацию о текущей погоде.
 
 Поэтому я выбрал Telegram. Простой интерфейс, автоматическая рассылка. Можно один раз настроить, и бот сам будет отправлять прогноз.
 
-- Хотелось иметь небольшой проект для практикования.
+- Хочу иметь небольшой проект для практикования.
 
-Периодически я возвращаюсь к этому проекту с целью улучшения кода, структуры, презентации и т.д. Об этих рефакторингах можно прочитать [здесь](https://github.com/Masynchin/history) под заголовками, содержащими "CheWeatherBot".
+Периодически я возвращаюсь к этому проекту с целью улучшения кода, структуры проекта, внешнего вида и т.д. Об этих рефакторингах можно прочитать [здесь](https://github.com/Masynchin/history) под заголовками, содержащими "CheWeatherBot".
 
-## Реализация
+## Технологии
 
-CheWeatherBot -  Telegram-бот на Python. Для получения информации о погоде используется [OpenWeatherMap](https://openweathermap.org/) с тарифом [One Call API](https://openweathermap.org/api/one-call-api).
+### Сервер
 
 Бот работает на Heroku. Принимает сообщения через вебхук. Чтобы Heroku не выключал бота, подключен [Heroku Kaffeine](https://kaffeine.herokuapp.com).
 
-Подписчики хранятся в [PostgreSQL](https://elements.heroku.com/addons/heroku-postgresql).
-
-### Технологии
-
-#### Бот
+### Бот
 
 - Для работы с telegram используется [aiogram](https://github.com/aiogram/aiogram).
 - Для логирования используется [loguru](https://github.com/Delgan/loguru).
 
-#### Работа с [OpenWeatherMap](https://openweathermap.org/)
+### Погода
 
+- Для получения информации о погоде используется [OpenWeatherMap](https://openweathermap.org/) с тарифом [One Call API](https://openweathermap.org/api/one-call-api).
 - Для запросов к API используется [aiohttp](https://github.com/aio-libs/aiohttp).
 - Для удобной работы с ответом API используется [pydantic](https://github.com/samuelcolvin/pydantic).
 
-#### Хранение подписчиков рассылки
+### Хранение подписчиков рассылки
 
-При разработке используется не PostgreSQL, а SQLite. Поэтому для однородности кода выбрана ORM [sqlalchemy](https://github.com/sqlalchemy/sqlalchemy).
+На сервере используется [PostgreSQL](https://elements.heroku.com/addons/heroku-postgresql), на локальной машине SQLite. Для работы с обоими базами данных используется [sqlalchemy](https://github.com/sqlalchemy/sqlalchemy).
 
 ## Установка и запуск
 
