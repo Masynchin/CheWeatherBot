@@ -58,10 +58,8 @@ async def send_info(message):
 async def send_weather(message):
     """Отправка текущей погоды"""
     forecast = await weather.get_current_weather()
-    text = forecast.format()
-    sticker = forecast.get_sticker()
-    await message.answer_sticker(sticker)
-    await message.answer(text)
+    await message.answer_sticker(forecast.get_sticker())
+    await message.answer(forecast.format())
     logger.info(
         "Пользователь {} получил текущую погоду", message.from_user.id
     )
@@ -72,10 +70,8 @@ async def send_hour_forecast(message):
     """Отправка прогноза на следующий час"""
     timestamp = CheDatetime.current()
     forecast = await weather.get_hourly_forecast(timestamp)
-    text = forecast.format()
-    sticker = forecast.get_sticker()
-    await message.answer_sticker(sticker)
-    await message.answer(text)
+    await message.answer_sticker(forecast.get_sticker())
+    await message.answer(forecast.format())
     logger.info(
         "Пользователь {} получил прогноз погоды на час",
         message.from_user.id,
@@ -108,13 +104,11 @@ async def handle_hour_forecast_choice(call, state):
 
     hour = CheDatetime.from_timestamp(call.data)
     forecast = await weather.get_exact_hour_forecast(hour)
-    text = forecast.format()
-    sticker = forecast.get_sticker()
 
     hour = hour.strftime("%H:%M")
     await call.message.edit_text(f"Прогноз на {hour}")
-    await call.message.answer_sticker(sticker)
-    await call.message.answer(text)
+    await call.message.answer_sticker(forecast.get_sticker())
+    await call.message.answer(forecast.format())
     logger.info(
         "Пользователь {} получил прогноз погоды на {} часов",
         call.from_user.id,
@@ -127,10 +121,8 @@ async def send_daily_forecast(message):
     """Отправка прогноза на день"""
     timestamp = CheDatetime.current()
     forecast = await weather.get_daily_forecast(timestamp)
-    text = forecast.format()
-    sticker = forecast.get_sticker()
-    await message.answer_sticker(sticker)
-    await message.answer(text)
+    await message.answer_sticker(forecast.get_sticker())
+    await message.answer(forecast.format())
     logger.info(
         "Пользователь {} получил прогноз погоды на день",
         message.from_user.id,
@@ -163,13 +155,11 @@ async def handle_daily_forecast_choice(call, state):
 
     day = CheDatetime.from_timestamp(call.data)
     forecast = await weather.get_exact_day_forecast(day)
-    text = forecast.format()
-    sticker = forecast.get_sticker()
 
     day = utils.format_date_as_day(day)
     await call.message.edit_text(f"Прогноз на {day}")
-    await call.message.answer_sticker(sticker)
-    await call.message.answer(text)
+    await call.message.answer_sticker(forecast.get_sticker())
+    await call.message.answer(forecast.format())
     logger.info(
         "Пользователь {} получил прогноз погоды на {}",
         call.from_user.id,
