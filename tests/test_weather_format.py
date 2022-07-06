@@ -33,9 +33,9 @@ def timestamp():
 @patch("app.weather.get_weather", return_value=mock_response())
 async def test_no_exceptions_at_format(_mock, timestamp):
     forecasts = await asyncio.gather(
-        weather.get_current_weather(),
-        weather.get_hourly_forecast(timestamp),
-        weather.get_daily_forecast(timestamp),
+        weather.current(),
+        weather.hourly(timestamp),
+        weather.daily(timestamp),
     )
 
     for forecast in forecasts:
@@ -46,9 +46,9 @@ async def test_no_exceptions_at_format(_mock, timestamp):
 @patch("app.weather.get_weather", return_value=mock_response())
 async def test_templates_depends_on_wind_gust_existence(_mock, timestamp):
     forecasts = await asyncio.gather(
-        weather.get_current_weather(),
-        weather.get_hourly_forecast(timestamp),
-        weather.get_daily_forecast(timestamp),
+        weather.current(),
+        weather.hourly(timestamp),
+        weather.daily(timestamp),
     )
 
     for forecast in forecasts:
@@ -65,9 +65,9 @@ async def test_templates_depends_on_wind_gust_existence(_mock, timestamp):
 @patch("app.weather.get_weather", return_value=mock_response())
 async def test_stickers(_mock, timestamp):
     forecasts = await asyncio.gather(
-        weather.get_current_weather(),
-        weather.get_hourly_forecast(timestamp),
-        weather.get_daily_forecast(timestamp),
+        weather.current(),
+        weather.hourly(timestamp),
+        weather.daily(timestamp),
     )
 
     for forecast in forecasts:

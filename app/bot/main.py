@@ -57,7 +57,7 @@ async def send_info(message):
 @dp.message(TextFilter(text=keyboards.WEATHER), state=None)
 async def send_weather(message):
     """Отправка текущей погоды"""
-    forecast = await weather.get_current_weather()
+    forecast = await weather.current()
     await message.answer_sticker(forecast.get_sticker())
     await message.answer(forecast.format())
     logger.info(
@@ -69,7 +69,7 @@ async def send_weather(message):
 async def send_hour_forecast(message):
     """Отправка прогноза на следующий час"""
     timestamp = CheDatetime.current()
-    forecast = await weather.get_hourly_forecast(timestamp)
+    forecast = await weather.hourly(timestamp)
     await message.answer_sticker(forecast.get_sticker())
     await message.answer(forecast.format())
     logger.info(
@@ -103,7 +103,7 @@ async def handle_hour_forecast_choice(call, state):
     await state.clear()
 
     hour = CheDatetime.from_timestamp(call.data)
-    forecast = await weather.get_exact_hour_forecast(hour)
+    forecast = await weather.exact_hour(hour)
 
     hour = hour.strftime("%H:%M")
     await call.message.edit_text(f"Прогноз на {hour}")
@@ -120,7 +120,7 @@ async def handle_hour_forecast_choice(call, state):
 async def send_daily_forecast(message):
     """Отправка прогноза на день"""
     timestamp = CheDatetime.current()
-    forecast = await weather.get_daily_forecast(timestamp)
+    forecast = await weather.daily(timestamp)
     await message.answer_sticker(forecast.get_sticker())
     await message.answer(forecast.format())
     logger.info(
@@ -154,7 +154,7 @@ async def handle_daily_forecast_choice(call, state):
     await state.clear()
 
     day = CheDatetime.from_timestamp(call.data)
-    forecast = await weather.get_exact_day_forecast(day)
+    forecast = await weather.exact_day(day)
 
     day = utils.format_date_as_day(day)
     await call.message.edit_text(f"Прогноз на {day}")

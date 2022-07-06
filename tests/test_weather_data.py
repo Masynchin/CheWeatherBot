@@ -46,11 +46,11 @@ async def test_same_allerts(_mock, timestamp, hour_timestamp, day_timestamp):
     Все прогнозы относятся к одним данным, поэтому
     предупреждения для всех одинаковы
     """
-    current = await weather.get_current_weather()
-    hourly = await weather.get_hourly_forecast(timestamp)
-    exact_hour = await weather.get_exact_hour_forecast(hour_timestamp)
-    daily = await weather.get_daily_forecast(timestamp)
-    exact_day = await weather.get_exact_day_forecast(day_timestamp)
+    current = await weather.current()
+    hourly = await weather.hourly(timestamp)
+    exact_hour = await weather.exact_hour(hour_timestamp)
+    daily = await weather.daily(timestamp)
+    exact_day = await weather.exact_day(day_timestamp)
 
     assert (
         current.alerts
@@ -68,8 +68,8 @@ async def test_same_allerts(_mock, timestamp, hour_timestamp, day_timestamp):
 
 @pytest.mark.asyncio
 @patch("app.weather.get_weather", return_value=mock_response())
-async def test_get_current_weather(_mock):
-    forecast = await weather.get_current_weather()
+async def test_current(_mock):
+    forecast = await weather.current()
     forecast_data = forecast.forecast
 
     assert forecast_data.temp == -9.08
@@ -78,8 +78,8 @@ async def test_get_current_weather(_mock):
 
 @pytest.mark.asyncio
 @patch("app.weather.get_weather", return_value=mock_response())
-async def test_get_hourly_forecast(_mock, timestamp):
-    forecast = await weather.get_hourly_forecast(timestamp)
+async def test_hourly(_mock, timestamp):
+    forecast = await weather.hourly(timestamp)
     forecast_data = forecast.forecast
 
     assert forecast_data.temp == -10.49
@@ -88,8 +88,8 @@ async def test_get_hourly_forecast(_mock, timestamp):
 
 @pytest.mark.asyncio
 @patch("app.weather.get_weather", return_value=mock_response())
-async def test_get_exact_hour_forecast(_mock, hour_timestamp):
-    forecast = await weather.get_exact_hour_forecast(hour_timestamp)
+async def test_exact_hour(_mock, hour_timestamp):
+    forecast = await weather.exact_hour(hour_timestamp)
     forecast_data = forecast.forecast
 
     assert forecast_data.temp == -12.41
@@ -98,8 +98,8 @@ async def test_get_exact_hour_forecast(_mock, hour_timestamp):
 
 @pytest.mark.asyncio
 @patch("app.weather.get_weather", return_value=mock_response())
-async def get_daily_forecast(_mock, timestamp):
-    forecast = await weather.get_exact_day_forecast(timestamp)
+async def daily(_mock, timestamp):
+    forecast = await weather.exact_day(timestamp)
     forecast_data = forecast.forecast
 
     assert forecast_data.temp.day_temp == -13.89
@@ -108,8 +108,8 @@ async def get_daily_forecast(_mock, timestamp):
 
 @pytest.mark.asyncio
 @patch("app.weather.get_weather", return_value=mock_response())
-async def test_get_exact_day_forecast(_mock, day_timestamp):
-    forecast = await weather.get_exact_day_forecast(day_timestamp)
+async def test_exact_day(_mock, day_timestamp):
+    forecast = await weather.exact_day(day_timestamp)
     forecast_data = forecast.forecast
 
     assert forecast_data.temp.day_temp == -15.74
