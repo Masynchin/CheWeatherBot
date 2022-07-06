@@ -21,7 +21,6 @@ from app import weather
 from app.bot.heroku import Heroku
 from app.bot.polling import Polling
 from app.bot.task import MailingTask
-from app.bot.webhook import Webhook
 from app.che import CheDate, CheDatetime
 from app.logger import logger
 
