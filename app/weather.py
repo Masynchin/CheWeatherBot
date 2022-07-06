@@ -73,7 +73,7 @@ async def exact_day(day):
 def _exact_day(forecasts, day):
     """Получение данных о прогнозе на конкретный день"""
     for forecast in forecasts:
-        if forecast.timestamp.date() == day.date():
+        if forecast.timestamp.date() == day:
             return forecast
 
 

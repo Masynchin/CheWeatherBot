@@ -17,13 +17,12 @@ from app import keyboards
 from app import mailing
 from app import stickers
 from app import templates
-from app import utils
 from app import weather
 from app.bot.heroku import Heroku
 from app.bot.polling import Polling
 from app.bot.task import MailingTask
 from app.bot.webhook import Webhook
-from app.che import CheDatetime
+from app.che import CheDate, CheDatetime
 from app.logger import logger
 
 
@@ -153,10 +152,10 @@ async def handle_daily_forecast_choice(call, state):
     """Отправка прогноза на день, выбранный пользователем"""
     await state.clear()
 
-    day = CheDatetime.from_timestamp(call.data)
+    day = CheDate.from_ordinal(call.data)
     forecast = await weather.exact_day(day)
 
-    day = utils.format_date_as_day(day)
+    day = day.format()
     await call.message.edit_text(f"Прогноз на {day}")
     await call.message.answer_sticker(forecast.sticker())
     await call.message.answer(forecast.format())

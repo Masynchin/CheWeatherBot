@@ -39,6 +39,44 @@ class CheDatetime(dt.datetime):
             )
         )
 
+    def date(self):
+        """Дата времени"""
+        return CheDate.from_date(super().date())
+
     def until(self, other):
         """Получаем количество секунд до времени в будущем"""
         return (other - self).total_seconds()
+
+
+class CheDate(dt.date):
+    """Дата в Череповце"""
+
+    @classmethod
+    def from_date(cls, date):
+        """Создание класса из dt.date"""
+        return cls(date.year, date.month, date.day)
+
+    @classmethod
+    def from_ordinal(cls, ordinal):
+        """Создание класса по номеру в грегорианском календаре"""
+        return cls.from_date(dt.date.fromordinal(int(ordinal)))
+
+    def ordinal(self):
+        """Номер в григорианском календаре"""
+        return self.toordinal()
+
+    def format(self):
+        """Представление в виде 'день - дд.мм'"""
+        return self.strftime(f"{self.weekday()} - %d.%m")
+
+    def weekday(self):
+        """День недели"""
+        return [
+            "Понедельник",
+            "Вторник",
+            "Среда",
+            "Четверг",
+            "Пятница",
+            "Суббота",
+            "Воскресенье",
+        ][super().weekday()]

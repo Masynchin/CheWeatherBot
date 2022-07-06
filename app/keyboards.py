@@ -103,11 +103,9 @@ class ForecastDayChoice(InlineKeyboardMarkup):
 
     @classmethod
     def current(cls):
-        return cls(CheDatetime.current())
+        return cls(CheDatetime.current().date())
 
 
 class ForecastDayButton(InlineKeyboardButton):
     def __init__(self, day):
-        super().__init__(
-            text=utils.format_date_as_day(day), callback_data=day.timestamp()
-        )
+        super().__init__(text=day.format(), callback_data=day.ordinal())

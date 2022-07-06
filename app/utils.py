@@ -2,8 +2,6 @@
 
 import datetime as dt
 
-import pytz
-
 
 def round_time_by_hours(time):
     """Округляем время до кратного часу.
@@ -29,37 +27,4 @@ def round_time_by_fifteen_minutes(time):
 
 def get_next_seven_days(start_from):
     """Получаем следующие семь дней начиная от завтрашнего"""
-    start_day = _round_date_by_day(start_from)
-    return [start_day + dt.timedelta(days=i) for i in range(1, 8)]
-
-
-def _round_date_by_day(date):
-    """Округляем dt.datetime до дня
-
-    Например 23.02.21 12:34:56 -> 23.02.21 00:00:00
-    """
-    return date.replace(hour=0, minute=0, second=0, microsecond=0)
-
-
-def format_date_as_day(date):
-    """Преобразуем dt.datetime в строку вида 'день - дд.мм'
-
-    Например: dt.datetime(..day=15, month=4..) -> 'Четверг - 22.04'
-    """
-    weekday = get_weekday_name_from_datetime(date)
-    return date.strftime(f"{weekday} - %d.%m")
-
-
-def get_weekday_name_from_datetime(date):
-    """Получаем день недели на русском из dt.datetime"""
-    current_date = date.astimezone(pytz.timezone("Europe/Moscow"))
-    weekday_index = current_date.weekday()
-    return [
-        "Понедельник",
-        "Вторник",
-        "Среда",
-        "Четверг",
-        "Пятница",
-        "Суббота",
-        "Воскресенье",
-    ][weekday_index]
+    return [start_from + dt.timedelta(days=i) for i in range(1, 8)]
