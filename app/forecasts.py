@@ -27,7 +27,7 @@ class BaseForecast:
             self.alerts
         )
 
-    def get_sticker(self):
+    def sticker(self):
         """Получаем стикер, отражающий тип погоды.
 
         Этот стикер отправляется вместе с сообщением прогноза

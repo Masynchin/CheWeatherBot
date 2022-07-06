@@ -24,7 +24,7 @@ async def send_mailing(bot, mailing_time):
     """Отправляем рассылку пользователям с данным временем"""
     forecast = await weather.current()
     message_text = templates.MAILING_MESSAGE.format(forecast.format())
-    sticker = forecast.get_sticker()
+    sticker = forecast.sticker()
     subscribers = await db.get_subscribers_by_mailing_time(mailing_time)
 
     for subscriber in subscribers:
