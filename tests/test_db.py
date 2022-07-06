@@ -57,14 +57,10 @@ async def test_change_subscriber_time():
 
 @pytest.mark.asyncio
 async def test_delete_subscriber():
-    subscribers_before_new = await db.get_subscribers_by_mailing_time(
-        mailing_time
-    )
+    before = await db.get_subscribers_by_mailing_time(mailing_time)
     await db.new_subscriber(subscriber_id=0, mailing_time=mailing_time)
 
     await db.delete_subscriber(subscriber_id=0)
-    subscribers_after_delete = await db.get_subscribers_by_mailing_time(
-        mailing_time
-    )
+    after = await db.get_subscribers_by_mailing_time(mailing_time)
 
-    assert subscribers_before_new == subscribers_after_delete
+    assert before == after
