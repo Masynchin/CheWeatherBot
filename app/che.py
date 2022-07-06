@@ -33,10 +33,9 @@ class CheDatetime(dt.datetime):
 
         Например: '16892286320.0' -> CheDatetime(...)
         """
-        timestamp = int(float(timestamp))
         return cls.from_dt(
             dt.datetime.fromtimestamp(
-                timestamp, pytz.timezone("Europe/Moscow")
+                int(float(timestamp)), pytz.timezone("Europe/Moscow")
             )
         )
 
