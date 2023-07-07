@@ -18,8 +18,8 @@ from app import mailing
 from app import stickers
 from app import templates
 from app import weather
-from app.bot.heroku import Heroku
 from app.bot.polling import Polling
+from app.bot.webhook import Webhook
 from app.bot.task import MailingTask
 from app.che import CheDate, CheDatetime
 from app.logger import logger
@@ -312,4 +312,4 @@ def main():
     if config.RUN_TYPE == "polling":
         Polling(dp, tasks=[task]).run(bot)
     elif config.RUN_TYPE == "webhook":
-        Heroku.from_env(dp, tasks=[task], bot_token=config.BOT_TOKEN).run(bot)
+        ...
