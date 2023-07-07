@@ -21,7 +21,4 @@ WEATHER_API_URL = "https://api.openweathermap.org/data/2.5/onecall?" + urlencode
 
 RUN_TYPE = os.getenv("RUN_TYPE", "polling")
 
-DATABASE_URL = (
-    os.getenv("DATABASE_URL", "sqlite+aiosqlite:///subscribers.db")
-    .replace("postgres", "postgresql+asyncpg")
-)
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///subscribers.db")
