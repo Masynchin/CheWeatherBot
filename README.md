@@ -33,9 +33,7 @@
 
 ## Технологии
 
-### Сервер
-
-Бот работает на Heroku. Принимает сообщения через вебхук. Чтобы Heroku не выключал бота, подключен [Heroku Kaffeine](https://kaffeine.herokuapp.com).
+<!-- ### Сервер -->
 
 ### Бот
 
@@ -50,7 +48,7 @@
 
 ### Хранение подписчиков рассылки
 
-На сервере используется [PostgreSQL](https://elements.heroku.com/addons/heroku-postgresql), на локальной машине SQLite. Для работы с обоими базами данных используется [sqlalchemy](https://github.com/sqlalchemy/sqlalchemy).
+Используется SQLite. В качестве адаптера используется [sqlalchemy](https://github.com/sqlalchemy/sqlalchemy).
 
 ## Установка и запуск
 
