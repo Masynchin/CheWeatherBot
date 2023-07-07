@@ -9,3 +9,4 @@ flake8-bugbear
 flake8-comprehensions
 flake8-docstrings
 pep8-naming
+ruff==0.0.277
