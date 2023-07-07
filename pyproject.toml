@@ -2,7 +2,14 @@
 line-length = 79
 
 [tool.ruff]
-select = ["E", "W", "F", "B", "C4", "N"]
+select = ["D", "E", "W", "F", "B", "C4", "N"]
+ignore = ["D"]
 
 # Same as black
 line-length = 79
+
+[tool.ruff.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.pep8-naming]
+classmethod-decorators = ["classmethod", "pydantic.validator"]
