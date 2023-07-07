@@ -1,2 +1,8 @@
 [tool.black]
 line-length = 79
+
+[tool.ruff]
+select = ["E", "W", "F", "B", "C4", "N"]
+
+# Same as black
+line-length = 79
