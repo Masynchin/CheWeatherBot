@@ -7,9 +7,9 @@
 import datetime as dt
 
 from aiogram import Bot, Dispatcher
-from aiogram.dispatcher.fsm.state import State, StatesGroup
-from aiogram.dispatcher.filters import Text as TextFilter
-from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
+from aiogram.filters import Text as TextFilter
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.storage.memory import MemoryStorage
 
 from app import config
 from app import db
