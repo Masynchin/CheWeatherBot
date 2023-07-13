@@ -10,4 +10,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY stickers.json .
 COPY app ./app
 
-ENTRYPOINT [ "python", "-m", "app" ]
+CMD [ "python", "-m", "app" ]
