@@ -91,9 +91,9 @@ docker build -t cwb .
 
 ~~~shell
 docker run -d -it --rm \
--e BOT_TOKEN=<token> \
--e WEATHER_API_KEY=<key> \
-cwb
+    -e BOT_TOKEN=<token> \
+    -e WEATHER_API_KEY=<key> \
+    cwb
 ~~~
 
 Или с переменными из файла:
