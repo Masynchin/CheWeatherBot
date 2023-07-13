@@ -1,0 +1,10 @@
+version: "3"
+services:
+  bot:
+    build: .
+    environment:
+      - BOT_TOKEN
+      - WEATHER_API_KEY
+      - RUN_TYPE
+      - DATABASE_URL
+    command: python -m app

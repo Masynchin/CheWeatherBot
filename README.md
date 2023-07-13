@@ -52,20 +52,6 @@
 
 ## Установка и запуск
 
-### Зависимости
-
-Зависимости ставятся через:
-
-~~~shell
-pip install -r requirements.txt
-~~~
-
-Зависимости для разработки (включают обычные зависимости) ставятся через:
-
-~~~shell
-pip install -r requirements-dev.txt
-~~~
-
 ### Переменные окружения
 
 - `BOT_TOKEN` - токен telegram бота
@@ -73,12 +59,55 @@ pip install -r requirements-dev.txt
 - `DATABASE_URL` - путь к базе данных (по умолчанию `sqlite+aiosqlite:///db/subscribers.db`)
 - `RUN_TYPE` - режим работы бота (`polling` (по умолчанию) | `webhook`)
 
-### Запуск
+### Запуск вручную
+
+- Основные зависимости:
+
+~~~shell
+pip install -r requirements.txt
+~~~
+
+- Зависимости для разработки (включают основные):
+
+~~~shell
+pip install -r requirements-dev.txt
+~~~
 
 Запуск бота происходит через:
 
 ~~~shell
 python -m app
+~~~
+
+### Запуск Docker контейнера
+
+Сборка контейнера:
+
+~~~shell
+docker build -t cwb .
+~~~
+
+Запуск контейнера:
+
+~~~shell
+docker run -d -it --rm \
+    -e BOT_TOKEN=<token> \
+    -e WEATHER_API_KEY=<key> \
+    cwb
+~~~
+
+Или с переменными из файла:
+
+~~~shell
+docker run -d -it --rm --env-file ./.env cwb
+~~~
+
+### Запуск через Docker Compose
+
+Запуск через docker-compose:
+
+~~~shell
+docker compose up
 ~~~
 
 ### Логирование
