@@ -7,9 +7,9 @@
 import datetime as dt
 
 from aiogram import Bot, Dispatcher
-from aiogram.dispatcher.fsm.state import State, StatesGroup
-from aiogram.dispatcher.filters import Text as TextFilter
-from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
+from aiogram.filters import Command as CommandFilter, StateFilter, Text as TextFilter
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.storage.memory import MemoryStorage
 
 from app import config
 from app import db
@@ -26,13 +26,13 @@ from app.logger import logger
 
 
 bot = Bot(token=config.BOT_TOKEN)
-dp = Dispatcher(MemoryStorage())
+dp = Dispatcher(storage=MemoryStorage())
 
 
 # START И ПОМОЩЬ
 
 
-@dp.message(commands=["start"])
+@dp.message(CommandFilter("start"))
 async def send_welcome(message):
     """Приветсвенное сообщение с клавиатурой и информацией о командах"""
     await message.answer(
@@ -43,7 +43,7 @@ async def send_welcome(message):
     logger.info("Пользователь {} выполнил /start", message.from_user.id)
 
 
-@dp.message(TextFilter(text=keyboards.HELP))
+@dp.message(TextFilter(keyboards.HELP))
 async def send_info(message):
     """Информационное сообщение со всеми основными командами"""
     await message.answer(templates.INFO, parse_mode="MARKDOWN")
@@ -52,7 +52,7 @@ async def send_info(message):
 # ПРОГНОЗ
 
 
-@dp.message(TextFilter(text=keyboards.WEATHER), state=None)
+@dp.message(TextFilter(keyboards.WEATHER), StateFilter(None))
 async def send_weather(message):
     """Отправка текущей погоды"""
     forecast = await weather.current()
@@ -63,7 +63,7 @@ async def send_weather(message):
     )
 
 
-@dp.message(TextFilter(text=keyboards.HOUR_FORECAST), state=None)
+@dp.message(TextFilter(keyboards.HOUR_FORECAST), StateFilter(None))
 async def send_hour_forecast(message):
     """Отправка прогноза на следующий час"""
     timestamp = CheDatetime.current()
@@ -82,7 +82,7 @@ class ChooseForecastHour(StatesGroup):
     hour = State()
 
 
-@dp.message(TextFilter(text=keyboards.EXACT_HOUR_FORECAST), state=None)
+@dp.message(TextFilter(keyboards.EXACT_HOUR_FORECAST), StateFilter(None))
 async def send_exact_hour_forecast(message, state):
     """
     Пользователь нажал на кнопку прогноза в конкретный час.
@@ -114,7 +114,7 @@ async def handle_hour_forecast_choice(call, state):
     )
 
 
-@dp.message(TextFilter(text=keyboards.TOMORROW_FORECAST), state=None)
+@dp.message(TextFilter(keyboards.TOMORROW_FORECAST), StateFilter(None))
 async def send_daily_forecast(message):
     """Отправка прогноза на день"""
     timestamp = CheDatetime.current()
@@ -133,7 +133,7 @@ class ChooseForecastDay(StatesGroup):
     day = State()
 
 
-@dp.message(TextFilter(text=keyboards.EXACT_DAY_FORECAST), state=None)
+@dp.message(TextFilter(keyboards.EXACT_DAY_FORECAST), StateFilter(None))
 async def send_exact_day_forecast(message, state):
     """
     Пользователь нажал на кнопку прогноза в конкретный день.
@@ -168,7 +168,7 @@ async def handle_daily_forecast_choice(call, state):
 # О РАССЫЛКЕ
 
 
-@dp.message(TextFilter(text=keyboards.MAILING), state=None)
+@dp.message(TextFilter(keyboards.MAILING), StateFilter(None))
 async def send_mailing_info(message):
     """Отправка информации о подписке пользователя на рассылку.
 
@@ -187,7 +187,7 @@ class NewSub(StatesGroup):
     minute = State()
 
 
-@dp.message(commands=["subscribe_to_mailing"], state=None)
+@dp.message(CommandFilter("subscribe_to_mailing"), StateFilter(None))
 async def subscribe_to_mailing(message, state):
     """
     Пользователь решил зарегистрироваться в рассылке,
@@ -236,7 +236,7 @@ class ChangeTime(StatesGroup):
     minute = State()
 
 
-@dp.message(commands=["change_time_mailing"], state=None)
+@dp.message(CommandFilter("change_time_mailing"), StateFilter(None))
 async def change_time_mailing(message, state):
     """
     Пользователь решил поменять время рассылки,
@@ -280,7 +280,7 @@ async def change_minute_callback(call, state):
     logger.info("Пользователь {} изменил время рассылки", user_id)
 
 
-@dp.message(commands=["cancel_mailing"], state=None)
+@dp.message(CommandFilter("cancel_mailing"), StateFilter(None))
 async def cancel_mailing(message):
     """Пользователь решил отписаться от рассылки, удаляем из БД"""
     user_id = message.from_user.id

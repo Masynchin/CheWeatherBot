@@ -1,7 +1,7 @@
 from app import db
 
 from aiohttp.web import Application, run_app
-from aiogram.dispatcher.webhook.aiohttp_server import (
+from aiogram.webhook.aiohttp_server import (
     SimpleRequestHandler,
     setup_application,
 )
