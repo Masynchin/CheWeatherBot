@@ -5,19 +5,11 @@
 """
 
 import os
-from urllib.parse import urlencode
 
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-WEATHER_API_URL = "https://api.openweathermap.org/data/2.5/onecall?" + urlencode({
-    "lat": 59.09,
-    "lon": 37.91,
-    "appid": os.getenv("WEATHER_API_KEY"),
-    "units": "metric",
-    "exclude": "minutely",
-    "lang": "ru",
-})
+WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 
 RUN_TYPE = os.getenv("RUN_TYPE", "polling")
 

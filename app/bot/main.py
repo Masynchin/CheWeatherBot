@@ -49,7 +49,7 @@ def main():
     logger.info("Запуск")
 
     db = Subscribers()
-    weather = OwmWeather()
+    weather = OwmWeather.for_che(config.WEATHER_API_KEY)
     task = MailingTask.default(db, weather)
     routes = [
         Welcome(),
