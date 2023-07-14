@@ -2,6 +2,9 @@
 
 import asyncio
 
+from more_itertools import iterate
+from placeholder import _
+
 from app.che import CheDatetime
 
 
@@ -13,10 +16,7 @@ class MailingDatetimes:
         self.delta = delta
 
     def __iter__(self):
-        mailing_datetime = self.start
-        while True:
-            mailing_datetime += self.delta
-            yield mailing_datetime
+        return iterate(_ + self.delta, self.start)
 
 
 class SleepBetween:
