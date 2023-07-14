@@ -14,7 +14,6 @@ from app import keyboards
 from app import mailing
 from app import stickers
 from app import templates
-from app import weather
 from app.che import CheDate, CheDatetime
 from app.logger import logger
 
@@ -56,14 +55,16 @@ class Info(MessageRoute):
 class Weather(MessageRoute):
     """Отправка текущей погоды"""
 
-    def __init__(self):
+    def __init__(self, weather):
+        self.weather = weather
+
         super().__init__(
             filter=And(TextFilter(keyboards.WEATHER), StateFilter(None)),
             handler=self.handle,
         )
 
     async def handle(self, message):
-        forecast = await weather.current()
+        forecast = await self.weather.current()
         await message.answer_sticker(forecast.sticker())
         await message.answer(forecast.format())
         logger.info(
@@ -74,7 +75,9 @@ class Weather(MessageRoute):
 class HourForecast(MessageRoute):
     """Отправка прогноза на следующий час"""
 
-    def __init__(self):
+    def __init__(self, weather):
+        self.weather = weather
+
         super().__init__(
             filter=And(TextFilter(keyboards.HOUR_FORECAST), StateFilter(None)),
             handler=self.handle,
@@ -82,7 +85,7 @@ class HourForecast(MessageRoute):
 
     async def handle(self, message):
         timestamp = CheDatetime.current()
-        forecast = await weather.hourly(timestamp)
+        forecast = await self.weather.hourly(timestamp)
         await message.answer_sticker(forecast.sticker())
         await message.answer(forecast.format())
         logger.info(
@@ -122,7 +125,8 @@ class ExactHourForecast(MessageRoute):
 class HandleExactHourForecast(CallbackRoute):
     """Отправка прогноза на час, выбранный пользователем"""
 
-    def __init__(self):
+    def __init__(self, weather):
+        self.weather = weather
         super().__init__(
             filter=StateFilter(ChooseForecastHour.hour),
             handler=self.handle,
@@ -132,7 +136,7 @@ class HandleExactHourForecast(CallbackRoute):
         await state.clear()
 
         hour = CheDatetime.from_timestamp(call.data)
-        forecast = await weather.exact_hour(hour)
+        forecast = await self.weather.exact_hour(hour)
 
         hour = hour.strftime("%H:%M")
         await call.message.edit_text(f"Прогноз на {hour}")
@@ -148,7 +152,9 @@ class HandleExactHourForecast(CallbackRoute):
 class DailyForecast(MessageRoute):
     """Отправка прогноза на день"""
 
-    def __init__(self):
+    def __init__(self, weather):
+        self.weather = weather
+
         super().__init__(
             filter=And(
                 TextFilter(keyboards.TOMORROW_FORECAST), StateFilter(None)
@@ -158,7 +164,7 @@ class DailyForecast(MessageRoute):
 
     async def handle(self, message):
         timestamp = CheDatetime.current()
-        forecast = await weather.daily(timestamp)
+        forecast = await self.weather.daily(timestamp)
         await message.answer_sticker(forecast.sticker())
         await message.answer(forecast.format())
         logger.info(
@@ -198,7 +204,9 @@ class SendExactDayForecast(MessageRoute):
 class HandleExactDayForecast(CallbackRoute):
     """Отправка прогноза на день, выбранный пользователем"""
 
-    def __init__(self):
+    def __init__(self, weather):
+        self.weather = weather
+
         super().__init__(
             filter=StateFilter(ChooseForecastDay.day),
             handler=self.handle,
@@ -208,7 +216,7 @@ class HandleExactDayForecast(CallbackRoute):
         await state.clear()
 
         day = CheDate.from_ordinal(call.data)
-        forecast = await weather.exact_day(day)
+        forecast = await self.weather.exact_day(day)
 
         day = day.format()
         await call.message.edit_text(f"Прогноз на {day}")
