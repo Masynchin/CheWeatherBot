@@ -38,11 +38,7 @@ class OwmWeather:
         return cls.from_geo(lat=59.09, lon=37.91, api_key=api_key)
 
     async def weather(self):
-        """Кеширование результатов погоды раз в 5 минут.
-
-        Функция вызывает _get_weather() но с аргументом времени, по которому
-        происходит кеширование результата ответа погодного сервера
-        """
+        """Кешированная погода с OpenWeatherMap"""
         return await _get_weather(self.url, time.time() // self.cache_time)
 
     async def current(self):
