@@ -33,7 +33,6 @@ def timestamp():
 @patch("app.weather.OwmWeather.weather", return_value=mock_response())
 async def test_no_exceptions_at_format(_mock, timestamp):
     weather = OwmWeather("", 1)
-    weather
 
     forecasts = await asyncio.gather(
         weather.current(),
