@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 
-from app import weather
+from app.weather import OwmWeather
 from app.weather_classes import WeatherResponse
 
 
@@ -46,6 +46,8 @@ async def test_same_allerts(_mock, timestamp, hour_timestamp, day_timestamp):
     Все прогнозы относятся к одним данным, поэтому
     предупреждения для всех одинаковы
     """
+    weather = OwmWeather()
+
     current = await weather.current()
     hourly = await weather.hourly(timestamp)
     exact_hour = await weather.exact_hour(hour_timestamp)
@@ -69,6 +71,8 @@ async def test_same_allerts(_mock, timestamp, hour_timestamp, day_timestamp):
 @pytest.mark.asyncio
 @patch("app.weather.get_weather", return_value=mock_response())
 async def test_current(_mock):
+    weather = OwmWeather()
+
     forecast = await weather.current()
     forecast_data = forecast.forecast
 
@@ -79,6 +83,8 @@ async def test_current(_mock):
 @pytest.mark.asyncio
 @patch("app.weather.get_weather", return_value=mock_response())
 async def test_hourly(_mock, timestamp):
+    weather = OwmWeather()
+
     forecast = await weather.hourly(timestamp)
     forecast_data = forecast.forecast
 
@@ -89,6 +95,8 @@ async def test_hourly(_mock, timestamp):
 @pytest.mark.asyncio
 @patch("app.weather.get_weather", return_value=mock_response())
 async def test_exact_hour(_mock, hour_timestamp):
+    weather = OwmWeather()
+
     forecast = await weather.exact_hour(hour_timestamp)
     forecast_data = forecast.forecast
 
@@ -99,6 +107,8 @@ async def test_exact_hour(_mock, hour_timestamp):
 @pytest.mark.asyncio
 @patch("app.weather.get_weather", return_value=mock_response())
 async def daily(_mock, timestamp):
+    weather = OwmWeather()
+
     forecast = await weather.exact_day(timestamp)
     forecast_data = forecast.forecast
 
@@ -109,6 +119,8 @@ async def daily(_mock, timestamp):
 @pytest.mark.asyncio
 @patch("app.weather.get_weather", return_value=mock_response())
 async def test_exact_day(_mock, day_timestamp):
+    weather = OwmWeather()
+
     forecast = await weather.exact_day(day_timestamp)
     forecast_data = forecast.forecast
 

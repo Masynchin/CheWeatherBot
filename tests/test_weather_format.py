@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import pytest
 
-from app import weather
+from app.weather import OwmWeather
 from app.weather_classes import WeatherResponse
 
 
@@ -32,6 +32,8 @@ def timestamp():
 @pytest.mark.asyncio
 @patch("app.weather.get_weather", return_value=mock_response())
 async def test_no_exceptions_at_format(_mock, timestamp):
+    weather = OwmWeather()
+
     forecasts = await asyncio.gather(
         weather.current(),
         weather.hourly(timestamp),
@@ -45,6 +47,8 @@ async def test_no_exceptions_at_format(_mock, timestamp):
 @pytest.mark.asyncio
 @patch("app.weather.get_weather", return_value=mock_response())
 async def test_templates_depends_on_wind_gust_existence(_mock, timestamp):
+    weather = OwmWeather()
+
     forecasts = await asyncio.gather(
         weather.current(),
         weather.hourly(timestamp),
@@ -64,6 +68,8 @@ async def test_templates_depends_on_wind_gust_existence(_mock, timestamp):
 @pytest.mark.asyncio
 @patch("app.weather.get_weather", return_value=mock_response())
 async def test_stickers(_mock, timestamp):
+    weather = OwmWeather()
+
     forecasts = await asyncio.gather(
         weather.current(),
         weather.hourly(timestamp),

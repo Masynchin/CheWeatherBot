@@ -10,20 +10,46 @@ from app.forecasts import CurrentForecast, DailyForecast, HourlyForecast
 from app.weather_classes import WeatherResponse
 
 
-async def current():
-    """Получение текущей погоды - сводка и её тип (ясно, облачно и т.п.)"""
-    weather = await get_weather()
-    return CurrentForecast(weather.current, weather.alerts)
+class OwmWeather:
+    """Погода с OpenWeatherMap"""
 
+    async def current(self):
+        """Получение текущей погоды - сводка и её тип (ясно, облачно и т.п.)"""
+        weather = await get_weather()
+        return CurrentForecast(weather.current, weather.alerts)
 
-async def hourly(timestamp):
-    """
-    Получение прогноза на час -
-    сводка и тип погоды (ясно, облачно и т.п.)
-    """
-    weather = await get_weather()
-    forecast = _next(weather.hourly, timestamp)
-    return HourlyForecast(forecast, weather.alerts)
+    async def hourly(self, timestamp):
+        """
+        Получение прогноза на час -
+        сводка и тип погоды (ясно, облачно и т.п.)
+        """
+        weather = await get_weather()
+        forecast = _next(weather.hourly, timestamp)
+        return HourlyForecast(forecast, weather.alerts)
+
+    async def exact_hour(self, hour):
+        """
+        Получение прогноза в конкретный час -
+        сводка и тип погоды (ясно, облачно и т.п.)
+        """
+        weather = await get_weather()
+        forecast = _exact_hour(weather.hourly, hour)
+        return HourlyForecast(forecast, weather.alerts)
+
+    async def daily(self, timestamp):
+        """Получение прогноза на день - сводка и его тип (ясно, облачно и т.п.)"""
+        weather = await get_weather()
+        forecast = _next(weather.daily, timestamp)
+        return DailyForecast(forecast, weather.alerts)
+
+    async def exact_day(self, day):
+        """
+        Получение прогноза в конкретный день -
+        сводка и тип погоды (ясно, облачно и т.п.)
+        """
+        weather = await get_weather()
+        forecast = _exact_day(weather.daily, day)
+        return DailyForecast(forecast, weather.alerts)
 
 
 def _next(forecasts, timestamp):
@@ -36,38 +62,11 @@ def _next(forecasts, timestamp):
     return nearest_forecast
 
 
-async def exact_hour(hour):
-    """
-    Получение прогноза в конкретный час -
-    сводка и тип погоды (ясно, облачно и т.п.)
-    """
-    weather = await get_weather()
-    forecast = _exact_hour(weather.hourly, hour)
-    return HourlyForecast(forecast, weather.alerts)
-
-
 def _exact_hour(forecasts, hour):
     """Получение данных о прогнозе погоды в конкретный час"""
     for forecast in forecasts:
         if forecast.timestamp == hour:
             return forecast
-
-
-async def daily(timestamp):
-    """Получение прогноза на день - сводка и его тип (ясно, облачно и т.п.)"""
-    weather = await get_weather()
-    forecast = _next(weather.daily, timestamp)
-    return DailyForecast(forecast, weather.alerts)
-
-
-async def exact_day(day):
-    """
-    Получение прогноза в конкретный день -
-    сводка и тип погоды (ясно, облачно и т.п.)
-    """
-    weather = await get_weather()
-    forecast = _exact_day(weather.daily, day)
-    return DailyForecast(forecast, weather.alerts)
 
 
 def _exact_day(forecasts, day):
