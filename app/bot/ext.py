@@ -57,7 +57,7 @@ class MessageRoute(Route):
 class CallbackRoute(Route):
     """Хендлер событий `CallbackQuery`.
     
-    Аналог `@router.message()`.
+    Аналог `@router.callback_query()`.
     """
 
     def register(self, router):
