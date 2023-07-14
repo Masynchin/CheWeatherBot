@@ -1,4 +1,4 @@
-from app import db
+from app.db import create_db
 
 
 class Polling:
@@ -14,7 +14,7 @@ class Polling:
 def on_startup(bot, tasks):
     """Функция перед запуском бота в режиме polling"""
     async def on_startup():
-        await db.create_db()
+        await create_db()
         for task in tasks:
             task.run(bot)
 

@@ -3,12 +3,11 @@
 Каждые 15 минут происходит рассылка всем её подписчикам
 """
 
-from app import db
 from app import templates
 from app.logger import logger
 
 
-async def mailing(bot, weather, mailing_times):
+async def mailing(bot, db, weather, mailing_times):
     """Отправление рассылки.
 
     Функция импортируется в main, где встраивается в основной loop.
@@ -16,10 +15,10 @@ async def mailing(bot, weather, mailing_times):
     данным временем, и каждому отправляет прогноз погоды
     """
     async for mailing_time in mailing_times:
-        await send_mailing(bot, weather, mailing_time.time())
+        await send_mailing(bot, db, weather, mailing_time.time())
 
 
-async def send_mailing(bot, weather, mailing_time):
+async def send_mailing(bot, db, weather, mailing_time):
     """Отправляем рассылку пользователям с данным временем"""
     forecast = await weather.current()
     message_text = templates.MAILING_MESSAGE.format(forecast.format())
@@ -45,7 +44,7 @@ async def unpin_all_and_pin_message(bot, message):
     )
 
 
-async def get_user_mailing_info(user_id):
+async def get_user_mailing_info(db, user_id):
     """Получаем информацию о подписке пользователя.
 
     Если пользователь есть в базе данных, то возвращаем его время подписки.

@@ -9,7 +9,6 @@ from aiogram.filters.logic import and_f as And
 from aiogram.fsm.state import State, StatesGroup
 
 from app.bot.ext import CallbackRoute, ErrorRoute, MessageRoute
-from app import db
 from app import keyboards
 from app import mailing
 from app import stickers
@@ -238,7 +237,9 @@ class MailingInfo(MessageRoute):
     что его нет в рассылке, если его нет в рассылке
     """
 
-    def __init__(self):
+    def __init__(self, db):
+        self.db = db
+
         super().__init__(
             filter=And(TextFilter(keyboards.MAILING), StateFilter(None)),
             handler=self.handle,
@@ -246,7 +247,7 @@ class MailingInfo(MessageRoute):
 
     async def handle(self, message):
         user_id = message.from_user.id
-        mailing_info = await mailing.get_user_mailing_info(user_id)
+        mailing_info = await mailing.get_user_mailing_info(self.db, user_id)
         await message.answer(mailing_info)
 
 
@@ -298,7 +299,9 @@ class SetMailingHour(CallbackRoute):
 class SetMinuteMailing(CallbackRoute):
     """Пользователь выбрал час и минуту рассылки, регистрируем его в БД"""
 
-    def __init__(self):
+    def __init__(self, db):
+        self.db = db
+
         super().__init__(
             filter=StateFilter(NewSub.minute), handler=self.handle
         )
@@ -307,7 +310,7 @@ class SetMinuteMailing(CallbackRoute):
         data = await state.get_data()
         user_id = call.from_user.id
         time = dt.time(hour=data["hour"], minute=int(call.data))
-        await db.new_subscriber(user_id, time)
+        await self.db.new_subscriber(user_id, time)
 
         await state.clear()
         await call.message.delete()  # удаляем клавитуру выбора минуты расылки
@@ -367,7 +370,9 @@ class ChangeHourMailing(CallbackRoute):
 class ChangeMinuteMailing(CallbackRoute):
     """Пользователь выбрал новые час и минуту рассылки, обновляем его в БД"""
 
-    def __init__(self):
+    def __init__(self, db):
+        self.db = db
+
         super().__init__(
             filter=StateFilter(ChangeTime.minute), handler=self.handle
         )
@@ -376,7 +381,7 @@ class ChangeMinuteMailing(CallbackRoute):
         data = await state.get_data()
         user_id = call.from_user.id
         time = dt.time(hour=data["hour"], minute=int(call.data))
-        await db.change_subscriber_mailing_time(user_id, time)
+        await self.db.change_subscriber_mailing_time(user_id, time)
 
         await state.clear()
         await call.message.delete()
@@ -389,7 +394,9 @@ class ChangeMinuteMailing(CallbackRoute):
 class CancelMailing(MessageRoute):
     """Пользователь решил отписаться от рассылки, удаляем из БД"""
 
-    def __init__(self):
+    def __init__(self, db):
+        self.db = db
+
         super().__init__(
             filter=And(CommandFilter("cancel_mailing"), StateFilter(None)),
             handler=self.handle,
@@ -397,7 +404,7 @@ class CancelMailing(MessageRoute):
 
     async def handle(self, message):
         user_id = message.from_user.id
-        await db.delete_subscriber(user_id)
+        await self.db.delete_subscriber(user_id)
         await message.answer("Успешно удалено из подписки")
         logger.info("Пользователь {} удалён из подписки", user_id)
 
