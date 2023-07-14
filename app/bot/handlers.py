@@ -9,12 +9,10 @@ from aiogram.filters.logic import and_f as And
 from aiogram.fsm.state import State, StatesGroup
 
 from app.bot.ext import CallbackRoute, ErrorRoute, MessageRoute
-from app import db
 from app import keyboards
 from app import mailing
 from app import stickers
 from app import templates
-from app import weather
 from app.che import CheDate, CheDatetime
 from app.logger import logger
 
@@ -56,14 +54,16 @@ class Info(MessageRoute):
 class Weather(MessageRoute):
     """Отправка текущей погоды"""
 
-    def __init__(self):
+    def __init__(self, weather):
+        self.weather = weather
+
         super().__init__(
             filter=And(TextFilter(keyboards.WEATHER), StateFilter(None)),
             handler=self.handle,
         )
 
     async def handle(self, message):
-        forecast = await weather.current()
+        forecast = await self.weather.current()
         await message.answer_sticker(forecast.sticker())
         await message.answer(forecast.format())
         logger.info(
@@ -74,7 +74,9 @@ class Weather(MessageRoute):
 class HourForecast(MessageRoute):
     """Отправка прогноза на следующий час"""
 
-    def __init__(self):
+    def __init__(self, weather):
+        self.weather = weather
+
         super().__init__(
             filter=And(TextFilter(keyboards.HOUR_FORECAST), StateFilter(None)),
             handler=self.handle,
@@ -82,7 +84,7 @@ class HourForecast(MessageRoute):
 
     async def handle(self, message):
         timestamp = CheDatetime.current()
-        forecast = await weather.hourly(timestamp)
+        forecast = await self.weather.hourly(timestamp)
         await message.answer_sticker(forecast.sticker())
         await message.answer(forecast.format())
         logger.info(
@@ -122,7 +124,8 @@ class ExactHourForecast(MessageRoute):
 class HandleExactHourForecast(CallbackRoute):
     """Отправка прогноза на час, выбранный пользователем"""
 
-    def __init__(self):
+    def __init__(self, weather):
+        self.weather = weather
         super().__init__(
             filter=StateFilter(ChooseForecastHour.hour),
             handler=self.handle,
@@ -132,7 +135,7 @@ class HandleExactHourForecast(CallbackRoute):
         await state.clear()
 
         hour = CheDatetime.from_timestamp(call.data)
-        forecast = await weather.exact_hour(hour)
+        forecast = await self.weather.exact_hour(hour)
 
         hour = hour.strftime("%H:%M")
         await call.message.edit_text(f"Прогноз на {hour}")
@@ -148,7 +151,9 @@ class HandleExactHourForecast(CallbackRoute):
 class DailyForecast(MessageRoute):
     """Отправка прогноза на день"""
 
-    def __init__(self):
+    def __init__(self, weather):
+        self.weather = weather
+
         super().__init__(
             filter=And(
                 TextFilter(keyboards.TOMORROW_FORECAST), StateFilter(None)
@@ -158,7 +163,7 @@ class DailyForecast(MessageRoute):
 
     async def handle(self, message):
         timestamp = CheDatetime.current()
-        forecast = await weather.daily(timestamp)
+        forecast = await self.weather.daily(timestamp)
         await message.answer_sticker(forecast.sticker())
         await message.answer(forecast.format())
         logger.info(
@@ -198,7 +203,9 @@ class SendExactDayForecast(MessageRoute):
 class HandleExactDayForecast(CallbackRoute):
     """Отправка прогноза на день, выбранный пользователем"""
 
-    def __init__(self):
+    def __init__(self, weather):
+        self.weather = weather
+
         super().__init__(
             filter=StateFilter(ChooseForecastDay.day),
             handler=self.handle,
@@ -208,7 +215,7 @@ class HandleExactDayForecast(CallbackRoute):
         await state.clear()
 
         day = CheDate.from_ordinal(call.data)
-        forecast = await weather.exact_day(day)
+        forecast = await self.weather.exact_day(day)
 
         day = day.format()
         await call.message.edit_text(f"Прогноз на {day}")
@@ -230,7 +237,9 @@ class MailingInfo(MessageRoute):
     что его нет в рассылке, если его нет в рассылке
     """
 
-    def __init__(self):
+    def __init__(self, db):
+        self.db = db
+
         super().__init__(
             filter=And(TextFilter(keyboards.MAILING), StateFilter(None)),
             handler=self.handle,
@@ -238,7 +247,7 @@ class MailingInfo(MessageRoute):
 
     async def handle(self, message):
         user_id = message.from_user.id
-        mailing_info = await mailing.get_user_mailing_info(user_id)
+        mailing_info = await mailing.get_user_mailing_info(self.db, user_id)
         await message.answer(mailing_info)
 
 
@@ -290,7 +299,9 @@ class SetMailingHour(CallbackRoute):
 class SetMinuteMailing(CallbackRoute):
     """Пользователь выбрал час и минуту рассылки, регистрируем его в БД"""
 
-    def __init__(self):
+    def __init__(self, db):
+        self.db = db
+
         super().__init__(
             filter=StateFilter(NewSub.minute), handler=self.handle
         )
@@ -299,7 +310,7 @@ class SetMinuteMailing(CallbackRoute):
         data = await state.get_data()
         user_id = call.from_user.id
         time = dt.time(hour=data["hour"], minute=int(call.data))
-        await db.new_subscriber(user_id, time)
+        await self.db.new_subscriber(user_id, time)
 
         await state.clear()
         await call.message.delete()  # удаляем клавитуру выбора минуты расылки
@@ -359,7 +370,9 @@ class ChangeHourMailing(CallbackRoute):
 class ChangeMinuteMailing(CallbackRoute):
     """Пользователь выбрал новые час и минуту рассылки, обновляем его в БД"""
 
-    def __init__(self):
+    def __init__(self, db):
+        self.db = db
+
         super().__init__(
             filter=StateFilter(ChangeTime.minute), handler=self.handle
         )
@@ -368,7 +381,7 @@ class ChangeMinuteMailing(CallbackRoute):
         data = await state.get_data()
         user_id = call.from_user.id
         time = dt.time(hour=data["hour"], minute=int(call.data))
-        await db.change_subscriber_mailing_time(user_id, time)
+        await self.db.change_subscriber_mailing_time(user_id, time)
 
         await state.clear()
         await call.message.delete()
@@ -381,7 +394,9 @@ class ChangeMinuteMailing(CallbackRoute):
 class CancelMailing(MessageRoute):
     """Пользователь решил отписаться от рассылки, удаляем из БД"""
 
-    def __init__(self):
+    def __init__(self, db):
+        self.db = db
+
         super().__init__(
             filter=And(CommandFilter("cancel_mailing"), StateFilter(None)),
             handler=self.handle,
@@ -389,7 +404,7 @@ class CancelMailing(MessageRoute):
 
     async def handle(self, message):
         user_id = message.from_user.id
-        await db.delete_subscriber(user_id)
+        await self.db.delete_subscriber(user_id)
         await message.answer("Успешно удалено из подписки")
         logger.info("Пользователь {} удалён из подписки", user_id)
 

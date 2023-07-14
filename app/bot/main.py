@@ -31,7 +31,9 @@ from app.bot.handlers import (
 from app.bot.polling import Polling
 from app.bot.webhook import Webhook
 from app.bot.task import MailingTask
+from app.db import Subscribers
 from app.logger import logger
+from app.weather import OwmWeather
 
 
 bot = Bot(token=config.BOT_TOKEN)
@@ -45,25 +47,28 @@ def main():
     dp = Dispatcher(storage=MemoryStorage())
 
     logger.info("Запуск")
-    task = MailingTask.default()
+
+    db = Subscribers()
+    weather = OwmWeather.for_che(config.WEATHER_API_KEY)
+    task = MailingTask.default(db, weather)
     routes = [
         Welcome(),
         Info(),
-        Weather(),
-        HourForecast(),
+        Weather(weather),
+        HourForecast(weather),
         ExactHourForecast(),
-        HandleExactHourForecast(),
-        DailyForecast(),
+        HandleExactHourForecast(weather),
+        DailyForecast(weather),
         SendExactDayForecast(),
-        HandleExactDayForecast(),
-        MailingInfo(),
+        HandleExactDayForecast(weather),
+        MailingInfo(db),
         SubscribeToMailing(),
         SetMailingHour(),
-        SetMinuteMailing(),
+        SetMinuteMailing(db),
         ChangeTimeMailing(),
         ChangeHourMailing(),
-        ChangeMinuteMailing(),
-        CancelMailing(),
+        ChangeMinuteMailing(db),
+        CancelMailing(db),
         Errors(),
     ]
     for route in routes:
