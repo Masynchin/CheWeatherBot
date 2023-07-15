@@ -73,3 +73,14 @@ class ErrorRoute(Route):
 
     def register(self, router):
         router.errors(self.filter)(self.handler)
+
+
+class Routes(Route):
+    """Мультихендлер"""
+
+    def __init__(self, *routes):
+        self.routes = routes
+
+    def register(self, router):
+        for route in self.routes:
+            route.register(router)

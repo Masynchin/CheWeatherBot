@@ -10,13 +10,42 @@ from aiogram.filters import (
 from aiogram.filters.logic import and_f as And
 from aiogram.fsm.state import State, StatesGroup
 
-from app.bot.ext import CallbackRoute, ErrorRoute, MessageRoute
+from app.bot.ext import CallbackRoute, ErrorRoute, MessageRoute, Routes
 from app import keyboards
 from app import mailing
 from app import stickers
 from app import templates
 from app.che import CheDate, CheDatetime
 from app.logger import logger
+
+
+# ВСЁ ВМЕСТЕ
+
+
+class Logic(Routes):
+    """Вся логика бота"""
+
+    def __init__(self, db, weather):
+        super().__init__(
+            Welcome(),
+            Info(),
+            CurrentWeather(weather),
+            HourForecast(weather),
+            ExactHourOptions(),
+            ExactHourForecast(weather),
+            DailyForecast(weather),
+            ExactDayOptions(),
+            ExactDayForecast(weather),
+            MailingInfo(db),
+            SubscribeToMailing(),
+            SetMailingHour(),
+            SetMailingMinute(db),
+            ChangeMailingTime(),
+            ChangeMailingHour(),
+            ChangeMailingMinute(db),
+            CancelMailing(db),
+            Errors(),
+        )
 
 
 # START И ПОМОЩЬ
