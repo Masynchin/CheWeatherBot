@@ -27,7 +27,7 @@ from app.bot.handlers import (
 from app.bot.polling import Polling
 from app.bot.webhook import Webhook
 from app.bot.task import MailingTask
-from app.db import Subscribers
+from app.db import Subscribers, async_session
 from app.logger import logger
 from app.weather import OwmWeather
 
@@ -44,33 +44,34 @@ async def main():
 
     logger.info("Запуск")
 
-    db = Subscribers()
-    weather = OwmWeather.for_che(config.WEATHER_API_KEY)
-    task = MailingTask.default(db, weather)
-    routes = [
-        Welcome(),
-        Info(),
-        CurrentWeather(weather),
-        HourForecast(weather),
-        ExactHourOptions(),
-        ExactHourForecast(weather),
-        DailyForecast(weather),
-        ExactDayOptions(),
-        ExactDayForecast(weather),
-        MailingInfo(db),
-        SubscribeToMailing(),
-        SetMailingHour(),
-        SetMailingMinute(db),
-        ChangeMailingTime(),
-        ChangeMailingHour(),
-        ChangeMailingMinute(db),
-        CancelMailing(db),
-        Errors(),
-    ]
-    for route in routes:
-        route.register(dp)
+    async with async_session() as session:
+        db = Subscribers(session)
+        weather = OwmWeather.for_che(config.WEATHER_API_KEY)
+        task = MailingTask.default(db, weather)
+        routes = [
+            Welcome(),
+            Info(),
+            CurrentWeather(weather),
+            HourForecast(weather),
+            ExactHourOptions(),
+            ExactHourForecast(weather),
+            DailyForecast(weather),
+            ExactDayOptions(),
+            ExactDayForecast(weather),
+            MailingInfo(db),
+            SubscribeToMailing(),
+            SetMailingHour(),
+            SetMailingMinute(db),
+            ChangeMailingTime(),
+            ChangeMailingHour(),
+            ChangeMailingMinute(db),
+            CancelMailing(db),
+            Errors(),
+        ]
+        for route in routes:
+            route.register(dp)
 
-    if config.RUN_TYPE == "polling":
-        await Polling(dp, tasks=[task]).run(bot)
-    elif config.RUN_TYPE == "webhook":
-        ...
+        if config.RUN_TYPE == "polling":
+            await Polling(dp, tasks=[task]).run(bot)
+        elif config.RUN_TYPE == "webhook":
+            ...
