@@ -1,3 +1,5 @@
+"""Хендлеры - логика работы бота"""
+
 import datetime as dt
 
 from aiogram.filters import (
@@ -18,6 +20,7 @@ from app.logger import logger
 
 
 # START И ПОМОЩЬ
+
 
 class Welcome(MessageRoute):
     """Приветсвенное сообщение с клавиатурой и информацией о командах"""
@@ -51,7 +54,8 @@ class Info(MessageRoute):
 
 # ПРОГНОЗ
 
-class Weather(MessageRoute):
+
+class CurrentWeather(MessageRoute):
     """Отправка текущей погоды"""
 
     def __init__(self, weather):
@@ -99,7 +103,7 @@ class ChooseForecastHour(StatesGroup):
     hour = State()
 
 
-class ExactHourForecast(MessageRoute):
+class ExactHourOptions(MessageRoute):
     """
     Пользователь нажал на кнопку прогноза в конкретный час.
     Отправляем клавиатуру с двенадцатью ближайшими часами
@@ -121,7 +125,7 @@ class ExactHourForecast(MessageRoute):
         )
 
 
-class HandleExactHourForecast(CallbackRoute):
+class ExactHourForecast(CallbackRoute):
     """Отправка прогноза на час, выбранный пользователем"""
 
     def __init__(self, weather):
@@ -178,7 +182,7 @@ class ChooseForecastDay(StatesGroup):
     day = State()
 
 
-class SendExactDayForecast(MessageRoute):
+class ExactDayOptions(MessageRoute):
     """
     Пользователь нажал на кнопку прогноза в конкретный день.
     Отправляем клавиатуру со следующими семью днями
@@ -200,7 +204,7 @@ class SendExactDayForecast(MessageRoute):
         )
 
 
-class HandleExactDayForecast(CallbackRoute):
+class ExactDayForecast(CallbackRoute):
     """Отправка прогноза на день, выбранный пользователем"""
 
     def __init__(self, weather):
@@ -229,6 +233,7 @@ class HandleExactDayForecast(CallbackRoute):
 
 
 # О РАССЫЛКЕ
+
 
 class MailingInfo(MessageRoute):
     """Отправка информации о подписке пользователя на рассылку.
@@ -296,7 +301,7 @@ class SetMailingHour(CallbackRoute):
         await state.set_state(NewSub.minute)
 
 
-class SetMinuteMailing(CallbackRoute):
+class SetMailingMinute(CallbackRoute):
     """Пользователь выбрал час и минуту рассылки, регистрируем его в БД"""
 
     def __init__(self, db):
@@ -310,7 +315,7 @@ class SetMinuteMailing(CallbackRoute):
         data = await state.get_data()
         user_id = call.from_user.id
         time = dt.time(hour=data["hour"], minute=int(call.data))
-        await self.db.new_subscriber(user_id, time)
+        await self.db.add(user_id, time)
 
         await state.clear()
         await call.message.delete()  # удаляем клавитуру выбора минуты расылки
@@ -327,7 +332,7 @@ class ChangeTime(StatesGroup):
     minute = State()
 
 
-class ChangeTimeMailing(MessageRoute):
+class ChangeMailingTime(MessageRoute):
     """
     Пользователь решил поменять время рассылки,
     отправляем клавиатуру с выбором нового часа рассылки
@@ -348,7 +353,7 @@ class ChangeTimeMailing(MessageRoute):
         await state.set_state(ChangeTime.hour)
 
 
-class ChangeHourMailing(CallbackRoute):
+class ChangeMailingHour(CallbackRoute):
     """
     После выбора нового часа рассылки отправляем
     клавиатуру с выбором новой минуты рассылки
@@ -367,7 +372,7 @@ class ChangeHourMailing(CallbackRoute):
         )
 
 
-class ChangeMinuteMailing(CallbackRoute):
+class ChangeMailingMinute(CallbackRoute):
     """Пользователь выбрал новые час и минуту рассылки, обновляем его в БД"""
 
     def __init__(self, db):
@@ -381,7 +386,7 @@ class ChangeMinuteMailing(CallbackRoute):
         data = await state.get_data()
         user_id = call.from_user.id
         time = dt.time(hour=data["hour"], minute=int(call.data))
-        await self.db.change_subscriber_mailing_time(user_id, time)
+        await self.db.new_time(user_id, time)
 
         await state.clear()
         await call.message.delete()
@@ -404,12 +409,13 @@ class CancelMailing(MessageRoute):
 
     async def handle(self, message):
         user_id = message.from_user.id
-        await self.db.delete_subscriber(user_id)
+        await self.db.delete(user_id)
         await message.answer("Успешно удалено из подписки")
         logger.info("Пользователь {} удалён из подписки", user_id)
 
 
 # ОБРАБОТКА ОШИБОК
+
 
 class Errors(ErrorRoute):
     """Обработка непредвиденных ошибок"""

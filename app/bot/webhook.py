@@ -8,6 +8,8 @@ from aiogram.webhook.aiohttp_server import (
 
 
 class Webhook:
+    """Запуск бота в режиме webhook"""
+
     def __init__(
         self, dp, tasks, webhook_url, webhook_path, webapp_host, webapp_port
     ):
@@ -19,7 +21,6 @@ class Webhook:
         self.webapp_port = webapp_port
 
     def run(self, bot):
-        """Запуск бота в режиме webhook"""
         self.dp.startup.register(on_startup(bot, self.webhook_url, self.tasks))
         app = Application()
         SimpleRequestHandler(dispatcher=self.dp, bot=bot).register(

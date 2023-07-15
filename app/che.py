@@ -1,4 +1,4 @@
-"""Модуль для работы со временем Череповца"""
+"""Классы времени для Череповца"""
 
 import datetime as dt
 
@@ -6,7 +6,7 @@ import pytz
 
 
 class CheDatetime(dt.datetime):
-    """Время в Череповце"""
+    """Датавремя в Череповце"""
 
     @classmethod
     def from_dt(cls, date):

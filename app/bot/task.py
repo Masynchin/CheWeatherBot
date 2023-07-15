@@ -27,11 +27,11 @@ class MailingTask:
             db,
             weather,
             utils.round_time_by_fifteen_minutes(CheDatetime.current()),
-            dt.timedelta(minutes=15)
+            dt.timedelta(minutes=15),
         )
 
     def run(self, bot):
-        """Добавляем асинхронную рассылку в основной event loop"""
+        """Добавляем задачу рассылки в основной event loop"""
         asyncio.create_task(
             mailing.mailing(bot, self.db, self.weather, self.times)
         )

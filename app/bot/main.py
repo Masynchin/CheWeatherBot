@@ -1,8 +1,4 @@
-"""Основной модуль, отвещающий за работу с telegram.
-
-Работа с пользователем - позволяем получить прогноз погоды,
-зарегистрироваться в рассылке, отписаться от рассылки
-"""
+"""Инициализация и запуск бота"""
 
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
@@ -10,22 +6,22 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from app import config
 from app.bot.handlers import (
     CancelMailing,
-    ChangeHourMailing,
-    ChangeMinuteMailing,
-    ChangeTimeMailing,
+    ChangeMailingHour,
+    ChangeMailingMinute,
+    ChangeMailingTime,
+    CurrentWeather,
     DailyForecast,
     Errors,
+    ExactDayForecast,
+    ExactDayOptions,
     ExactHourForecast,
-    HandleExactDayForecast,
-    HandleExactHourForecast,
+    ExactHourOptions,
     HourForecast,
     Info,
     MailingInfo,
-    SendExactDayForecast,
     SetMailingHour,
-    SetMinuteMailing,
+    SetMailingMinute,
     SubscribeToMailing,
-    Weather,
     Welcome,
 )
 from app.bot.polling import Polling
@@ -54,20 +50,20 @@ def main():
     routes = [
         Welcome(),
         Info(),
-        Weather(weather),
+        CurrentWeather(weather),
         HourForecast(weather),
-        ExactHourForecast(),
-        HandleExactHourForecast(weather),
+        ExactHourOptions(),
+        ExactHourForecast(weather),
         DailyForecast(weather),
-        SendExactDayForecast(),
-        HandleExactDayForecast(weather),
+        ExactDayOptions(),
+        ExactDayForecast(weather),
         MailingInfo(db),
         SubscribeToMailing(),
         SetMailingHour(),
-        SetMinuteMailing(db),
-        ChangeTimeMailing(),
-        ChangeHourMailing(),
-        ChangeMinuteMailing(db),
+        SetMailingMinute(db),
+        ChangeMailingTime(),
+        ChangeMailingHour(),
+        ChangeMailingMinute(db),
         CancelMailing(db),
         Errors(),
     ]

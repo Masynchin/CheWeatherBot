@@ -1,4 +1,4 @@
-"""Модуль для получения погоды с сайта данных о погоде"""
+"""API погоды"""
 
 import time
 from urllib.parse import urlencode
@@ -19,10 +19,12 @@ class OwmWeather:
 
     @classmethod
     def default(cls, url):
+        """Со значением времени жизни кеша по умолчанию"""
         return cls(url, cache_time=300)
 
     @classmethod
     def from_geo(cls, lat, lon, api_key):
+        """Для конкретного места по координатам"""
         url = "https://api.openweathermap.org/data/2.5/onecall?" + urlencode({
             "lat": lat,
             "lon": lon,
@@ -35,6 +37,7 @@ class OwmWeather:
 
     @classmethod
     def for_che(cls, api_key):
+        """Для Череповца"""
         return cls.from_geo(lat=59.09, lon=37.91, api_key=api_key)
 
     async def weather(self):
@@ -42,48 +45,42 @@ class OwmWeather:
         return await _get_weather(self.url, time.time() // self.cache_time)
 
     async def current(self):
-        """Получение текущей погоды - сводка и её тип (ясно, облачно и т.п.)"""
+        """Текущая погода"""
         weather = await self.weather()
         return CurrentForecast(weather.current, weather.alerts)
 
     async def hourly(self, timestamp):
-        """
-        Получение прогноза на час -
-        сводка и тип погоды (ясно, облачно и т.п.)
-        """
+        """Прогноз на час"""
         weather = await self.weather()
         forecast = _next(weather.hourly, timestamp)
         return HourlyForecast(forecast, weather.alerts)
 
     async def exact_hour(self, hour):
-        """
-        Получение прогноза в конкретный час -
-        сводка и тип погоды (ясно, облачно и т.п.)
-        """
+        """Прогноз на конкретный час"""
         weather = await self.weather()
         forecast = _exact_hour(weather.hourly, hour)
         return HourlyForecast(forecast, weather.alerts)
 
     async def daily(self, timestamp):
-        """Получение прогноза на день - сводка и его тип (ясно, облачно и т.п.)"""
+        """Прогноз на день"""
         weather = await self.weather()
         forecast = _next(weather.daily, timestamp)
         return DailyForecast(forecast, weather.alerts)
 
     async def exact_day(self, day):
-        """
-        Получение прогноза в конкретный день -
-        сводка и тип погоды (ясно, облачно и т.п.)
-        """
+        """Получение прогноза в конкретный день"""
         weather = await self.weather()
         forecast = _exact_day(weather.daily, day)
         return DailyForecast(forecast, weather.alerts)
 
 
 def _next(forecasts, timestamp):
-    """Получение данных о погоде в следующее время.
+    """Поиск прогноза по времени.
 
-    Используется для получения прогноза на следующий час или следующий день
+    OpenWeatherMap выдаёт сразу несколько прогнозов по часам/дням,
+    поэтому чтобы найти прогноз на ближайший час/день, фильтруем
+    те, что не раньше текущего момента (в запросе могут попасться
+    прогнозы на дату раньше текущей), и выбираем среди них наименьший
     """
     future_forecasts = filter(lambda f: f.timestamp > timestamp, forecasts)
     nearest_forecast = min(future_forecasts, key=lambda f: f.timestamp)
@@ -91,14 +88,14 @@ def _next(forecasts, timestamp):
 
 
 def _exact_hour(forecasts, hour):
-    """Получение данных о прогнозе погоды в конкретный час"""
+    """Поиск прогноза на конкретный час"""
     for forecast in forecasts:
         if forecast.timestamp == hour:
             return forecast
 
 
 def _exact_day(forecasts, day):
-    """Получение данных о прогнозе на конкретный день"""
+    """Поиск прогноза на конкретный день"""
     for forecast in forecasts:
         if forecast.timestamp.date() == day:
             return forecast
@@ -106,7 +103,7 @@ def _exact_day(forecasts, day):
 
 @alru_cache(maxsize=1)
 async def _get_weather(url, time):
-    """Получение прогноза погода в виде экземляра WeatherResponse"""
+    """Кешированный прогноз погоды в виде WeatherResponse"""
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             data = await response.json()

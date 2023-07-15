@@ -24,49 +24,40 @@ async def init_db():
 
 
 @pytest.mark.asyncio
-async def test_new_subscriber():
+async def test_add():
     db = Subscribers()
 
-    await db.new_subscriber(subscriber_id=0, mailing_time=mailing_time)
+    await db.add(user_id=0, mailing_time=mailing_time)
 
-    assert await db.is_user_in_subscription(user_id=0)
-    assert (
-        await db.get_subscriber_mailing_time(subscriber_id=0) == mailing_time
-    )
-    assert len(await db.get_subscribers_by_mailing_time(mailing_time)) == 1
+    assert await db.exists(user_id=0)
+    assert await db.time(user_id=0) == mailing_time
+    assert len(await db.of_time(mailing_time)) == 1
 
-    await db.delete_subscriber(subscriber_id=0)
+    await db.delete(user_id=0)
 
 
 @pytest.mark.asyncio
 async def test_change_subscriber_time():
     db = Subscribers()
 
-    await db.new_subscriber(subscriber_id=0, mailing_time=mailing_time)
-    assert (
-        await db.get_subscriber_mailing_time(subscriber_id=0) == mailing_time
-    )
+    await db.add(user_id=0, mailing_time=mailing_time)
+    assert await db.time(user_id=0) == mailing_time
 
     new_mailing_time = dt.time(hour=19, minute=45)
-    await db.change_subscriber_mailing_time(
-        subscriber_id=0, new_mailing_time=new_mailing_time
-    )
-    assert (
-        await db.get_subscriber_mailing_time(subscriber_id=0)
-        == new_mailing_time
-    )
+    await db.new_time(user_id=0, new_mailing_time=new_mailing_time)
+    assert await db.time(user_id=0) == new_mailing_time
 
-    await db.delete_subscriber(subscriber_id=0)
+    await db.delete(user_id=0)
 
 
 @pytest.mark.asyncio
-async def test_delete_subscriber():
+async def test_delete():
     db = Subscribers()
 
-    before = await db.get_subscribers_by_mailing_time(mailing_time)
-    await db.new_subscriber(subscriber_id=0, mailing_time=mailing_time)
+    before = await db.of_time(mailing_time)
+    await db.add(user_id=0, mailing_time=mailing_time)
 
-    await db.delete_subscriber(subscriber_id=0)
-    after = await db.get_subscribers_by_mailing_time(mailing_time)
+    await db.delete(user_id=0)
+    after = await db.of_time(mailing_time)
 
     assert before == after

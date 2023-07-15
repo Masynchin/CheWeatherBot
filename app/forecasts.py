@@ -1,4 +1,4 @@
-"""Модуль с классами прогноза погоды"""
+"""Классы прогнозов погоды"""
 
 from app import stickers
 from app import templates

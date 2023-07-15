@@ -1,8 +1,4 @@
-"""Модуль, отвещающий за всю работу с базой данных.
-
-Содержит в себе модель подписчика рассылки, а также функции,
-отправляющие запросы напрямую в БД
-"""
+"""База данных подписчиков"""
 
 from sqlalchemy import Column, Integer, Time
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -32,29 +28,29 @@ async_session = sessionmaker(
 class Subscribers:
     """БД с подписчиками"""
 
-    async def new_subscriber(self, subscriber_id, mailing_time):
+    async def add(self, user_id, mailing_time):
         """Регистрация в БД нового подписчика рассылки"""
         async with async_session() as session:
-            subscriber = Subscriber(id=subscriber_id, mailing_time=mailing_time)
+            subscriber = Subscriber(id=user_id, mailing_time=mailing_time)
             session.add(subscriber)
             await session.commit()
 
-    async def change_subscriber_mailing_time(self, subscriber_id, new_mailing_time):
+    async def new_time(self, user_id, new_mailing_time):
         """Меняем время рассылки подписчика"""
         async with async_session() as session:
-            subscriber = await session.get(Subscriber, subscriber_id)
+            subscriber = await session.get(Subscriber, user_id)
             subscriber.mailing_time = new_mailing_time
             await session.commit()
 
-    async def delete_subscriber(self, subscriber_id):
+    async def delete(self, user_id):
         """Удаление подписчика из БД"""
         async with async_session() as session:
-            subscriber = await session.get(Subscriber, subscriber_id)
+            subscriber = await session.get(Subscriber, user_id)
             await session.delete(subscriber)
             await session.commit()
 
-    async def get_subscribers_by_mailing_time(self, mailing_time):
-        """Получение всех подписчиков с определённым временем рассылки"""
+    async def of_time(self, mailing_time):
+        """Все подписчики с данным временем рассылки"""
         async with async_session() as session:
             statement = select(Subscriber).where(
                 Subscriber.mailing_time == mailing_time
@@ -62,16 +58,16 @@ class Subscribers:
             subscribers = await session.execute(statement)
             return subscribers.scalars().all()
 
-    async def is_user_in_subscription(self, user_id):
+    async def exists(self, user_id):
         """Проверяем наличие пользователя в подписке"""
         async with async_session() as session:
             subscriber = await session.get(Subscriber, user_id)
             return subscriber is not None
 
-    async def get_subscriber_mailing_time(self, subscriber_id):
-        """Получение времени рассылки конкретного подписчика"""
+    async def time(self, user_id):
+        """Время рассылки данного подписчика"""
         async with async_session() as session:
-            subscriber = await session.get(Subscriber, subscriber_id)
+            subscriber = await session.get(Subscriber, user_id)
             return subscriber.mailing_time
 
 
