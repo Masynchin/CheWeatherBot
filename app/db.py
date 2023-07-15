@@ -32,24 +32,24 @@ async_session = sessionmaker(
 class Subscribers:
     """БД с подписчиками"""
 
-    async def add(self, subscriber_id, mailing_time):
+    async def add(self, user_id, mailing_time):
         """Регистрация в БД нового подписчика рассылки"""
         async with async_session() as session:
-            subscriber = Subscriber(id=subscriber_id, mailing_time=mailing_time)
+            subscriber = Subscriber(id=user_id, mailing_time=mailing_time)
             session.add(subscriber)
             await session.commit()
 
-    async def new_time(self, subscriber_id, new_mailing_time):
+    async def new_time(self, user_id, new_mailing_time):
         """Меняем время рассылки подписчика"""
         async with async_session() as session:
-            subscriber = await session.get(Subscriber, subscriber_id)
+            subscriber = await session.get(Subscriber, user_id)
             subscriber.mailing_time = new_mailing_time
             await session.commit()
 
-    async def delete(self, subscriber_id):
+    async def delete(self, user_id):
         """Удаление подписчика из БД"""
         async with async_session() as session:
-            subscriber = await session.get(Subscriber, subscriber_id)
+            subscriber = await session.get(Subscriber, user_id)
             await session.delete(subscriber)
             await session.commit()
 
@@ -68,10 +68,10 @@ class Subscribers:
             subscriber = await session.get(Subscriber, user_id)
             return subscriber is not None
 
-    async def time(self, subscriber_id):
+    async def time(self, user_id):
         """Получение времени рассылки конкретного подписчика"""
         async with async_session() as session:
-            subscriber = await session.get(Subscriber, subscriber_id)
+            subscriber = await session.get(Subscriber, user_id)
             return subscriber.mailing_time
 
 
