@@ -1,5 +1,3 @@
-from app.db import create_db
-
 from aiohttp.web import Application, run_app
 from aiogram.webhook.aiohttp_server import (
     SimpleRequestHandler,
@@ -34,7 +32,6 @@ def on_startup(bot, webhook_url, tasks):
     async def on_startup():
         """Функция перед запуском бота в режиме webhook"""
         await bot.set_webhook(webhook_url, drop_pending_updates=True)
-        await create_db()
         for task in tasks:
             task.run(bot)
 
