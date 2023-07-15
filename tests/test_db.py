@@ -4,7 +4,7 @@ import datetime as dt
 import pytest
 import pytest_asyncio
 
-from app.db import Subscribers, async_session, create_db
+from app.db import AiosqliteConnection, Subscribers, create_db
 
 
 mailing_time = dt.time(hour=18, minute=45)
@@ -20,8 +20,8 @@ def event_loop():
 @pytest_asyncio.fixture
 async def session():
     """Инициализация ДБ для тестов этого модуля"""
-    async with async_session() as session:
-        await create_db()
+    async with AiosqliteConnection(":memory:") as session:
+        await create_db(session)
         yield session
 
 

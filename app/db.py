@@ -1,29 +1,39 @@
 """База данных подписчиков"""
 
-from sqlalchemy import Column, Integer, Time
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.future import select
-from sqlalchemy.orm import declarative_base, sessionmaker
+import datetime as dt
+import sqlite3
 
-from app import config
+import aiosqlite
 
 
-engine = create_async_engine(config.DATABASE_URL)
-Base = declarative_base()
+def AiosqliteConnection(path):
+    """Расширение aiosqlite для поддержки `datetime.time`.
+    
+    Время подписчика хранится как datetime.time. Sqlite3 не поддерживает
+    этот тип. SqlAlchemy под капотом добавляла поддержку, но не aiosqlite.
+    Данная процедура оборачивает `aiosqlite.connect`, добавляя адаптер
+    и конвертер для `datetime.time`.
 
+    Пример использования:
 
-class Subscriber(Base):
-    """Модель подписчика рассылки"""
+    - Было:
 
-    __tablename__ = "subscribers"
+    ~~~python
+    async with aiosqlite.connect(path) as conn: ...
+    ~~~
 
-    id = Column(Integer, primary_key=True)
-    mailing_time = Column(Time, nullable=False)
+    - Стало:
 
+    ~~~python
+    async with AiosqliteConnection(path) as conn: ...
+    ~~~
+    """
+    aiosqlite.register_adapter(dt.time, dt.time.isoformat)
+    aiosqlite.register_converter(
+        "time", lambda b: dt.time.fromisoformat(b.decode())
+    )
+    return aiosqlite.connect(path, detect_types=sqlite3.PARSE_DECLTYPES)
 
-async_session = sessionmaker(
-    bind=engine, expire_on_commit=False, class_=AsyncSession
-)
 
 class Subscribers:
     """БД с подписчиками"""
@@ -33,42 +43,59 @@ class Subscribers:
 
     async def add(self, user_id, mailing_time):
         """Регистрация в БД нового подписчика рассылки"""
-        subscriber = Subscriber(id=user_id, mailing_time=mailing_time)
-        self.session.add(subscriber)
+        await self.session.execute(
+            "INSERT INTO subscribers(id, mailing_time) VALUES(?, ?)",
+            (user_id, mailing_time),
+        )
         await self.session.commit()
 
     async def new_time(self, user_id, new_mailing_time):
         """Меняем время рассылки подписчика"""
-        subscriber = await self.session.get(Subscriber, user_id)
-        subscriber.mailing_time = new_mailing_time
+        await self.session.execute(
+            "UPDATE subscribers SET mailing_time = ? WHERE id = ?",
+            (new_mailing_time, user_id),
+        )
         await self.session.commit()
 
     async def delete(self, user_id):
         """Удаление подписчика из БД"""
-        subscriber = await self.session.get(Subscriber, user_id)
-        await self.session.delete(subscriber)
+        await self.session.execute(
+            "DELETE FROM subscribers WHERE id = ?", (user_id,)
+        )
         await self.session.commit()
 
     async def of_time(self, mailing_time):
         """Все подписчики с данным временем рассылки"""
-        statement = select(Subscriber).where(
-            Subscriber.mailing_time == mailing_time
-        )
-        subscribers = await self.session.execute(statement)
-        return subscribers.scalars().all()
+        async with self.session.execute(
+            "SELECT * FROM subscribers WHERE mailing_time = ?",
+            (mailing_time,),
+        ) as cursor:
+            return await cursor.fetchall()
 
     async def exists(self, user_id):
         """Проверяем наличие пользователя в подписке"""
-        subscriber = await self.session.get(Subscriber, user_id)
-        return subscriber is not None
+        async with self.session.execute(
+            "SELECT * FROM subscribers WHERE id = ?", (user_id,)
+        ) as cursor:
+            return (await cursor.fetchone()) is not None
 
     async def time(self, user_id):
         """Время рассылки данного подписчика"""
-        subscriber = await self.session.get(Subscriber, user_id)
-        return subscriber.mailing_time
+        async with self.session.execute(
+            "SELECT mailing_time FROM subscribers WHERE id = ?", (user_id,)
+        ) as cursor:
+            return (await cursor.fetchone())[0]
 
 
-async def create_db():
+async def create_db(session):
     """Инициализируем БД"""
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    await session.execute(
+        """
+        CREATE TABLE subscribers (
+            id INTEGER NOT NULL,
+            mailing_time TIME NOT NULL,
+            PRIMARY KEY (id)
+        );
+        """
+    )
+    await session.commit()
