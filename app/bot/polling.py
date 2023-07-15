@@ -1,3 +1,5 @@
+from contextlib import suppress
+
 from app.db import create_db
 
 
@@ -8,9 +10,10 @@ class Polling:
         self.dp = dp
         self.tasks = tasks
 
-    def run(self, bot):
+    async def run(self, bot):
         self.dp.startup.register(on_startup(bot, self.tasks))
-        self.dp.run_polling(bot)
+        with suppress(KeyboardInterrupt, SystemExit):
+            await self.dp.start_polling(bot)
 
 
 def on_startup(bot, tasks):

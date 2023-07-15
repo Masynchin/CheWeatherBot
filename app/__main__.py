@@ -1,3 +1,5 @@
+import asyncio
+
 from app.bot.main import main
 
-main()
+asyncio.run(main())

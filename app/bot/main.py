@@ -37,7 +37,7 @@ dp = Dispatcher(storage=MemoryStorage())
 
 
 @logger.catch(level="CRITICAL")
-def main():
+async def main():
     """Главная функция, отвечающая за запуск бота и рассылки"""
     bot = Bot(token=config.BOT_TOKEN)
     dp = Dispatcher(storage=MemoryStorage())
@@ -71,6 +71,6 @@ def main():
         route.register(dp)
 
     if config.RUN_TYPE == "polling":
-        Polling(dp, tasks=[task]).run(bot)
+        await Polling(dp, tasks=[task]).run(bot)
     elif config.RUN_TYPE == "webhook":
         ...
