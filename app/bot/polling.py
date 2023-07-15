@@ -13,6 +13,7 @@ class Polling:
 
 def on_startup(bot, tasks):
     """Функция перед запуском бота в режиме polling"""
+
     async def on_startup():
         await create_db()
         for task in tasks:

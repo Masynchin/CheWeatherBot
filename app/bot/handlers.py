@@ -19,6 +19,7 @@ from app.logger import logger
 
 # START И ПОМОЩЬ
 
+
 class Welcome(MessageRoute):
     """Приветсвенное сообщение с клавиатурой и информацией о командах"""
 
@@ -50,6 +51,7 @@ class Info(MessageRoute):
 
 
 # ПРОГНОЗ
+
 
 class Weather(MessageRoute):
     """Отправка текущей погоды"""
@@ -229,6 +231,7 @@ class HandleExactDayForecast(CallbackRoute):
 
 
 # О РАССЫЛКЕ
+
 
 class MailingInfo(MessageRoute):
     """Отправка информации о подписке пользователя на рассылку.
@@ -410,6 +413,7 @@ class CancelMailing(MessageRoute):
 
 
 # ОБРАБОТКА ОШИБОК
+
 
 class Errors(ErrorRoute):
     """Обработка непредвиденных ошибок"""

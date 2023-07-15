@@ -27,7 +27,7 @@ class MailingTask:
             db,
             weather,
             utils.round_time_by_fifteen_minutes(CheDatetime.current()),
-            dt.timedelta(minutes=15)
+            dt.timedelta(minutes=15),
         )
 
     def run(self, bot):

@@ -32,7 +32,7 @@ from abc import ABC, abstractmethod
 
 class Route(ABC):
     """Абстрактный класс хендлера.
-    
+
     Наследник должен переопределить метод `register`.
     """
 
@@ -47,25 +47,27 @@ class Route(ABC):
 
 class MessageRoute(Route):
     """Хендлер событий `Message`.
-    
+
     Аналог `@router.message()`.
     """
 
     def register(self, router):
         router.message(self.filter)(self.handler)
 
+
 class CallbackRoute(Route):
     """Хендлер событий `CallbackQuery`.
-    
+
     Аналог `@router.callback_query()`.
     """
 
     def register(self, router):
         router.callback_query(self.filter)(self.handler)
 
+
 class ErrorRoute(Route):
     """Хендлер событий `Exception`.
-    
+
     Аналог `@router.errors()`.
     """
 
