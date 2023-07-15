@@ -2,19 +2,19 @@ import asyncio
 import copy
 import json
 import datetime as dt
-from functools import lru_cache
-from unittest.mock import patch
 
 import pytest
+from async_lru import alru_cache
 
 from app.weather import OwmWeather
 from app.weather_classes import WeatherResponse
 
 
-@lru_cache
-def mock_response():
-    with open("tests/response.json", encoding="u8") as f:
-        return WeatherResponse(**json.load(f))
+class FakeApi:
+    @alru_cache
+    async def __call__(self):
+        with open("tests/response.json", encoding="u8") as f:
+            return WeatherResponse(**json.load(f))
 
 
 def _create_timestamp(timestamp):
@@ -30,9 +30,8 @@ def timestamp():
 
 
 @pytest.mark.asyncio
-@patch("app.weather.OwmWeather.weather", return_value=mock_response())
-async def test_no_exceptions_at_format(_mock, timestamp):
-    weather = OwmWeather("", 1)
+async def test_no_exceptions_at_format(timestamp):
+    weather = OwmWeather(FakeApi())
 
     forecasts = await asyncio.gather(
         weather.current(),
@@ -45,9 +44,8 @@ async def test_no_exceptions_at_format(_mock, timestamp):
 
 
 @pytest.mark.asyncio
-@patch("app.weather.OwmWeather.weather", return_value=mock_response())
-async def test_templates_depends_on_wind_gust_existence(_mock, timestamp):
-    weather = OwmWeather("", 1)
+async def test_templates_depends_on_wind_gust_existence(timestamp):
+    weather = OwmWeather(FakeApi())
 
     forecasts = await asyncio.gather(
         weather.current(),
@@ -66,9 +64,8 @@ async def test_templates_depends_on_wind_gust_existence(_mock, timestamp):
 
 
 @pytest.mark.asyncio
-@patch("app.weather.OwmWeather.weather", return_value=mock_response())
-async def test_stickers(_mock, timestamp):
-    weather = OwmWeather("", 1)
+async def test_stickers(timestamp):
+    weather = OwmWeather(FakeApi())
 
     forecasts = await asyncio.gather(
         weather.current(),

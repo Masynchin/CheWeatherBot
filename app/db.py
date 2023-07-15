@@ -28,47 +28,44 @@ async_session = sessionmaker(
 class Subscribers:
     """БД с подписчиками"""
 
+    def __init__(self, session):
+        self.session = session
+
     async def add(self, user_id, mailing_time):
         """Регистрация в БД нового подписчика рассылки"""
-        async with async_session() as session:
-            subscriber = Subscriber(id=user_id, mailing_time=mailing_time)
-            session.add(subscriber)
-            await session.commit()
+        subscriber = Subscriber(id=user_id, mailing_time=mailing_time)
+        self.session.add(subscriber)
+        await self.session.commit()
 
     async def new_time(self, user_id, new_mailing_time):
         """Меняем время рассылки подписчика"""
-        async with async_session() as session:
-            subscriber = await session.get(Subscriber, user_id)
-            subscriber.mailing_time = new_mailing_time
-            await session.commit()
+        subscriber = await self.session.get(Subscriber, user_id)
+        subscriber.mailing_time = new_mailing_time
+        await self.session.commit()
 
     async def delete(self, user_id):
         """Удаление подписчика из БД"""
-        async with async_session() as session:
-            subscriber = await session.get(Subscriber, user_id)
-            await session.delete(subscriber)
-            await session.commit()
+        subscriber = await self.session.get(Subscriber, user_id)
+        await self.session.delete(subscriber)
+        await self.session.commit()
 
     async def of_time(self, mailing_time):
         """Все подписчики с данным временем рассылки"""
-        async with async_session() as session:
-            statement = select(Subscriber).where(
-                Subscriber.mailing_time == mailing_time
-            )
-            subscribers = await session.execute(statement)
-            return subscribers.scalars().all()
+        statement = select(Subscriber).where(
+            Subscriber.mailing_time == mailing_time
+        )
+        subscribers = await self.session.execute(statement)
+        return subscribers.scalars().all()
 
     async def exists(self, user_id):
         """Проверяем наличие пользователя в подписке"""
-        async with async_session() as session:
-            subscriber = await session.get(Subscriber, user_id)
-            return subscriber is not None
+        subscriber = await self.session.get(Subscriber, user_id)
+        return subscriber is not None
 
     async def time(self, user_id):
         """Время рассылки данного подписчика"""
-        async with async_session() as session:
-            subscriber = await session.get(Subscriber, user_id)
-            return subscriber.mailing_time
+        subscriber = await self.session.get(Subscriber, user_id)
+        return subscriber.mailing_time
 
 
 async def create_db():
