@@ -30,9 +30,7 @@ async def test_add():
     await db.add(subscriber_id=0, mailing_time=mailing_time)
 
     assert await db.exists(user_id=0)
-    assert (
-        await db.time(subscriber_id=0) == mailing_time
-    )
+    assert await db.time(subscriber_id=0) == mailing_time
     assert len(await db.of_time(mailing_time)) == 1
 
     await db.delete(subscriber_id=0)
@@ -43,18 +41,11 @@ async def test_change_subscriber_time():
     db = Subscribers()
 
     await db.add(subscriber_id=0, mailing_time=mailing_time)
-    assert (
-        await db.time(subscriber_id=0) == mailing_time
-    )
+    assert await db.time(subscriber_id=0) == mailing_time
 
     new_mailing_time = dt.time(hour=19, minute=45)
-    await db.new_time(
-        subscriber_id=0, new_mailing_time=new_mailing_time
-    )
-    assert (
-        await db.time(subscriber_id=0)
-        == new_mailing_time
-    )
+    await db.new_time(subscriber_id=0, new_mailing_time=new_mailing_time)
+    assert await db.time(subscriber_id=0) == new_mailing_time
 
     await db.delete(subscriber_id=0)
 
