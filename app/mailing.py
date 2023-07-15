@@ -23,7 +23,7 @@ async def send_mailing(bot, db, weather, mailing_time):
     forecast = await weather.current()
     message_text = templates.MAILING_MESSAGE.format(forecast.format())
     sticker = forecast.sticker()
-    subscribers = await db.get_subscribers_by_mailing_time(mailing_time)
+    subscribers = await db.of_time(mailing_time)
 
     for subscriber in subscribers:
         user_id = subscriber.id
@@ -50,9 +50,9 @@ async def get_user_mailing_info(db, user_id):
     Если пользователь есть в базе данных, то возвращаем его время подписки.
     Если нет, то возращаем шаблон с тем, что его нет в рассылке
     """
-    is_subscriber = await db.is_user_in_subscription(user_id)
+    is_subscriber = await db.exists(user_id)
     if not is_subscriber:
         return templates.USER_NOT_IN_MAILING
 
-    time = await db.get_subscriber_mailing_time(user_id)
+    time = await db.time(user_id)
     return templates.USER_IN_MAILING.format(time.hour, time.minute)

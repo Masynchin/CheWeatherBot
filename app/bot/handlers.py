@@ -313,7 +313,7 @@ class SetMinuteMailing(CallbackRoute):
         data = await state.get_data()
         user_id = call.from_user.id
         time = dt.time(hour=data["hour"], minute=int(call.data))
-        await self.db.new_subscriber(user_id, time)
+        await self.db.add(user_id, time)
 
         await state.clear()
         await call.message.delete()  # удаляем клавитуру выбора минуты расылки
@@ -384,7 +384,7 @@ class ChangeMinuteMailing(CallbackRoute):
         data = await state.get_data()
         user_id = call.from_user.id
         time = dt.time(hour=data["hour"], minute=int(call.data))
-        await self.db.change_subscriber_mailing_time(user_id, time)
+        await self.db.new_time(user_id, time)
 
         await state.clear()
         await call.message.delete()
@@ -407,7 +407,7 @@ class CancelMailing(MessageRoute):
 
     async def handle(self, message):
         user_id = message.from_user.id
-        await self.db.delete_subscriber(user_id)
+        await self.db.delete(user_id)
         await message.answer("Успешно удалено из подписки")
         logger.info("Пользователь {} удалён из подписки", user_id)
 
