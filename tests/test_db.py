@@ -2,8 +2,9 @@ import asyncio
 import datetime as dt
 
 import pytest
+import pytest_asyncio
 
-from app.db import Subscribers, create_db
+from app.db import Subscribers, async_session, create_db
 
 
 mailing_time = dt.time(hour=18, minute=45)
@@ -16,16 +17,17 @@ def event_loop():
     loop.close()
 
 
-@pytest.fixture(scope="module", autouse=True)
-async def init_db():
+@pytest_asyncio.fixture
+async def session():
     """Инициализация ДБ для тестов этого модуля"""
-    await create_db()
-    yield
+    async with async_session() as session:
+        await create_db()
+        yield session
 
 
 @pytest.mark.asyncio
-async def test_add():
-    db = Subscribers()
+async def test_add(session):
+    db = Subscribers(session)
 
     await db.add(user_id=0, mailing_time=mailing_time)
 
@@ -37,8 +39,8 @@ async def test_add():
 
 
 @pytest.mark.asyncio
-async def test_change_subscriber_time():
-    db = Subscribers()
+async def test_change_subscriber_time(session):
+    db = Subscribers(session)
 
     await db.add(user_id=0, mailing_time=mailing_time)
     assert await db.time(user_id=0) == mailing_time
@@ -51,8 +53,8 @@ async def test_change_subscriber_time():
 
 
 @pytest.mark.asyncio
-async def test_delete():
-    db = Subscribers()
+async def test_delete(session):
+    db = Subscribers(session)
 
     before = await db.of_time(mailing_time)
     await db.add(user_id=0, mailing_time=mailing_time)
