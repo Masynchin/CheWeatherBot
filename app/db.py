@@ -1,8 +1,4 @@
-"""Модуль, отвещающий за всю работу с базой данных.
-
-Содержит в себе модель подписчика рассылки, а также функции,
-отправляющие запросы напрямую в БД
-"""
+"""База данных подписчиков"""
 
 from sqlalchemy import Column, Integer, Time
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -54,7 +50,7 @@ class Subscribers:
             await session.commit()
 
     async def of_time(self, mailing_time):
-        """Получение всех подписчиков с определённым временем рассылки"""
+        """Все подписчики с данным временем рассылки"""
         async with async_session() as session:
             statement = select(Subscriber).where(
                 Subscriber.mailing_time == mailing_time
@@ -69,7 +65,7 @@ class Subscribers:
             return subscriber is not None
 
     async def time(self, user_id):
-        """Получение времени рассылки конкретного подписчика"""
+        """Время рассылки данного подписчика"""
         async with async_session() as session:
             subscriber = await session.get(Subscriber, user_id)
             return subscriber.mailing_time

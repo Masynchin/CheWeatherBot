@@ -31,7 +31,7 @@ class MailingTask:
         )
 
     def run(self, bot):
-        """Добавляем асинхронную рассылку в основной event loop"""
+        """Добавляем задачу рассылки в основной event loop"""
         asyncio.create_task(
             mailing.mailing(bot, self.db, self.weather, self.times)
         )

@@ -1,3 +1,5 @@
+"""Хендлеры - логика работы бота"""
+
 import datetime as dt
 
 from aiogram.filters import (

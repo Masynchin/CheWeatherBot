@@ -2,6 +2,8 @@ from app.db import create_db
 
 
 class Polling:
+    """Запуск бота в режиме polling"""
+
     def __init__(self, dp, tasks):
         self.dp = dp
         self.tasks = tasks

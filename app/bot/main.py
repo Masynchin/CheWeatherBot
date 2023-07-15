@@ -1,8 +1,4 @@
-"""Основной модуль, отвещающий за работу с telegram.
-
-Работа с пользователем - позволяем получить прогноз погоды,
-зарегистрироваться в рассылке, отписаться от рассылки
-"""
+"""Инициализация и запуск бота"""
 
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage

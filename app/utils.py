@@ -4,7 +4,7 @@ import datetime as dt
 
 
 def round_time_by_hours(time):
-    """Округляем время до кратного часу.
+    """Время, округлённое до часа.
 
     Например: 23.44.123456 -> 23.00.00
     """
@@ -12,13 +12,13 @@ def round_time_by_hours(time):
 
 
 def get_next_twelve_hours(start_from):
-    """Получаем следующие 12 часов в виде HH:MM"""
+    """Следующие 12 часов в виде HH:MM"""
     start_hour = round_time_by_hours(start_from)
     return [start_hour + dt.timedelta(hours=i) for i in range(1, 13)]
 
 
 def round_time_by_fifteen_minutes(time):
-    """Округляем время до кратного 15 минутам.
+    """Время, кратное 15 минутам.
 
     Например: 15.37.123456 -> 15.30.00
     """
@@ -26,5 +26,5 @@ def round_time_by_fifteen_minutes(time):
 
 
 def get_next_seven_days(start_from):
-    """Получаем следующие семь дней начиная от завтрашнего"""
+    """Следующие семь дней начиная с завтрашнего"""
     return [start_from + dt.timedelta(days=i) for i in range(1, 8)]

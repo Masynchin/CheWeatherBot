@@ -1,4 +1,4 @@
-"""Модуль со стикерами, прикрепляемыми к прогнозам погоды.
+"""Стикеры, прикрепляемые к прогнозам погоды.
 
 Все стикеры, разбитые по типу погоды, находятся в файле stickers.json.
 Также там находятся стикеры нераспознанной погоды (_UNDEFINED_WEATHER_STICKERS)
@@ -23,10 +23,7 @@ _WEATHER_TYPES = _STICKERS["weatherTypes"]
 
 
 def get_by_weather(weather_type):
-    """
-    Получаем случайный стикер по типу погоды,
-    либо отправляем стикер нераспознанной погоды
-    """
+    """Случайный стикер по типу погоды, либо стикер нераспознанной погоды"""
     if weather_type not in _WEATHER_TYPES:
         _log_undefined_weather_type(weather_type)
         return choice(_UNDEFINED_WEATHER_STICKERS)
@@ -34,6 +31,6 @@ def get_by_weather(weather_type):
 
 
 def _log_undefined_weather_type(weather_type):
-    """Запись типа погоды для которого нет стикера"""
+    """Запись типа погоды, для которого нет стикера"""
     with open("undefined_weather_types.txt", "a") as f:
         f.write(f"{weather_type}\n")
