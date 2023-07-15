@@ -48,7 +48,7 @@
 
 ### Хранение подписчиков рассылки
 
-Используется SQLite. В качестве адаптера используется [sqlalchemy](https://github.com/sqlalchemy/sqlalchemy).
+Используется SQLite. В качестве асинхронной обёртки используется [aiosqlite](https://github.com/omnilib/aiosqlite).
 
 ## Установка и запуск
 
@@ -56,7 +56,7 @@
 
 - `BOT_TOKEN` - токен telegram бота
 - `WEATHER_API_KEY` - ключ с сайта openweathermap.org (тариф One Call API)
-- `DATABASE_URL` - путь к базе данных (по умолчанию `sqlite+aiosqlite:///db/subscribers.db`)
+- `DATABASE_URL` - путь к базе данных (по умолчанию `subscribers.db`)
 - `RUN_TYPE` - режим работы бота (`polling` (по умолчанию) | `webhook`)
 
 ### Запуск вручную
