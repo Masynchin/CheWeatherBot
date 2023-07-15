@@ -1,9 +1,7 @@
 """API погоды"""
 
-import time
 from urllib.parse import urlencode
 
-import aiohttp
 from async_lru import alru_cache
 
 from app.forecasts import CurrentForecast, DailyForecast, HourlyForecast
@@ -13,17 +11,21 @@ from app.weather_classes import WeatherResponse
 class OwmWeather:
     """Погода с OpenWeatherMap"""
 
-    def __init__(self, url, cache_time):
-        self.url = url
-        self.cache_time = cache_time
+    def __init__(self, api):
+        self.api = api
 
     @classmethod
-    def default(cls, url):
+    def from_url(cls, url, session, cache_time):
+        """Со ссылкой и временем жизни кеша"""
+        return cls(OwmApi(url, session, cache_time))
+
+    @classmethod
+    def default(cls, url, session):
         """Со значением времени жизни кеша по умолчанию"""
-        return cls(url, cache_time=300)
+        return cls.from_url(url, session, cache_time=300)
 
     @classmethod
-    def from_geo(cls, lat, lon, api_key):
+    def from_geo(cls, lat, lon, api_key, session):
         """Для конкретного места по координатам"""
         url = "https://api.openweathermap.org/data/2.5/onecall?" + urlencode({
             "lat": lat,
@@ -33,43 +35,41 @@ class OwmWeather:
             "exclude": "minutely",
             "lang": "ru",
         })
-        return cls.default(url)
+        return cls.default(url, session)
 
     @classmethod
-    def for_che(cls, api_key):
+    def for_che(cls, api_key, session):
         """Для Череповца"""
-        return cls.from_geo(lat=59.09, lon=37.91, api_key=api_key)
-
-    async def weather(self):
-        """Кешированная погода с OpenWeatherMap"""
-        return await _get_weather(self.url, time.time() // self.cache_time)
+        return cls.from_geo(
+            lat=59.09, lon=37.91, api_key=api_key, session=session
+        )
 
     async def current(self):
         """Текущая погода"""
-        weather = await self.weather()
+        weather = await self.api()
         return CurrentForecast(weather.current, weather.alerts)
 
     async def hourly(self, timestamp):
         """Прогноз на час"""
-        weather = await self.weather()
+        weather = await self.api()
         forecast = _next(weather.hourly, timestamp)
         return HourlyForecast(forecast, weather.alerts)
 
     async def exact_hour(self, hour):
         """Прогноз на конкретный час"""
-        weather = await self.weather()
+        weather = await self.api()
         forecast = _exact_hour(weather.hourly, hour)
         return HourlyForecast(forecast, weather.alerts)
 
     async def daily(self, timestamp):
         """Прогноз на день"""
-        weather = await self.weather()
+        weather = await self.api()
         forecast = _next(weather.daily, timestamp)
         return DailyForecast(forecast, weather.alerts)
 
     async def exact_day(self, day):
         """Получение прогноза в конкретный день"""
-        weather = await self.weather()
+        weather = await self.api()
         forecast = _exact_day(weather.daily, day)
         return DailyForecast(forecast, weather.alerts)
 
@@ -101,10 +101,18 @@ def _exact_day(forecasts, day):
             return forecast
 
 
-@alru_cache(maxsize=1)
-async def _get_weather(url, time):
-    """Кешированный прогноз погоды в виде WeatherResponse"""
-    async with aiohttp.ClientSession() as session:
+def OwmApi(url, session, cache_time):
+    """OpenWeatherMap API.
+
+    Функция, а не класс, потому что не понимаю,
+    как красиво через класс сделать кеширование
+    """
+
+    @alru_cache(maxsize=1, ttl=cache_time)
+    async def request():
+        """Кешированный прогноз погоды в виде WeatherResponse"""
         async with session.get(url) as response:
             data = await response.json()
             return WeatherResponse(**data)
+
+    return request

@@ -2,6 +2,7 @@
 
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
+import aiohttp
 
 from app import config
 from app.bot.handlers import (
@@ -44,9 +45,9 @@ async def main():
 
     logger.info("Запуск")
 
-    async with async_session() as session:
+    async with async_session() as session, aiohttp.ClientSession() as session:
         db = Subscribers(session)
-        weather = OwmWeather.for_che(config.WEATHER_API_KEY)
+        weather = OwmWeather.for_che(config.WEATHER_API_KEY, session)
         task = MailingTask.default(db, weather)
         routes = [
             Welcome(),
