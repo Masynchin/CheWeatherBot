@@ -53,7 +53,7 @@ class Info(MessageRoute):
 # ПРОГНОЗ
 
 
-class Weather(MessageRoute):
+class CurrentWeather(MessageRoute):
     """Отправка текущей погоды"""
 
     def __init__(self, weather):
@@ -101,7 +101,7 @@ class ChooseForecastHour(StatesGroup):
     hour = State()
 
 
-class ExactHourForecast(MessageRoute):
+class ExactHourOptions(MessageRoute):
     """
     Пользователь нажал на кнопку прогноза в конкретный час.
     Отправляем клавиатуру с двенадцатью ближайшими часами
@@ -123,7 +123,7 @@ class ExactHourForecast(MessageRoute):
         )
 
 
-class HandleExactHourForecast(CallbackRoute):
+class ExactHourForecast(CallbackRoute):
     """Отправка прогноза на час, выбранный пользователем"""
 
     def __init__(self, weather):
@@ -180,7 +180,7 @@ class ChooseForecastDay(StatesGroup):
     day = State()
 
 
-class SendExactDayForecast(MessageRoute):
+class ExactDayOptions(MessageRoute):
     """
     Пользователь нажал на кнопку прогноза в конкретный день.
     Отправляем клавиатуру со следующими семью днями
@@ -202,7 +202,7 @@ class SendExactDayForecast(MessageRoute):
         )
 
 
-class HandleExactDayForecast(CallbackRoute):
+class ExactDayForecast(CallbackRoute):
     """Отправка прогноза на день, выбранный пользователем"""
 
     def __init__(self, weather):
@@ -299,7 +299,7 @@ class SetMailingHour(CallbackRoute):
         await state.set_state(NewSub.minute)
 
 
-class SetMinuteMailing(CallbackRoute):
+class SetMailingMinute(CallbackRoute):
     """Пользователь выбрал час и минуту рассылки, регистрируем его в БД"""
 
     def __init__(self, db):
@@ -330,7 +330,7 @@ class ChangeTime(StatesGroup):
     minute = State()
 
 
-class ChangeTimeMailing(MessageRoute):
+class ChangeMailingTime(MessageRoute):
     """
     Пользователь решил поменять время рассылки,
     отправляем клавиатуру с выбором нового часа рассылки
@@ -351,7 +351,7 @@ class ChangeTimeMailing(MessageRoute):
         await state.set_state(ChangeTime.hour)
 
 
-class ChangeHourMailing(CallbackRoute):
+class ChangeMailingHour(CallbackRoute):
     """
     После выбора нового часа рассылки отправляем
     клавиатуру с выбором новой минуты рассылки
@@ -370,7 +370,7 @@ class ChangeHourMailing(CallbackRoute):
         )
 
 
-class ChangeMinuteMailing(CallbackRoute):
+class ChangeMailingMinute(CallbackRoute):
     """Пользователь выбрал новые час и минуту рассылки, обновляем его в БД"""
 
     def __init__(self, db):
