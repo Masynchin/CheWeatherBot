@@ -42,12 +42,11 @@ async def test_add(session):
 @pytest.mark.asyncio
 async def test_change_subscriber_time(session):
     db = Subscribers(session)
+    new_mailing_time = dt.time(hour=19, minute=45)
 
     await db.add(user_id=0, mailing_time=mailing_time)
-    assert await db.time(user_id=0) == mailing_time
-
-    new_mailing_time = dt.time(hour=19, minute=45)
     await db.new_time(user_id=0, new_mailing_time=new_mailing_time)
+
     assert await db.time(user_id=0) == new_mailing_time
 
 
@@ -57,7 +56,6 @@ async def test_delete(session):
 
     before = await db.of_time(mailing_time)
     await db.add(user_id=0, mailing_time=mailing_time)
-
     await db.delete(user_id=0)
     after = await db.of_time(mailing_time)
 
