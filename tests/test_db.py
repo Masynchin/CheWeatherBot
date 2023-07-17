@@ -4,7 +4,7 @@ import datetime as dt
 import pytest
 import pytest_asyncio
 
-from app.db import AiosqliteConnection, Subscribers, create_db
+from app.db import AiosqliteConnection, Subscriber, Subscribers, create_db
 
 
 mailing_time = dt.time(hour=18, minute=45)
@@ -33,7 +33,10 @@ async def test_add(session):
 
     assert await db.exists(user_id=0)
     assert await db.time(user_id=0) == mailing_time
-    assert len(list(await db.of_time(mailing_time))) == 1
+    assert (
+        list(await db.of_time(mailing_time))
+        == [Subscriber(id=0, mailing_time=mailing_time)]
+    )
 
     await db.delete(user_id=0)
 
