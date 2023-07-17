@@ -84,7 +84,7 @@ class Subscribers:
             (mailing_time,),
         ) as cursor:
             return starmap(Subscriber, await cursor.fetchall())
-        
+
     async def find(self, user_id):
         """Возможно подписчик, а возможно и нет"""
         async with self.session.execute(
