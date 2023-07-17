@@ -36,7 +36,7 @@ def hour_timestamp():
 @pytest.fixture
 def day_timestamp():
     # один из daily.dt в response.json
-    return _create_timestamp(1641632400)
+    return _create_timestamp(1641632400).date()
 
 
 @pytest.mark.asyncio
