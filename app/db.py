@@ -2,6 +2,8 @@
 
 import datetime as dt
 import sqlite3
+from itertools import starmap
+from typing import NamedTuple
 
 import aiosqlite
 
@@ -33,6 +35,13 @@ def AiosqliteConnection(path):
         "time", lambda b: dt.time.fromisoformat(b.decode())
     )
     return aiosqlite.connect(path, detect_types=sqlite3.PARSE_DECLTYPES)
+
+
+class Subscriber(NamedTuple):
+    """Подписчик"""
+
+    id: int
+    mailing_time: dt.time
 
 
 class Subscribers:
@@ -70,7 +79,7 @@ class Subscribers:
             "SELECT * FROM subscribers WHERE mailing_time = ?",
             (mailing_time,),
         ) as cursor:
-            return await cursor.fetchall()
+            return starmap(Subscriber, await cursor.fetchall())
 
     async def exists(self, user_id):
         """Проверяем наличие пользователя в подписке"""
@@ -91,7 +100,7 @@ async def create_db(session):
     """Инициализируем БД"""
     await session.execute(
         """
-        CREATE TABLE subscribers (
+        CREATE TABLE IF NOT EXISTS subscribers (
             id INTEGER NOT NULL,
             mailing_time TIME NOT NULL,
             PRIMARY KEY (id)

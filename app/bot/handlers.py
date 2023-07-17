@@ -450,7 +450,7 @@ class Errors(ErrorRoute):
     """Обработка непредвиденных ошибок"""
 
     def __init__(self):
-        super().__init__(filter=(lambda: True), handler=self.handle)
+        super().__init__(filter=(lambda *_: True), handler=self.handle)
 
     async def handle(self, update):
         await update.message.answer_sticker(stickers.MAINTAINCE_STICKER)
