@@ -12,7 +12,6 @@ from aiogram.fsm.state import State, StatesGroup
 
 from app.bot.ext import CallbackRoute, ErrorRoute, MessageRoute, Routes
 from app import keyboards
-from app import mailing
 from app import stickers
 from app import templates
 from app.che import CheDate, CheDatetime
@@ -281,8 +280,14 @@ class MailingInfo(MessageRoute):
 
     async def handle(self, message):
         user_id = message.from_user.id
-        mailing_info = await mailing.get_user_mailing_info(self.db, user_id)
-        await message.answer(mailing_info)
+        is_subscriber = await self.db.exists(user_id)
+        if not is_subscriber:
+            await message.answer(templates.USER_NOT_IN_MAILING)
+        else:
+            time = await self.db.time(user_id)
+            await message.answer(
+                templates.USER_IN_MAILING.format(time.hour, time.minute)
+            )
 
 
 class NewSub(StatesGroup):

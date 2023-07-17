@@ -52,17 +52,3 @@ async def unpin_all_and_pin_message(bot, message):
         message_id=message.message_id,
         disable_notification=True,
     )
-
-
-async def get_user_mailing_info(db, user_id):
-    """Статус подписки пользователя.
-
-    Если пользователь есть в базе данных, то возвращаем его время подписки.
-    Если нет, то возращаем шаблон с тем, что его нет в рассылке
-    """
-    is_subscriber = await db.exists(user_id)
-    if not is_subscriber:
-        return templates.USER_NOT_IN_MAILING
-
-    time = await db.time(user_id)
-    return templates.USER_IN_MAILING.format(time.hour, time.minute)
