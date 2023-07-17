@@ -4,7 +4,13 @@ import datetime as dt
 import pytest
 import pytest_asyncio
 
-from app.db import AiosqliteConnection, Subscriber, Subscribers, create_db
+from app.db import (
+    AiosqliteConnection,
+    Subscriber,
+    Subscribers,
+    UserNotFound,
+    create_db,
+)
 
 
 mailing_time = dt.time(hour=18, minute=45)
@@ -34,6 +40,14 @@ async def test_add(session):
 
     assert await db.find(user_id=0) == sub
     assert list(await db.of_time(mailing_time)) == [sub]
+
+
+@pytest.mark.asyncio
+async def test_not_found(session):
+    db = Subscribers(session)
+
+    with pytest.raises(UserNotFound):
+        await db.find(user_id=-1)
 
 
 @pytest.mark.asyncio
