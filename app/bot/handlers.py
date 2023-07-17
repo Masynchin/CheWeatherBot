@@ -14,6 +14,7 @@ from app.bot.ext import CallbackRoute, ErrorRoute, MessageRoute, Routes
 from app import keyboards
 from app import stickers
 from app import templates
+from app.db import UserNotFound
 from app.che import CheDate, CheDatetime
 from app.logger import logger
 
@@ -280,14 +281,14 @@ class MailingInfo(MessageRoute):
 
     async def handle(self, message):
         user_id = message.from_user.id
-        is_subscriber = await self.db.exists(user_id)
-        if not is_subscriber:
-            await message.answer(templates.USER_NOT_IN_MAILING)
-        else:
-            time = await self.db.time(user_id)
+        try:
+            sub = await self.db.find(user_id)
+            time = sub.mailing_time
             await message.answer(
                 templates.USER_IN_MAILING.format(time.hour, time.minute)
             )
+        except UserNotFound:
+            await message.answer(templates.USER_NOT_IN_MAILING)
 
 
 class NewSub(StatesGroup):

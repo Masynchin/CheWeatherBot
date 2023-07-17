@@ -8,6 +8,10 @@ from typing import NamedTuple
 import aiosqlite
 
 
+class UserNotFound(Exception):
+    """Подписчик не найден"""
+
+
 def AiosqliteConnection(path):
     """Расширение aiosqlite для поддержки `datetime.time`.
     
@@ -81,19 +85,16 @@ class Subscribers:
         ) as cursor:
             return starmap(Subscriber, await cursor.fetchall())
 
-    async def exists(self, user_id):
-        """Проверяем наличие пользователя в подписке"""
+    async def find(self, user_id):
+        """Возможно подписчик, а возможно и нет"""
         async with self.session.execute(
             "SELECT * FROM subscribers WHERE id = ?", (user_id,)
         ) as cursor:
-            return (await cursor.fetchone()) is not None
-
-    async def time(self, user_id):
-        """Время рассылки данного подписчика"""
-        async with self.session.execute(
-            "SELECT mailing_time FROM subscribers WHERE id = ?", (user_id,)
-        ) as cursor:
-            return (await cursor.fetchone())[0]
+            sub = await cursor.fetchone()
+            if sub is None:
+                raise UserNotFound(user_id)
+            else:
+                return Subscriber(*sub)
 
 
 async def create_db(session):
