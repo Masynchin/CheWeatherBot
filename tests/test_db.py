@@ -33,7 +33,7 @@ async def test_add(session):
 
     assert await db.exists(user_id=0)
     assert await db.time(user_id=0) == mailing_time
-    assert len(await db.of_time(mailing_time)) == 1
+    assert len(list(await db.of_time(mailing_time))) == 1
 
     await db.delete(user_id=0)
 
@@ -62,4 +62,4 @@ async def test_delete(session):
     await db.delete(user_id=0)
     after = await db.of_time(mailing_time)
 
-    assert before == after
+    assert list(before) == list(after)
