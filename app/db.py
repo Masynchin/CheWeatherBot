@@ -14,7 +14,7 @@ class UserNotFound(Exception):
 
 def AiosqliteConnection(path):
     """Расширение aiosqlite для поддержки `datetime.time`.
-    
+
     Время подписчика хранится как datetime.time. Sqlite3 не поддерживает
     этот тип. SqlAlchemy под капотом добавляла поддержку, но не aiosqlite.
     Данная процедура оборачивает `aiosqlite.connect`, добавляя адаптер

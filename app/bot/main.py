@@ -7,7 +7,6 @@ import aiohttp
 from app import config
 from app.bot.handlers import Logic
 from app.bot.polling import Polling
-from app.bot.webhook import Webhook
 from app.bot.task import MailingTask
 from app.db import AiosqliteConnection, Subscribers, create_db
 from app.logger import logger
