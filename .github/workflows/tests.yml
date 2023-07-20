@@ -1,0 +1,55 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        id: cache
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt', 'requirements-dev.txt') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install -r requirements-dev.txt
+      - name: Lint
+        run: |
+          black --check .
+          ruff check .
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        id: cache
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt', 'requirements-dev.txt') }}
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install -r requirements-dev.txt
+      - name: Test
+        run: pytest .
