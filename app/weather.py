@@ -27,14 +27,16 @@ class OwmWeather:
     @classmethod
     def from_geo(cls, lat, lon, api_key, session):
         """Для конкретного места по координатам"""
-        url = "https://api.openweathermap.org/data/2.5/onecall?" + urlencode({
-            "lat": lat,
-            "lon": lon,
-            "appid": api_key,
-            "units": "metric",
-            "exclude": "minutely",
-            "lang": "ru",
-        })
+        url = "https://api.openweathermap.org/data/2.5/onecall?" + urlencode(
+            {
+                "lat": lat,
+                "lon": lon,
+                "appid": api_key,
+                "units": "metric",
+                "exclude": "minutely",
+                "lang": "ru",
+            }
+        )
         return cls.default(url, session)
 
     @classmethod

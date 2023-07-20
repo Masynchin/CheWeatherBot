@@ -3,10 +3,20 @@ line-length = 79
 
 [tool.ruff]
 select = ["D", "E", "W", "F", "B", "C4", "N"]
-ignore = ["D"]
+ignore = [
+    "D",
+    # Функции и классы имееют сильно больше общего
+    "N812", "N802",
+    # Глупость
+    "N818",
+]
 
 # Same as black
 line-length = 79
+
+[tool.ruff.per-file-ignores]
+# В строковых литералах можно и длинее 79 писать
+"app/templates.py" = ["E501"]
 
 [tool.ruff.pydocstyle]
 convention = "numpy"

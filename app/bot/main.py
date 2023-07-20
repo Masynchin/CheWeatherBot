@@ -7,7 +7,6 @@ import aiohttp
 from app import config
 from app.bot.handlers import Logic
 from app.bot.polling import Polling
-from app.bot.webhook import Webhook
 from app.bot.task import MailingTask
 from app.db import AiosqliteConnection, Subscribers, create_db
 from app.logger import logger
@@ -26,8 +25,9 @@ async def main():
 
     logger.info("Запуск")
 
-    async with AiosqliteConnection(config.DATABASE_URL) as db_session, \
-               aiohttp.ClientSession() as client_session:
+    async with AiosqliteConnection(
+        config.DATABASE_URL
+    ) as db_session, aiohttp.ClientSession() as client_session:
         await create_db(db_session)
         db = Subscribers(db_session)
         weather = OwmWeather.for_che(config.WEATHER_API_KEY, client_session)
