@@ -23,7 +23,7 @@ jobs:
         uses: actions/cache@v3
         id: cache
         with:
-          path: ~/.cache/pip
+          path: ${{ env.pythonLocation }}
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt', 'requirements-dev.txt') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -46,7 +46,7 @@ jobs:
         uses: actions/cache@v3
         id: cache
         with:
-          path: ~/.cache/pip
+          path: ${{ env.pythonLocation }}
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt', 'requirements-dev.txt') }}
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
