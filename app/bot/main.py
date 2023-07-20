@@ -25,8 +25,9 @@ async def main():
 
     logger.info("Запуск")
 
-    async with AiosqliteConnection(config.DATABASE_URL) as db_session, \
-               aiohttp.ClientSession() as client_session:
+    async with AiosqliteConnection(
+        config.DATABASE_URL
+    ) as db_session, aiohttp.ClientSession() as client_session:
         await create_db(db_session)
         db = Subscribers(db_session)
         weather = OwmWeather.for_che(config.WEATHER_API_KEY, client_session)

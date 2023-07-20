@@ -29,15 +29,21 @@ class MainKeyboard(ReplyKeyboardMarkup):
     """Основная клавиатура"""
 
     def __init__(self):
-        super().__init__(keyboard=[
-            [KeyboardButton(text=WEATHER), KeyboardButton(text=HOUR_FORECAST)],
-            [
-                KeyboardButton(text=EXACT_HOUR_FORECAST),
-                KeyboardButton(text=TOMORROW_FORECAST),
+        super().__init__(
+            keyboard=[
+                [
+                    KeyboardButton(text=WEATHER),
+                    KeyboardButton(text=HOUR_FORECAST),
+                ],
+                [
+                    KeyboardButton(text=EXACT_HOUR_FORECAST),
+                    KeyboardButton(text=TOMORROW_FORECAST),
+                ],
+                [KeyboardButton(text=EXACT_DAY_FORECAST)],
+                [KeyboardButton(text=MAILING), KeyboardButton(text=HELP)],
             ],
-            [KeyboardButton(text=EXACT_DAY_FORECAST)],
-            [KeyboardButton(text=MAILING), KeyboardButton(text=HELP)],
-        ], resize_keyboard=True)
+            resize_keyboard=True,
+        )
 
 
 class HourChoiceKeyboard(InlineKeyboardMarkup):
