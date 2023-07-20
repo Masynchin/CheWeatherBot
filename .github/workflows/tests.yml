@@ -30,7 +30,7 @@ jobs:
         run: pip install -r requirements-dev.txt
       - name: Lint
         run: |
-          black --diff --check .
+          black --check .
           ruff check .
 
   test:
