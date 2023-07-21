@@ -3,6 +3,7 @@
 from urllib.parse import urlencode
 
 from async_lru import alru_cache
+from placeholder import _
 
 from app.forecasts import CurrentForecast, DailyForecast, HourlyForecast
 from app.weather_classes import WeatherResponse
@@ -84,9 +85,8 @@ def _next(forecasts, timestamp):
     те, что не раньше текущего момента (в запросе могут попасться
     прогнозы на дату раньше текущей), и выбираем среди них наименьший
     """
-    future_forecasts = filter(lambda f: f.timestamp > timestamp, forecasts)
-    nearest_forecast = min(future_forecasts, key=lambda f: f.timestamp)
-    return nearest_forecast
+    key = _.timestamp
+    return min(filter(key > timestamp, forecasts), key=key)
 
 
 def _exact_hour(forecasts, hour):
