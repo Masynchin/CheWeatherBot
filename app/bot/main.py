@@ -13,10 +13,6 @@ from app.logger import logger
 from app.weather import OwmWeather
 
 
-bot = Bot(token=config.BOT_TOKEN)
-dp = Dispatcher(storage=MemoryStorage())
-
-
 @logger.catch(level="CRITICAL")
 async def main():
     """Главная функция, отвечающая за запуск бота и рассылки"""
