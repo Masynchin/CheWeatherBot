@@ -34,7 +34,7 @@ INFO = (
 
 USER_IN_MAILING = (
     "Вы зарегистрированы в подписке\n"
-    "Ваше время - {}:{:02}\n\n"
+    "Ваше время - {:%-H:%M}\n\n"
     "Поменять время - /change_time_mailing\n"
     "Отказаться от подписки - /cancel_mailing"
 )
@@ -44,8 +44,8 @@ USER_NOT_IN_MAILING = (
     "Вы можете подписаться на неё по команде /subscribe_to_mailing"
 )
 
-USER_SUBSCRIBED = "Вы подписались на рассылку по времени {}:{:02}"
-USER_CHANGED_MAILING_TIME = "Вы изменили время рассылки на {}:{:02}"
+USER_SUBSCRIBED = "Вы подписались на рассылку по времени {:%-H:%M}"
+USER_CHANGED_MAILING_TIME = "Вы изменили время рассылки на {:%-H:%M}"
 
 WEATHER = (
     "{forecast.weather_type.description}\n\n"

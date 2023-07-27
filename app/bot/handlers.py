@@ -284,9 +284,7 @@ class MailingInfo(MessageRoute):
         try:
             sub = await self.db.find(user_id)
             time = sub.mailing_time
-            await message.answer(
-                templates.USER_IN_MAILING.format(time.hour, time.minute)
-            )
+            await message.answer(templates.USER_IN_MAILING.format(time))
         except UserNotFound:
             await message.answer(templates.USER_NOT_IN_MAILING)
 
@@ -354,9 +352,7 @@ class SetMailingMinute(CallbackRoute):
 
         await state.clear()
         await call.message.delete()  # удаляем клавитуру выбора минуты расылки
-        await call.message.answer(
-            templates.USER_SUBSCRIBED.format(time.hour, time.minute)
-        )
+        await call.message.answer(templates.USER_SUBSCRIBED.format(time))
         logger.info("Пользователь {} внесён в рассылку", user_id)
 
 
@@ -426,7 +422,7 @@ class ChangeMailingMinute(CallbackRoute):
         await state.clear()
         await call.message.delete()
         await call.message.answer(
-            templates.USER_CHANGED_MAILING_TIME.format(time.hour, time.minute),
+            templates.USER_CHANGED_MAILING_TIME.format(time),
         )
         logger.info("Пользователь {} изменил время рассылки", user_id)
 
